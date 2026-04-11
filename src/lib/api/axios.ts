@@ -1,6 +1,60 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
+import { useAuthStore } from '@/features/auth/store/useAuthStore'
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || ''
+
+type UnauthorizedHandler = () => void
+
+let unauthorizedHandler: UnauthorizedHandler | null = null
+
+export const setUnauthorizedHandler = (handler: UnauthorizedHandler) => {
+  unauthorizedHandler = handler
+}
+
+export const clearUnauthorizedHandler = () => {
+  unauthorizedHandler = null
+}
+
+function resolveRequestUrl(error: AxiosError): string {
+  const raw = error.config?.url || ''
+  return String(raw).toLowerCase()
+}
+
+function hasAuthTokenInRequest(error: AxiosError): boolean {
+  const header = error.config?.headers?.Authorization || error.config?.headers?.authorization
+  return Boolean(header)
+}
+
+function hasAuthCode(error: AxiosError): boolean {
+  const code = (error.response?.data as { errors?: Array<{ code?: string }> } | undefined)?.errors?.[0]
+    ?.code
+  return Boolean(code && String(code).startsWith('AUTH_'))
+}
+
+function shouldClearSessionOnUnauthorized(error: AxiosError): boolean {
+  if (error.response?.status !== 401) {
+    return false
+  }
+
+  const url = resolveRequestUrl(error)
+  if (url.includes('/auth/login')) {
+    return false
+  }
+
+  if (url.includes('/auth/me')) {
+    return true
+  }
+
+  if (hasAuthCode(error)) {
+    return true
+  }
+
+  if (hasAuthTokenInRequest(error)) {
+    return true
+  }
+
+  return false
+}
 
 const api = axios.create({
   baseURL,
@@ -8,5 +62,23 @@ const api = axios.create({
     'Content-Type': 'application/json'
   }
 })
+
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (shouldClearSessionOnUnauthorized(error)) {
+      unauthorizedHandler?.()
+    }
+    return Promise.reject(error)
+  }
+)
 
 export default api
