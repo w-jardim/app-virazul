@@ -14,9 +14,13 @@ const toneMap = {
 
 const MetricCard = ({ label, value, hint, tone = 'default' }: MetricCardProps) => {
   return (
-    <article className={`rounded-xl border p-4 ${toneMap[tone]}`}>
+    <article className={`rounded-xl border p-4 ${toneMap[tone]} min-w-0`}>
       <p className="text-xs font-medium uppercase tracking-wide opacity-80">{label}</p>
-      <p className="mt-2 text-2xl font-semibold leading-none">{value}</p>
+      <div className="mt-2">
+        <p className="text-2xl font-semibold leading-none truncate" title={String(value)}>
+          {value}
+        </p>
+      </div>
       {hint ? <p className="mt-2 text-xs opacity-80">{hint}</p> : null}
     </article>
   )
