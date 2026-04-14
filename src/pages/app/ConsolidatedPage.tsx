@@ -1,0 +1,204 @@
+import React, { useMemo, useState } from 'react'
+import FinancePage from './FinancePage'
+import PlanningPage from './PlanningPage'
+import ReportsPage from './ReportsPage'
+import { startOfMonthLocal, todayLocal } from '@/utils/date-period'
+import { useServiceTypes } from '@/features/services/hooks/useServicesData'
+import { useFinanceSummary } from '@/features/finance/hooks/useFinanceData'
+import { usePlanningSummary } from '@/features/planning/hooks/usePlanningData'
+import { useFinancialReport, useOperationalReport } from '@/features/reports/hooks/useReportsData'
+
+type ConsolidatedTab = 'finance' | 'planning' | 'reports'
+
+function money(value: number) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0)
+}
+
+function pct(value: number) {
+  return `${(value || 0).toFixed(2)}%`
+}
+
+const ConsolidatedPage: React.FC = () => {
+  const [tab, setTab] = useState<ConsolidatedTab>('finance')
+  const [startDate, setStartDate] = useState(startOfMonthLocal)
+  const [endDate, setEndDate] = useState(todayLocal)
+  const [serviceType, setServiceType] = useState('')
+
+  const month = useMemo(() => (startDate || startOfMonthLocal).slice(0, 7), [startDate])
+  const reportFilters = useMemo(
+    () => ({
+      start_date: startDate || undefined,
+      end_date: endDate || undefined,
+      service_type: serviceType || undefined,
+    }),
+    [endDate, serviceType, startDate]
+  )
+
+  const serviceTypesQuery = useServiceTypes()
+  const financeSummaryQuery = useFinanceSummary(month)
+  const planningSummaryQuery = usePlanningSummary()
+  const operationalReportQuery = useOperationalReport(reportFilters)
+  const financialReportQuery = useFinancialReport(reportFilters)
+
+  const onExportConsolidatedPdf = () => {
+    const finance = financeSummaryQuery.data
+    const planning = planningSummaryQuery.data
+    const operational = operationalReportQuery.data
+    const financial = financialReportQuery.data
+
+    const serviceTypeLabel = serviceTypesQuery.data?.find((s) => s.key === serviceType)?.name || 'Todos'
+
+    const html = `
+      <html>
+        <head>
+          <title>Consolidado ViraAzul</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 24px; color: #111827; }
+            h1 { margin: 0 0 4px; }
+            h2 { margin-top: 24px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+            .muted { color: #6b7280; font-size: 12px; }
+            .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; }
+            .k { color: #6b7280; font-size: 12px; margin-bottom: 4px; }
+            .v { font-size: 16px; font-weight: 600; }
+          </style>
+        </head>
+        <body>
+          <h1>Consolidado Operacional e Financeiro</h1>
+          <div class="muted">Período: ${startDate || '-'} até ${endDate || '-'} | Tipo: ${serviceTypeLabel}</div>
+
+          <h2>Financeiro</h2>
+          <div class="grid">
+            <div class="card"><div class="k">Total previsto</div><div class="v">${money(finance?.total_expected || 0)}</div></div>
+            <div class="card"><div class="k">Total recebido</div><div class="v">${money(finance?.total_received || 0)}</div></div>
+            <div class="card"><div class="k">Total pendente</div><div class="v">${money(finance?.total_pending || 0)}</div></div>
+            <div class="card"><div class="k">Total em atraso</div><div class="v">${money(finance?.total_overdue || 0)}</div></div>
+          </div>
+
+          <h2>Planejamento</h2>
+          <div class="grid">
+            <div class="card"><div class="k">Meta mensal (h)</div><div class="v">${planning?.goal || 0}</div></div>
+            <div class="card"><div class="k">Horas confirmadas</div><div class="v">${planning?.confirmed_hours || 0}</div></div>
+            <div class="card"><div class="k">Horas em espera</div><div class="v">${planning?.waiting_hours || 0}</div></div>
+            <div class="card"><div class="k">Horas restantes</div><div class="v">${planning?.remaining_hours || 0}</div></div>
+          </div>
+
+          <h2>Relatórios</h2>
+          <div class="grid">
+            <div class="card"><div class="k">Serviços no período</div><div class="v">${operational?.summary?.total_services || 0}</div></div>
+            <div class="card"><div class="k">Horas realizadas</div><div class="v">${operational?.summary?.realized_hours || 0}</div></div>
+            <div class="card"><div class="k">Recebimento (%)</div><div class="v">${pct(financial?.summary?.received_percentage || 0)}</div></div>
+            <div class="card"><div class="k">Pendente (%)</div><div class="v">${pct(financial?.summary?.pending_percentage || 0)}</div></div>
+          </div>
+        </body>
+      </html>
+    `
+
+    const printWindow = window.open('', '_blank', 'width=1024,height=768')
+    if (!printWindow) {
+      return
+    }
+
+    printWindow.document.write(html)
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.print()
+  }
+
+  return (
+    <div className="space-y-4" data-testid="consolidated-page">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900">Consolidado</h1>
+          <p className="text-sm text-slate-600">Centralize financeiro, planejamento e relatórios em uma única área.</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={onExportConsolidatedPdf}
+          className="inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+        >
+          Gerar dados consolidados e PDF
+        </button>
+      </header>
+
+      <section className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-3">
+        <label className="block text-xs font-medium text-slate-600">
+          Início
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
+
+        <label className="block text-xs font-medium text-slate-600">
+          Fim
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
+
+        <label className="block text-xs font-medium text-slate-600">
+          Tipo de serviço
+          <select
+            value={serviceType}
+            onChange={(e) => setServiceType(e.target.value)}
+            className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          >
+            <option value="">Todos</option>
+            {(serviceTypesQuery.data || []).map((st) => (
+              <option key={st.key} value={st.key}>{st.name}</option>
+            ))}
+          </select>
+        </label>
+      </section>
+
+      <nav className="flex gap-1 border-b border-slate-200">
+        <button
+          type="button"
+          onClick={() => setTab('finance')}
+          className={`px-4 py-2 text-sm font-medium transition border-b-2 -mb-px ${
+            tab === 'finance'
+              ? 'border-sky-600 text-sky-700'
+              : 'border-transparent text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          Financeiro
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('planning')}
+          className={`px-4 py-2 text-sm font-medium transition border-b-2 -mb-px ${
+            tab === 'planning'
+              ? 'border-sky-600 text-sky-700'
+              : 'border-transparent text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          Planejamento
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('reports')}
+          className={`px-4 py-2 text-sm font-medium transition border-b-2 -mb-px ${
+            tab === 'reports'
+              ? 'border-sky-600 text-sky-700'
+              : 'border-transparent text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          Relatórios
+        </button>
+      </nav>
+
+      {tab === 'finance' ? <FinancePage /> : null}
+      {tab === 'planning' ? <PlanningPage /> : null}
+      {tab === 'reports' ? <ReportsPage /> : null}
+    </div>
+  )
+}
+
+export default ConsolidatedPage

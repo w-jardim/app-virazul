@@ -218,7 +218,7 @@ export function buildHistoricalData(
   }>,
   monthsSpan = 3,
 ): HistoricalData {
-  const countableStatuses = new Set(['REALIZADO', 'TITULAR', 'AGENDADO', 'CONVERTIDO_TITULAR'])
+  const countableStatuses = new Set(['REALIZADO', 'TITULAR', 'CONVERTIDO_TITULAR'])
 
   const relevant = (Array.isArray(services) ? services : []).filter((s) =>
     countableStatuses.has(String(s.operational_status ?? '')),

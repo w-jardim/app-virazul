@@ -1,7 +1,6 @@
 import type { ServiceItem } from '../types/services.types'
 
 const OPERATIONAL_LABELS: Record<string, string> = {
-  AGENDADO: 'Agendado',
   TITULAR: 'Titular',
   RESERVA: 'Reserva',
   REALIZADO: 'Realizado',

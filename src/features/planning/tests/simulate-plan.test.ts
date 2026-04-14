@@ -181,7 +181,7 @@ describe('buildHistoricalData', () => {
       [
         { service_type_key: 'RAS', duration_hours: 8, amount_total: 200, operational_status: 'REALIZADO' },
         { service_type_key: 'RAS', duration_hours: Number.NaN, amount_total: Number.NaN, operational_status: 'REALIZADO' },
-        { service_type_key: 'PROEIS', duration_hours: 24, amount_total: 720, operational_status: 'AGENDADO' },
+        { service_type_key: 'PROEIS', duration_hours: 24, amount_total: 720, operational_status: 'TITULAR' },
       ],
       3,
     )

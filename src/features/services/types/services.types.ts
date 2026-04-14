@@ -13,6 +13,23 @@ export type ServiceType = {
   counts_in_financial: boolean
 }
 
+export type ServiceScope =
+  | 'ORDINARY'
+  | 'RAS_VOLUNTARY'
+  | 'RAS_COMPULSORY'
+  | 'PROEIS'
+  | 'SEGURANCA_PRESENTE'
+  | 'OTHER'
+
+export type InitialOperationalStatus = 'TITULAR' | 'RESERVA'
+
+export type FinancialPreview = {
+  base_amount: number
+  transport_amount: number
+  meal_amount: number
+  total_amount: number
+}
+
 export type ServiceItem = {
   id: number
   user_id: number
@@ -61,7 +78,6 @@ export type CreateServiceInput = {
   amount_meal?: number
   amount_transport?: number
   amount_additional?: number
-  amount_discount?: number
   payment_due_date?: string | null
   force?: boolean
 }

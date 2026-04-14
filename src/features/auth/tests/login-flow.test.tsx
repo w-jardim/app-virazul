@@ -15,6 +15,15 @@ vi.mock('../api/auth.api', () => ({
   }
 }))
 
+vi.mock('@/features/admin/hooks/useAdmin', () => ({
+  useAdminUsers: () => ({ data: [], isLoading: false, isError: false }),
+  useAdminStats: () => ({ data: null, isLoading: false, isError: false }),
+  useCreateUser: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useUpdateUser: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useDeleteUser: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useChangeSubscription: () => ({ mutateAsync: vi.fn(), isPending: false })
+}))
+
 vi.mock('@/features/dashboard/hooks/useDashboardData', () => ({
   useDashboardData: () => ({
     data: {
@@ -100,7 +109,7 @@ describe('Login flow with auth API', () => {
       password: 'Admin@123456'
     })
 
-    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+    expect(await screen.findByText('Painel Administrativo')).toBeInTheDocument()
     expect(useAuthStore.getState().token).toBe('jwt-token')
     expect(useAuthStore.getState().user?.role).toBe('ADMIN_MASTER')
   })

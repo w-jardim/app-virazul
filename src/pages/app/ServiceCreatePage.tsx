@@ -26,8 +26,8 @@ const ServiceCreatePage: React.FC = () => {
     <div className="space-y-4" data-testid="service-create-page">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Novo serviço</h1>
-          <p className="text-sm text-slate-600">Cadastre um novo serviço operacional com os dados necessários.</p>
+          <h1 className="text-2xl font-semibold text-slate-900">Novo registro</h1>
+          <p className="text-sm text-slate-600">Cadastre uma escala ordinária ou um serviço extra remunerado.</p>
         </div>
         <Link to="/services" className="text-sm font-medium text-sky-700 hover:text-sky-800">
           Voltar para listagem

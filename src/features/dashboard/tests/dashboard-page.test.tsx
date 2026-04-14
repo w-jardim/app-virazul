@@ -9,9 +9,15 @@ vi.mock('../hooks/useDashboardData', () => ({
   useDashboardData: vi.fn()
 }))
 
+vi.mock('@/features/insights/hooks/useInsights', () => ({
+  useInsights: vi.fn()
+}))
+
 import { useDashboardData } from '../hooks/useDashboardData'
+import { useInsights } from '@/features/insights/hooks/useInsights'
 
 const mockUseDashboardData = vi.mocked(useDashboardData)
+const mockUseInsights = vi.mocked(useInsights)
 
 const baseData: DashboardDataBundle = {
   summary: {
@@ -131,6 +137,17 @@ function createHookState(overrides?: Partial<ReturnType<typeof useDashboardData>
 
 describe('DashboardPage', () => {
   beforeEach(() => {
+    mockUseInsights.mockReturnValue({
+      isLoading: false,
+      isAllError: false,
+      hasPartialError: false,
+      failedSources: [],
+      sourceStatuses: [],
+      period: { month: '2026-04', start_date: '2026-04-01', end_date: '2026-04-11' },
+      insights: [],
+      byCategory: { alert: [], opportunity: [], recommendation: [], trend: [] },
+    })
+
     resetAuthStore()
     useAuthStore.setState({
       user: {

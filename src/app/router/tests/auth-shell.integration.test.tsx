@@ -46,6 +46,28 @@ vi.mock('@/features/dashboard/hooks/useDashboardData', () => ({
   })
 }))
 
+vi.mock('@/features/admin/hooks/useAdmin', () => ({
+  useAdminUsers: () => ({ data: [], isLoading: false, isError: false }),
+  useAdminStats: () => ({ data: null, isLoading: false, isError: false }),
+  useCreateUser: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useUpdateUser: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useDeleteUser: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useChangeSubscription: () => ({ mutateAsync: vi.fn(), isPending: false })
+}))
+
+vi.mock('@/features/insights/hooks/useInsights', () => ({
+  useInsights: () => ({
+    isLoading: false,
+    isAllError: false,
+    hasPartialError: false,
+    failedSources: [],
+    sourceStatuses: [],
+    period: { month: '2026-04', start_date: '2026-04-01', end_date: '2026-04-11' },
+    insights: [],
+    byCategory: { alert: [], opportunity: [], recommendation: [], trend: [] }
+  })
+}))
+
 const renderRouterAt = (path: string) => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -153,10 +175,35 @@ describe('Auth and App Shell integration', () => {
 
     expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
     expect(await screen.findByText('Policial Teste')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Alertas' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Insights' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Administracao' })).not.toBeInTheDocument()
   })
 
-  it('shows admin menu item for ADMIN_MASTER role', async () => {
+  it('redirects ADMIN_MASTER to /admin with admin shell', async () => {
+    act(() => {
+      useAuthStore.setState({
+        token: 'token-admin',
+        user: {
+          id: 99,
+          name: 'Admin Master',
+          email: 'admin.master@viraazul.local',
+          role: 'ADMIN_MASTER'
+        },
+        isAuthenticated: true,
+        isBootstrapping: false
+      })
+    })
+
+    renderRouterAt('/admin')
+
+    expect(await screen.findByText('Painel Administrativo')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Visao Geral' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Usuarios/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Assinaturas/i })).toBeInTheDocument()
+  })
+
+  it('blocks ADMIN_MASTER from user routes and redirects to /admin', async () => {
     act(() => {
       useAuthStore.setState({
         token: 'token-admin',
@@ -173,7 +220,8 @@ describe('Auth and App Shell integration', () => {
 
     renderRouterAt('/dashboard')
 
-    expect(await screen.findByRole('link', { name: 'Administracao' })).toBeInTheDocument()
+    expect(await screen.findByText('Painel Administrativo')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Dashboard' })).not.toBeInTheDocument()
   })
 
   it('logout clears session and redirects to login', async () => {

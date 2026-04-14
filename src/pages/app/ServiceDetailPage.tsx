@@ -3,16 +3,14 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import ServiceDetailCard from '@/features/services/components/ServiceDetailCard'
 import ServiceForm from '@/features/services/components/ServiceForm'
 import ServiceState from '@/features/services/components/ServiceStates'
-import ServiceTransitionPanel from '@/features/services/components/ServiceTransitionPanel'
 import {
   getApiErrorMessage,
   useDeleteService,
   useServiceDetail,
   useServiceTypes,
-  useTransitionService,
   useUpdateService
 } from '@/features/services/hooks/useServicesData'
-import type { ServiceTransitionInput, UpdateServiceInput } from '@/features/services/types/services.types'
+import type { UpdateServiceInput } from '@/features/services/types/services.types'
 
 const ServiceDetailPage: React.FC = () => {
   const params = useParams()
@@ -25,7 +23,6 @@ const ServiceDetailPage: React.FC = () => {
   const detailQuery = useServiceDetail(serviceId)
   const serviceTypesQuery = useServiceTypes()
   const updateMutation = useUpdateService(serviceId)
-  const transitionMutation = useTransitionService(serviceId)
   const deleteMutation = useDeleteService(serviceId)
 
   const service = useMemo(() => detailQuery.data, [detailQuery.data])
@@ -35,15 +32,6 @@ const ServiceDetailPage: React.FC = () => {
     try {
       await updateMutation.mutateAsync(payload)
       setEditing(false)
-    } catch (error) {
-      setErrorMessage(getApiErrorMessage(error))
-    }
-  }
-
-  const handleTransition = async (payload: ServiceTransitionInput) => {
-    setErrorMessage(null)
-    try {
-      await transitionMutation.mutateAsync(payload)
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error))
     }
@@ -69,7 +57,7 @@ const ServiceDetailPage: React.FC = () => {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Detalhe do serviço</h1>
-          <p className="text-sm text-slate-600">Consulte dados, atualize campos e execute transições.</p>
+          <p className="text-sm text-slate-600">Consulte dados e atualize campos do serviço.</p>
         </div>
         <Link to="/services" className="text-sm font-medium text-sky-700 hover:text-sky-800">
           Voltar para listagem
@@ -120,12 +108,6 @@ const ServiceDetailPage: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <ServiceTransitionPanel
-              service={service}
-              busy={transitionMutation.isPending}
-              onTransition={handleTransition}
-            />
-
             <section className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
               <h3 className="text-base font-semibold text-rose-900">Remover serviço</h3>
               <p className="mt-1 text-sm text-rose-800">

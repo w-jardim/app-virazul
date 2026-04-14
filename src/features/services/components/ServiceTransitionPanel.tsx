@@ -16,7 +16,6 @@ type QuickTransition = {
 
 const OPERATIONAL_OPTIONS = [
   { value: '', label: 'Manter situação atual' },
-  { value: 'AGENDADO', label: 'Agendado' },
   { value: 'TITULAR', label: 'Titular' },
   { value: 'RESERVA', label: 'Reserva' },
   { value: 'REALIZADO', label: 'Realizado' },
@@ -66,21 +65,6 @@ function getQuickTransitions(status: string): QuickTransition[] {
         label: 'Marcar realizado',
         transition_type: 'CONVERTIDO_PARA_REALIZADO',
         target_operational_status: 'REALIZADO'
-      }
-    ]
-  }
-
-  if (status === 'AGENDADO') {
-    return [
-      {
-        label: 'Assumir como titular',
-        transition_type: 'AGENDADO_PARA_TITULAR',
-        target_operational_status: 'TITULAR'
-      },
-      {
-        label: 'Mover para reserva',
-        transition_type: 'AGENDADO_PARA_RESERVA',
-        target_operational_status: 'RESERVA'
       }
     ]
   }

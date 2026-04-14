@@ -3,7 +3,13 @@ import { Link } from 'react-router-dom'
 import ServiceState from '@/features/services/components/ServiceStates'
 import ServicesFilters from '@/features/services/components/ServicesFilters'
 import ServicesTable from '@/features/services/components/ServicesTable'
-import { useServiceTypes, useServicesList } from '@/features/services/hooks/useServicesData'
+import {
+  getApiErrorMessage,
+  useConfirmPaymentService,
+  usePromoteReservationService,
+  useServiceTypes,
+  useServicesList,
+} from '@/features/services/hooks/useServicesData'
 
 type FiltersState = {
   serviceTypeId?: number
@@ -17,9 +23,30 @@ const ServicesPage: React.FC = () => {
   const [filters, setFilters] = useState<FiltersState>({})
   const serviceTypesQuery = useServiceTypes()
   const servicesQuery = useServicesList(filters)
+  const confirmPaymentMutation = useConfirmPaymentService()
+  const promoteReservationMutation = usePromoteReservationService()
+  const [actionError, setActionError] = useState<string | null>(null)
 
   const serviceTypes = useMemo(() => serviceTypesQuery.data || [], [serviceTypesQuery.data])
   const services = useMemo(() => servicesQuery.data || [], [servicesQuery.data])
+
+  const handleConfirmPayment = async (serviceId: number) => {
+    setActionError(null)
+    try {
+      await confirmPaymentMutation.mutateAsync(serviceId)
+    } catch (error) {
+      setActionError(getApiErrorMessage(error))
+    }
+  }
+
+  const handlePromoteReservation = async (serviceId: number) => {
+    setActionError(null)
+    try {
+      await promoteReservationMutation.mutateAsync(serviceId)
+    } catch (error) {
+      setActionError(getApiErrorMessage(error))
+    }
+  }
 
   return (
     <div className="space-y-4" data-testid="services-page">
@@ -43,6 +70,10 @@ const ServicesPage: React.FC = () => {
         onClear={() => setFilters({})}
       />
 
+      {actionError ? (
+        <ServiceState tone="error" title="Ação não concluída" description={actionError} />
+      ) : null}
+
       {serviceTypesQuery.isError ? (
         <ServiceState
           tone="error"
@@ -65,7 +96,12 @@ const ServicesPage: React.FC = () => {
           description="Ajuste os filtros ou crie um novo serviço para começar."
         />
       ) : (
-        <ServicesTable items={services} />
+        <ServicesTable
+          items={services}
+          onConfirmPayment={handleConfirmPayment}
+          onPromoteReservation={handlePromoteReservation}
+          busy={confirmPaymentMutation.isPending || promoteReservationMutation.isPending}
+        />
       )}
     </div>
   )

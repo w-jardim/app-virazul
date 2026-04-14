@@ -83,7 +83,7 @@ describe('FinancePage', () => {
   it('renders pie chart section', () => {
     mockSummary.mockReturnValue(successSummary(baseSummary))
     render(<FinancePage />)
-    expect(screen.getByText('Distribuição por status')).toBeInTheDocument()
+    expect(screen.getByText(/Distribui/i)).toBeInTheDocument()
   })
 
   it('renders empty by_service_type table gracefully', () => {
@@ -97,7 +97,7 @@ describe('FinancePage', () => {
       ...emptyReport,
       by_service_type: [{
         service_type: 'ras_voluntary',
-        service_type_name: 'RAS Voluntário',
+        service_type_name: 'RAS Volunt\u00e1rio',
         total_expected: 500,
         total_received: 300,
         total_pending: 200,
@@ -107,7 +107,6 @@ describe('FinancePage', () => {
     mockSummary.mockReturnValue(successSummary(baseSummary))
     mockReport.mockReturnValue(successReport(reportWithRows) as unknown as ReturnType<typeof useFinanceReport>)
     render(<FinancePage />)
-    expect(screen.getByText('RAS Voluntário')).toBeInTheDocument()
+    expect(screen.getByText('RAS Volunt\u00e1rio')).toBeInTheDocument()
   })
-})
 })

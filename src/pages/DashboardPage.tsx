@@ -8,9 +8,13 @@ import AlertsList from '@/features/dashboard/components/AlertsList'
 import { formatCurrency } from '@/features/dashboard/hooks/dashboard.format'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { isAdminMaster } from '@/features/auth/utils/roles'
+import AlertPopupStack from '@/features/dashboard/components/AlertPopupStack'
+import { useInsights } from '@/features/insights/hooks/useInsights'
+import { InsightSection, SourceWarningBanner } from '@/features/insights/components/InsightComponents'
 
 const DashboardPage: React.FC = () => {
   const { data, queries, isInitialLoading, hasError, refetchAll } = useDashboardData()
+  const insights = useInsights()
   const user = useAuthStore((state) => state.user)
 
   if (isInitialLoading) {
@@ -42,17 +46,24 @@ const DashboardPage: React.FC = () => {
   }
 
   const recentAlerts = data.alerts.slice(0, 5)
+  const alertPopups = insights.byCategory.alert.slice(0, 3).map((item) => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+  }))
 
   return (
     <div className="space-y-6" data-testid="dashboard-page">
+      <AlertPopupStack items={alertPopups} />
+
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
-          <p className="text-sm text-slate-600">Visão consolidada da operação e financeiro do usuário.</p>
+          <p className="text-sm text-slate-600">Visão consolidada da operação, financeiro e insights do usuário.</p>
         </div>
       </header>
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <MetricCard label="Alertas ativos" value={data.summary.counts.alerts_active} />
         <MetricCard label="Pendências operacionais" value={data.summary.counts.operational_pending} tone="warning" />
         <MetricCard label="Pendências financeiras" value={data.summary.counts.financial_pending} tone="danger" />
@@ -60,7 +71,7 @@ const DashboardPage: React.FC = () => {
         <MetricCard label="Horas em espera" value={data.summary.hours.waiting} />
       </section>
 
-      <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
         <DashboardSection title="Agenda do dia" subtitle="Confirmados e reservas do período atual.">
           {queries.agendaQuery.isLoading ? (
             <LoadingState title="Carregando agenda..." />
@@ -100,7 +111,7 @@ const DashboardPage: React.FC = () => {
         </DashboardSection>
       </section>
 
-      <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
         <DashboardSection title="Planejamento" subtitle="Meta mensal e progresso atual.">
           {queries.planningQuery.isLoading ? (
             <LoadingState title="Carregando planejamento..." />
@@ -143,6 +154,26 @@ const DashboardPage: React.FC = () => {
           )}
         </DashboardSection>
       </section>
+
+      <DashboardSection title="Insights" subtitle="Alertas, oportunidades, recomendações e tendências do período.">
+        {insights.isLoading ? (
+          <LoadingState title="Carregando insights..." />
+        ) : insights.isAllError ? (
+          <ErrorState title="Falha ao carregar insights" description="Não foi possível consolidar as fontes de dados." />
+        ) : insights.insights.length === 0 ? (
+          <EmptyState title="Nenhum insight disponível" description="Quando houver dados suficientes, os insights aparecerão aqui." />
+        ) : (
+          <div className="space-y-4">
+            {insights.hasPartialError ? <SourceWarningBanner sources={insights.failedSources} /> : null}
+            <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
+              <InsightSection category="alert" insights={insights.byCategory.alert} />
+              <InsightSection category="opportunity" insights={insights.byCategory.opportunity} />
+              <InsightSection category="recommendation" insights={insights.byCategory.recommendation} />
+              <InsightSection category="trend" insights={insights.byCategory.trend} />
+            </div>
+          </div>
+        )}
+      </DashboardSection>
 
       {isAdminMaster(user) ? (
         <DashboardSection title="Visão ADMIN_MASTER" subtitle="Base pronta para indicadores administrativos futuros.">

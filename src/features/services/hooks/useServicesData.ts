@@ -127,4 +127,24 @@ export function useTransitionService(id: number) {
   })
 }
 
+export function useConfirmPaymentService() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => servicesApi.confirmPayment(id),
+    onSuccess: (data) => {
+      invalidateServices(queryClient, data.id)
+    }
+  })
+}
+
+export function usePromoteReservationService() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => servicesApi.promoteReservation(id),
+    onSuccess: (data) => {
+      invalidateServices(queryClient, data.id)
+    }
+  })
+}
+
 export { getApiErrorMessage }

@@ -16,7 +16,6 @@ type ServicesFiltersProps = {
 }
 
 const operationalStatuses = [
-  'AGENDADO',
   'TITULAR',
   'RESERVA',
   'CONVERTIDO_TITULAR',

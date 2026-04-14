@@ -14,7 +14,6 @@ import { startOfMonthLocal, todayLocal } from '@/utils/date-period'
 
 const OPERATIONAL_OPTIONS = [
   { value: '', label: 'Todas' },
-  { value: 'AGENDADO', label: 'Agendado' },
   { value: 'TITULAR', label: 'Titular' },
   { value: 'RESERVA', label: 'Reserva' },
   { value: 'CONVERTIDO_TITULAR', label: 'Convertido (titular)' },

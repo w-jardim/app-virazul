@@ -9,8 +9,9 @@ import type {
   UpdateServiceInput
 } from '../types/services.types'
 
+export const INITIAL_OPERATIONAL_STATUSES = ['TITULAR', 'RESERVA'] as const
+
 export const OPERATIONAL_STATUSES = [
-  'AGENDADO',
   'TITULAR',
   'RESERVA',
   'CONVERTIDO_TITULAR',
@@ -20,7 +21,7 @@ export const OPERATIONAL_STATUSES = [
   'NAO_CONVERTIDO'
 ] as const
 
-export const FINANCIAL_STATUSES = ['PREVISTO', 'PAGO', 'PAGO_PARCIAL', 'NAO_PAGO'] as const
+export const FINANCIAL_STATUSES = ['PREVISTO', 'PENDENTE', 'EM_ATRASO', 'PAGO', 'PAGO_PARCIAL', 'NAO_PAGO'] as const
 export const DURATION_OPTIONS = [6, 8, 12, 24] as const
 
 type ListQuery = {
@@ -98,6 +99,16 @@ export const servicesApi = {
 
   async transition(id: number, payload: ServiceTransitionInput): Promise<ServiceItem> {
     const response = await api.post<ApiEnvelope<ServiceItem>>(`/api/v1/services/${id}/transition`, payload)
+    return response.data.data
+  },
+
+  async confirmPayment(id: number): Promise<ServiceItem> {
+    const response = await api.post<ApiEnvelope<ServiceItem>>(`/api/v1/services/${id}/confirm-payment`, {})
+    return response.data.data
+  },
+
+  async promoteReservation(id: number): Promise<ServiceItem> {
+    const response = await api.post<ApiEnvelope<ServiceItem>>(`/api/v1/services/${id}/promote-reservation`, {})
     return response.data.data
   },
 
