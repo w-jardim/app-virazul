@@ -13,6 +13,7 @@ import AlertsPage from '@/pages/app/AlertsPage'
 import PlanningPage from '@/pages/app/PlanningPage'
 import FinancePage from '@/pages/app/FinancePage'
 import ReportsPage from '@/pages/app/ReportsPage'
+import InsightsPage from '@/pages/app/InsightsPage'
 import AdminPage from '@/pages/app/AdminPage'
 import ServiceCreatePage from '@/pages/app/ServiceCreatePage'
 import ServiceDetailPage from '@/pages/app/ServiceDetailPage'
@@ -36,6 +37,7 @@ const Router: React.FC = () => {
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/finance" element={<FinancePage />} />
           <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/insights" element={<InsightsPage />} />
 
           <Route element={<AdminOnlyRoute />}>
             <Route path="/admin" element={<AdminPage />} />

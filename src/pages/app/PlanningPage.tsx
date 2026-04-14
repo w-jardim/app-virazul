@@ -1,47 +1,163 @@
-﻿import React from 'react'
+﻿import React, { useState } from 'react'
 import { usePlanningSummary, usePlanningSuggestions } from '@/features/planning/hooks/usePlanningData'
+import { usePlanningOperational } from '@/features/planning/hooks/usePlanningOperational'
 import {
   PlanningHoursProgress,
   PlanningProjectionChart,
   PlanningCombinations,
   PlanningSuggestionsList
 } from '@/features/planning/components/PlanningComponents'
+import {
+  PlanModeSelector,
+  ServiceTypePicker,
+  PlanTargetInput,
+  SimulationResultCards,
+  DistributionList,
+  HistoricalSummary,
+  PlanningWarningBanner,
+  PlanningInputHint,
+} from '@/features/planning/components/PlanningOperationalComponents'
 import { PageLoadingState, PageErrorState } from '@/components/shared/PageStates'
 
+type Tab = 'summary' | 'simulator'
+
 const PlanningPage: React.FC = () => {
+  const [tab, setTab] = useState<Tab>('summary')
+
+  // Legacy summary data
   const summaryQuery = usePlanningSummary()
   const suggestionsQuery = usePlanningSuggestions()
+
+  // Operational planner
+  const operational = usePlanningOperational()
 
   return (
     <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-semibold text-slate-900">Planejamento</h1>
-        <p className="text-sm text-slate-600">Meta mensal, projeções e sugestões de escala.</p>
+        <p className="text-sm text-slate-600">Meta mensal, projeções, simulação e planejamento operacional.</p>
+        <p className="text-xs text-slate-400 mt-1">
+          Período: {operational.period.start_date} a {operational.period.end_date}
+        </p>
       </header>
 
-      {summaryQuery.isLoading ? (
-        <PageLoadingState />
-      ) : summaryQuery.isError || !summaryQuery.data ? (
-        <PageErrorState title="Falha ao carregar planejamento" description="Tente novamente em instantes." />
-      ) : (
-        <div className="space-y-4">
-          <PlanningHoursProgress summary={summaryQuery.data} />
+      {/* Tab navigation */}
+      <nav className="flex gap-1 border-b border-slate-200">
+        <button
+          type="button"
+          onClick={() => setTab('summary')}
+          className={`px-4 py-2 text-sm font-medium transition border-b-2 -mb-px ${
+            tab === 'summary'
+              ? 'border-sky-600 text-sky-700'
+              : 'border-transparent text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          Resumo mensal
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('simulator')}
+          className={`px-4 py-2 text-sm font-medium transition border-b-2 -mb-px ${
+            tab === 'simulator'
+              ? 'border-sky-600 text-sky-700'
+              : 'border-transparent text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          Simulador operacional
+        </button>
+      </nav>
 
-          <div className="grid gap-4 xl:grid-cols-2">
-            <PlanningProjectionChart summary={summaryQuery.data} />
-            <PlanningCombinations summary={summaryQuery.data} />
-          </div>
-
-          {suggestionsQuery.isLoading ? (
-            <div className="h-24 animate-pulse rounded-2xl bg-slate-100" />
+      {/* ── Summary Tab ──────────────────────────────────────────────────── */}
+      {tab === 'summary' && (
+        <>
+          {summaryQuery.isLoading ? (
+            <PageLoadingState />
+          ) : summaryQuery.isError || !summaryQuery.data ? (
+            <PageErrorState title="Falha ao carregar planejamento" description="Tente novamente em instantes." />
           ) : (
-            <PlanningSuggestionsList suggestions={suggestionsQuery.data ?? []} />
+            <div className="space-y-4">
+              <PlanningHoursProgress summary={summaryQuery.data} />
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <PlanningProjectionChart summary={summaryQuery.data} />
+                <PlanningCombinations summary={summaryQuery.data} />
+              </div>
+
+              {suggestionsQuery.isLoading ? (
+                <div className="h-24 animate-pulse rounded-2xl bg-slate-100" />
+              ) : (
+                <PlanningSuggestionsList suggestions={suggestionsQuery.data ?? []} />
+              )}
+            </div>
           )}
-        </div>
+        </>
+      )}
+
+      {/* ── Simulator Tab ────────────────────────────────────────────────── */}
+      {tab === 'simulator' && (
+        <>
+          {operational.isLoading ? (
+            <PageLoadingState />
+          ) : operational.isAllError ? (
+            <PageErrorState
+              title="Falha ao carregar dados para simulação"
+              description="Não foi possível acessar as fontes de dados necessárias. Tente novamente."
+            />
+          ) : (
+            <div className="space-y-4">
+              {operational.hasPartialError && (
+                <PlanningWarningBanner sources={operational.failedSources} />
+              )}
+
+              {/* Configuration section */}
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+                <h3 className="text-base font-semibold text-slate-900">Configurar simulação</h3>
+
+                <PlanModeSelector
+                  mode={operational.mode}
+                  onChangeMode={operational.setMode}
+                />
+
+                <PlanTargetInput
+                  mode={operational.mode}
+                  targetHours={operational.targetHours}
+                  targetServices={operational.targetServices}
+                  onChangeHours={operational.setTargetHours}
+                  onChangeServices={operational.setTargetServices}
+                />
+
+                <ServiceTypePicker
+                  available={operational.availableTypes}
+                  selected={operational.selectedTypes}
+                  onChangeSelected={operational.setSelectedTypes}
+                />
+              </section>
+
+              {/* Results */}
+              {operational.hasInsufficientInput ? (
+                <PlanningInputHint message={operational.inputValidationMessage ?? 'Entrada insuficiente para simulação.'} />
+              ) : operational.result ? (
+                <>
+                  <SimulationResultCards
+                    result={operational.result}
+                    mode={operational.mode}
+                  />
+
+                  <DistributionList
+                    distribution={operational.result.distribution_by_type}
+                    serviceTypes={operational.availableTypes}
+                  />
+                </>
+              ) : null}
+
+              {/* Historical reference */}
+              <HistoricalSummary data={operational.historical} hasHistoryData={operational.hasHistoryData} />
+            </div>
+          )}
+        </>
       )}
     </div>
   )
 }
 
 export default PlanningPage
-
