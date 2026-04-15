@@ -59,7 +59,7 @@ const ServiceDetailPage: React.FC = () => {
           <h1 className="text-2xl font-semibold text-slate-900">Detalhe do serviço</h1>
           <p className="text-sm text-slate-600">Consulte dados e atualize campos do serviço.</p>
         </div>
-        <Link to="/services" className="text-sm font-medium text-sky-700 hover:text-sky-800">
+        <Link to="/operation" className="text-sm font-medium text-sky-700 hover:text-sky-800">
           Voltar para listagem
         </Link>
       </header>

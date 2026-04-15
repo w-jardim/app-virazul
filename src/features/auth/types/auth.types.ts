@@ -18,6 +18,10 @@ export type LoginInput = {
   password: string
 }
 
+export type GoogleLoginInput = {
+  id_token: string
+}
+
 export type LoginResponse = {
   token: string
   user: AuthUser

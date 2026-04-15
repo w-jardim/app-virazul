@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import AgendaDayBlock from '@/features/agenda/components/AgendaDayBlock'
 import AgendaMonthView from '@/features/agenda/components/AgendaMonthView'
 import AgendaState from '@/features/agenda/components/AgendaState'
@@ -35,9 +36,17 @@ const AgendaPage: React.FC = () => {
 
   return (
     <div className="space-y-4" data-testid="agenda-page">
-      <header>
-        <h1 className="text-2xl font-semibold text-slate-900">Agenda operacional</h1>
-        <p className="text-sm text-slate-600">Visualize escala ordinária e serviços por dia, semana ou mês.</p>
+      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900">Agenda operacional</h1>
+          <p className="text-sm text-slate-600">Visualize escala ordinaria e servicos por dia, semana ou mes.</p>
+        </div>
+        <Link
+          to="/services/new"
+          className="inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+        >
+          Novo servico
+        </Link>
       </header>
 
       <AgendaToolbar
@@ -52,12 +61,12 @@ const AgendaPage: React.FC = () => {
       />
 
       {currentQuery.isLoading ? (
-        <AgendaState title="Carregando agenda..." description="Buscando dados atualizados do período selecionado." />
+        <AgendaState title="Carregando agenda..." description="Buscando dados atualizados do periodo selecionado." />
       ) : currentQuery.isError ? (
         <AgendaState
           tone="error"
           title="Falha ao carregar agenda"
-          description="Não foi possível obter os dados. Tente novamente."
+          description="Nao foi possivel obter os dados. Tente novamente."
         />
       ) : mode === 'day' && dayQuery.data ? (
         <AgendaDayBlock
@@ -70,7 +79,7 @@ const AgendaPage: React.FC = () => {
       ) : mode === 'month' && monthQuery.data ? (
         <AgendaMonthView data={monthQuery.data} />
       ) : (
-        <AgendaState title="Sem dados de agenda para o período." />
+        <AgendaState title="Sem dados de agenda para o periodo." />
       )}
     </div>
   )

@@ -7,6 +7,7 @@ import { authApi } from '../api/auth.api'
 import { useAuthStore } from '../store/useAuthStore'
 import Button from '@/components/ui/Button'
 import { AuthCard } from './AuthUI'
+import GoogleLoginButton from './GoogleLoginButton'
 
 const schema = z.object({
   email: z.string().email('Informe um e-mail válido.'),
@@ -42,6 +43,18 @@ const LoginForm = () => {
       navigate('/dashboard', { replace: true })
     } catch {
       setFormError('Nao foi possivel autenticar. Verifique suas credenciais.')
+    }
+  }
+
+  const onGoogleCredential = async (idToken: string) => {
+    setFormError(null)
+    try {
+      const session = await authApi.loginWithGoogle({ id_token: idToken })
+      setSession({ token: session.token, user: session.user })
+      finishBootstrap()
+      navigate('/dashboard', { replace: true })
+    } catch {
+      setFormError('Nao foi possivel autenticar com Google. Tente novamente.')
     }
   }
 
@@ -87,6 +100,21 @@ const LoginForm = () => {
           <Button type="submit" disabled={isSubmitting} className="w-full rounded-lg bg-sky-600 py-2.5">
             {isSubmitting ? 'Entrando...' : 'Entrar'}
           </Button>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs text-slate-500">ou</span>
+            <div className="h-px flex-1 bg-slate-200" />
+          </div>
+
+          <div className="flex justify-center">
+            <GoogleLoginButton
+              disabled={isSubmitting}
+              onCredential={onGoogleCredential}
+              onError={() => setFormError('Falha ao iniciar o login Google. Verifique a configuracao.')}
+            />
+          </div>
+
           <div className="text-center mt-3">
             <p className="text-sm text-slate-600">Não tem conta? <button type="button" onClick={() => navigate('/register')} className="text-sky-600 underline">Cadastre-se</button></p>
           </div>
@@ -97,4 +125,3 @@ const LoginForm = () => {
 }
 
 export default LoginForm
-
