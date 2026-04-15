@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { isAdminMaster } from '@/features/auth/utils/roles'
 import LoginPage from '@/pages/Login'
+import RegisterPage from '@/pages/Register'
 import NotFound from '@/pages/NotFound'
 import ProtectedRoute from '@/features/auth/guards/ProtectedRoute'
 import PublicOnlyRoute from '@/features/auth/guards/PublicOnlyRoute'
@@ -37,6 +38,7 @@ const Router: React.FC = () => {
     <Routes>
       <Route element={<PublicOnlyRoute />}>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Route>
 
       <Route element={<ProtectedRoute />}>

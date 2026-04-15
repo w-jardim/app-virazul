@@ -87,6 +87,9 @@ const LoginForm = () => {
           <Button type="submit" disabled={isSubmitting} className="w-full rounded-lg bg-sky-600 py-2.5">
             {isSubmitting ? 'Entrando...' : 'Entrar'}
           </Button>
+          <div className="text-center mt-3">
+            <p className="text-sm text-slate-600">Não tem conta? <button type="button" onClick={() => navigate('/register')} className="text-sky-600 underline">Cadastre-se</button></p>
+          </div>
         </form>
       </AuthCard>
     </div>
