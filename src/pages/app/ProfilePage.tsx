@@ -1,0 +1,100 @@
+import React, { useState } from 'react'
+import { useAuthStore } from '@/features/auth/store/useAuthStore'
+import { authApi } from '@/features/auth/api/auth.api'
+import { RANK_GROUPS } from '@/features/pricing/types/pricing.types'
+
+const inputClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300'
+const selectClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300 bg-white'
+
+const ProfilePage: React.FC = () => {
+  const user = useAuthStore((s) => s.user)
+  const setUser = useAuthStore((s) => s.setUser)
+  const [form, setForm] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    password: '',
+    password_confirm: '',
+    rank_group: user?.rank_group || ''
+  })
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+
+  const setField = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm((p) => ({ ...p, [k]: e.target.value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setSuccess(null)
+    if (form.password && form.password !== form.password_confirm) {
+      setError('Confirmação de senha não corresponde')
+      return
+    }
+
+    try {
+      setBusy(true)
+      const payload: any = { name: form.name, email: form.email, rank_group: form.rank_group }
+      if (form.password) payload.password = form.password
+      const updated = await authApi.updateProfile(payload)
+      setUser(updated)
+      setSuccess('Perfil atualizado')
+      setForm((p) => ({ ...p, password: '', password_confirm: '' }))
+    } catch (err: any) {
+      setError(err?.response?.data?.errors?.[0]?.message || 'Erro ao atualizar perfil')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold text-slate-900">Meu perfil</h1>
+        <p className="text-sm text-slate-600">Atualize seus dados e graduação.</p>
+      </div>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm max-w-lg">
+        {error && <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {success && <div className="mb-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">{success}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Nome</label>
+            <input className={inputClass} value={form.name} onChange={setField('name')} />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">E-mail</label>
+            <input className={inputClass} value={form.email} onChange={setField('email')} />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Grupo / Graduação</label>
+            <select className={selectClass} value={form.rank_group || ''} onChange={setField('rank_group')}>
+              <option value="">Selecione a graduação</option>
+              {RANK_GROUPS.map((rg) => (
+                <option key={rg} value={rg}>{rg}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Nova senha</label>
+            <input type="password" className={inputClass} value={form.password} onChange={setField('password')} />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Confirmar senha</label>
+            <input type="password" className={inputClass} value={form.password_confirm} onChange={setField('password_confirm')} />
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4">
+            <button type="submit" disabled={busy} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+              {busy ? 'Salvando...' : 'Salvar alterações'}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  )
+}
+
+export default ProfilePage

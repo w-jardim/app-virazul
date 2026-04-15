@@ -20,6 +20,7 @@ import ReportsPage from '@/pages/app/ReportsPage'
 import ConsolidatedPage from '@/pages/app/ConsolidatedPage'
 import ServiceCreatePage from '@/pages/app/ServiceCreatePage'
 import ServiceDetailPage from '@/pages/app/ServiceDetailPage'
+import ProfilePage from '@/pages/app/ProfilePage'
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage'
 import AdminUsersPage from '@/pages/admin/AdminUsersPage'
 import AdminSubscriptionsPage from '@/pages/admin/AdminSubscriptionsPage'
@@ -53,6 +54,7 @@ const Router: React.FC = () => {
             <Route path="/consolidated" element={<ConsolidatedPage />} />
             <Route path="/planning" element={<PlanningPage />} />
             <Route path="/finance" element={<FinancePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/alerts" element={<Navigate to="/dashboard" replace />} />
             <Route path="/insights" element={<Navigate to="/dashboard" replace />} />
