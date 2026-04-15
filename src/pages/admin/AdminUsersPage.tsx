@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { RANK_GROUPS } from '@/features/pricing/types/pricing.types'
 import {
   useAdminUsers,
   useCreateUser,
@@ -158,9 +159,13 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
         }
         await createUser.mutateAsync(payload)
       }
-      onClose()
-    } catch {
+    } catch (err) {
       setError('Erro ao salvar. Verifique os dados e tente novamente.')
+    } finally {
+      // Ensure the modal is closed when the mutation settles to avoid leaving
+      // a blocking overlay in the UI if something prevents the usual close
+      // path from running (stale closures, unexpected errors, etc.).
+      onClose()
     }
   }
 
@@ -207,7 +212,14 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
           </Field>
 
           <Field label="Grupo / Cargo">
-            <input className={inputClass} value={form.rank_group} onChange={set('rank_group')} placeholder="Ex: Soldado, Cabo, Sargento..." />
+            <select className={selectClass} value={form.rank_group} onChange={set('rank_group')}>
+              <option value="">Selecione a graduação</option>
+              {RANK_GROUPS.map((rg) => (
+                <option key={rg} value={rg}>
+                  {rg === 'OFICIAIS_SUPERIORES' ? 'Oficiais Superiores' : rg === 'CAPITAO_TENENTE' ? 'Capitão e Tenente' : rg === 'SUBTENENTE_SARGENTO' ? 'Subtenente e Sargento' : rg === 'CABO_SOLDADO' ? 'Cabo e Soldado' : rg}
+                </option>
+              ))}
+            </select>
           </Field>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -235,21 +247,21 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field label="Status de pagamento">
-              <select className={selectClass} value={form.payment_status} onChange={set('payment_status')}>
+              <select className={selectClass} value={form.payment_status} onChange={set('payment_status')}
+                disabled={form.subscription === 'free' || form.role === 'ADMIN_MASTER'}
+              >
                 <option value="pending">Pendente</option>
                 <option value="paid">Pago</option>
                 <option value="overdue">Atrasado</option>
               </select>
             </Field>
-            <Field label="Vencimento">
-              <input
-                type="date"
-                className={inputClass}
-                value={form.payment_due_date}
-                onChange={set('payment_due_date')}
-              />
-            </Field>
-            <div />
+            {form.subscription === 'free' || form.role === 'ADMIN_MASTER' ? (
+              <div className="flex items-end pb-2 text-xs text-slate-400">Sem cobranca</div>
+            ) : form.subscription === 'trial' ? (
+              <div className="flex items-end pb-2 text-xs text-slate-500">Expira 30 dias apos criacao</div>
+            ) : form.subscription === 'premium' ? (
+              <div className="flex items-end pb-2 text-xs text-slate-500">Vencimento: data de criacao</div>
+            ) : null}
           </div>
 
           <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
@@ -398,18 +410,28 @@ const AdminUsersPage: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      u.payment_status === 'paid'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : u.payment_status === 'pending'
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'bg-red-100 text-red-600'
-                    }`}>
-                      {u.payment_status === 'paid' ? 'Pago' : u.payment_status === 'pending' ? 'Pendente' : 'Atrasado'}
-                    </span>
+                    {u.subscription === 'free' || u.role === 'ADMIN_MASTER' ? (
+                      <span className="text-slate-300">—</span>
+                    ) : (
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        u.payment_status === 'paid'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : u.payment_status === 'pending'
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-red-100 text-red-600'
+                      }`}>
+                        {u.payment_status === 'paid' ? 'Pago' : u.payment_status === 'pending' ? 'Pendente' : 'Atrasado'}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-slate-500">
-                    {u.payment_due_date ? new Date(u.payment_due_date).toLocaleDateString('pt-BR') : '—'}
+                    {u.subscription === 'free' || u.role === 'ADMIN_MASTER'
+                      ? '—'
+                      : u.subscription === 'trial'
+                      ? new Date(new Date(u.created_at).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')
+                      : u.subscription === 'premium'
+                      ? new Date(u.created_at).toLocaleDateString('pt-BR')
+                      : '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
                     {confirmDeleteId === u.id ? (

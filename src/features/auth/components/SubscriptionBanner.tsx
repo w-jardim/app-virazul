@@ -1,0 +1,90 @@
+import React, { useState } from 'react'
+import { useSubscription } from '@/features/auth/hooks/useSubscription'
+
+const TrialConversionPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+  <div
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+    onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+  >
+    <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl text-center space-y-4">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h2 className="text-lg font-bold text-slate-800">Periodo de teste encerrado</h2>
+      <p className="text-sm text-slate-500">
+        Seu acesso de teste expirou. Voce ainda pode consultar seus dados, mas nao pode criar ou alterar registros.
+      </p>
+      <p className="text-sm font-medium text-slate-700">
+        Ative o plano <span className="text-emerald-600">Premium</span> para ter acesso completo novamente.
+      </p>
+      <div className="flex flex-col gap-2 pt-2">
+        <a
+          href="https://wa.me/5500000000000?text=Olá, quero ativar o plano Premium do ViraAzul!"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition"
+        >
+          Quero ativar o Premium
+        </a>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-sm text-slate-400 hover:text-slate-600 transition"
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+)
+
+const SubscriptionBanner: React.FC = () => {
+  const { canMutate, reason, plan, expiresAt } = useSubscription()
+  const [showPopup, setShowPopup] = useState(!canMutate && plan === 'trial')
+
+  if (canMutate && plan !== 'trial') return null
+
+  // Active trial: show informative (non-blocking) banner with remaining days
+  if (canMutate && plan === 'trial' && expiresAt) {
+    const days = Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    return (
+      <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <strong>Periodo de teste</strong> — Restam {days} dia{days !== 1 ? 's' : ''} de acesso completo.
+      </div>
+    )
+  }
+
+  // Expired trial: blocking banner + conversion popup
+  if (!canMutate && plan === 'trial') {
+    return (
+      <>
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center justify-between">
+          <span><strong>Acesso restrito</strong> — Periodo de teste expirado. Somente leitura.</span>
+          <button
+            type="button"
+            onClick={() => setShowPopup(true)}
+            className="ml-4 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition whitespace-nowrap"
+          >
+            Ativar Premium
+          </button>
+        </div>
+        {showPopup && <TrialConversionPopup onClose={() => setShowPopup(false)} />}
+      </>
+    )
+  }
+
+  // Expired premium: blocking banner
+  if (!canMutate && reason) {
+    return (
+      <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <strong>Acesso restrito</strong> — {reason}
+      </div>
+    )
+  }
+
+  return null
+}
+
+export default SubscriptionBanner

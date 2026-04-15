@@ -42,7 +42,11 @@ describe('Session bootstrap flow via /auth/me', () => {
       id: 10,
       name: 'Policial Teste',
       email: 'policial.teste@viraazul.local',
-      role: 'POLICE'
+      role: 'POLICE',
+      rank_group: 'CABO_SOLDADO',
+      subscription: 'free' as const,
+      payment_due_date: null,
+      created_at: '2025-01-01T00:00:00.000Z'
     })
 
     render(<BootstrapProbe />)

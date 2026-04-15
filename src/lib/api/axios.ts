@@ -4,8 +4,10 @@ import { useAuthStore } from '@/features/auth/store/useAuthStore'
 const baseURL = import.meta.env.VITE_API_BASE_URL || ''
 
 type UnauthorizedHandler = () => void
+type PlanExpiredHandler = (message: string) => void
 
 let unauthorizedHandler: UnauthorizedHandler | null = null
+let planExpiredHandler: PlanExpiredHandler | null = null
 
 export const setUnauthorizedHandler = (handler: UnauthorizedHandler) => {
   unauthorizedHandler = handler
@@ -13,6 +15,14 @@ export const setUnauthorizedHandler = (handler: UnauthorizedHandler) => {
 
 export const clearUnauthorizedHandler = () => {
   unauthorizedHandler = null
+}
+
+export const setPlanExpiredHandler = (handler: PlanExpiredHandler) => {
+  planExpiredHandler = handler
+}
+
+export const clearPlanExpiredHandler = () => {
+  planExpiredHandler = null
 }
 
 function resolveRequestUrl(error: AxiosError): string {
@@ -77,6 +87,17 @@ api.interceptors.response.use(
     if (shouldClearSessionOnUnauthorized(error)) {
       unauthorizedHandler?.()
     }
+
+    // Handle PLAN_EXPIRED 403 from backend
+    if (error.response?.status === 403) {
+      const data = error.response.data as { errors?: Array<{ code?: string; message?: string }> } | undefined
+      const code = data?.errors?.[0]?.code
+      if (code === 'PLAN_EXPIRED') {
+        const msg = data?.errors?.[0]?.message || 'Plano expirado. Acesso somente leitura.'
+        planExpiredHandler?.(msg)
+      }
+    }
+
     return Promise.reject(error)
   }
 )

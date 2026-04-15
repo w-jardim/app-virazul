@@ -1,11 +1,16 @@
 ﻿export type UserRole = 'POLICE' | 'ADMIN_MASTER'
 
+export type SubscriptionPlan = 'free' | 'trial' | 'premium'
+
 export type AuthUser = {
   id: number
   name: string
   email: string
   role: UserRole
   rank_group: string | null
+  subscription: SubscriptionPlan
+  payment_due_date: string | null
+  created_at: string
 }
 
 export type LoginInput = {

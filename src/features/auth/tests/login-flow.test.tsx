@@ -91,7 +91,11 @@ describe('Login flow with auth API', () => {
         id: 1,
         name: 'Admin Master',
         email: 'admin.master@viraazul.local',
-        role: 'ADMIN_MASTER'
+        role: 'ADMIN_MASTER',
+        rank_group: null,
+        subscription: 'free' as const,
+        payment_due_date: null,
+        created_at: '2025-01-01T00:00:00.000Z'
       }
     })
 

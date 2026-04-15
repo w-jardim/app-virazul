@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { DURATION_OPTIONS, FINANCIAL_STATUSES } from '../api/services.api'
 import { useServiceFinancialPreview } from '../hooks/useServiceFinancialPreview'
 import { RANK_GROUPS } from '@/features/pricing/types/pricing.types'
+import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import type { CreateServiceInput, ServiceItem, ServiceScope, ServiceType, UpdateServiceInput } from '../types/services.types'
 
 /* ───────────────────── helpers de escopo ───────────────────── */
@@ -116,12 +117,13 @@ function formatBRL(value: number): string {
 
 const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }: ServiceFormProps) => {
   const isEditing = Boolean(initialData)
+  const authUser = useAuthStore((s) => s.user)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       service_type_id: initialData?.service_type_id || undefined,
-      rank_group: '',
+      rank_group: initialData?.rank_group || authUser?.rank_group || '',
       start_at: toLocalInputDateTime(initialData?.start_at),
       duration_hours: initialData?.duration_hours || 12,
       operational_status: initialData?.operational_status || 'TITULAR',

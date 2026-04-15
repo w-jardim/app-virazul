@@ -2,6 +2,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { isAdminMaster } from '@/features/auth/utils/roles'
+import SubscriptionBanner from '@/features/auth/components/SubscriptionBanner'
 
 type NavItem = {
   to: string
@@ -224,6 +225,7 @@ const AppShell: React.FC = () => {
           </header>
 
           <main className="flex-1 px-4 py-6 sm:px-8">
+            <SubscriptionBanner />
             <Outlet />
           </main>
         </div>
