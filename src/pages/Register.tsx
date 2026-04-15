@@ -35,7 +35,7 @@ const RegisterPage: React.FC = () => {
       return
     }
     try {
-      const result = await authApi.register({ name: values.name, email: values.email, password: values.password })
+      const result = await authApi.register({ name: values.name, email: values.email, password: values.password, password_confirm: values.password_confirm })
       // register returns token + user
       setSession({ token: result.token, user: result.user })
       navigate('/dashboard', { replace: true })

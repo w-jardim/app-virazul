@@ -11,13 +11,12 @@ export const authApi = {
     const response = await api.get<AuthApiResponse<AuthUser>>('/api/v1/auth/me')
     return response.data.data
   }
-,
-
-  async register(payload: { name: string; email: string; password: string }): Promise<LoginResponse> {
+  ,
+  async register(payload: { name: string; email: string; password: string; password_confirm?: string }): Promise<LoginResponse> {
     const response = await api.post<AuthApiResponse<LoginResponse>>('/api/v1/auth/register', payload)
     return response.data.data
   }
-
+  ,
   async updateProfile(payload: Partial<AuthUser & { password?: string }>): Promise<AuthUser> {
     const response = await api.patch<AuthApiResponse<AuthUser>>('/api/v1/auth/me', payload)
     return response.data.data
