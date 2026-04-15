@@ -260,47 +260,27 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
   const labelClass = 'text-xs font-medium text-slate-600'
 
   return (
-    <form className="space-y-6" data-testid="service-form" onSubmit={handleSubmit}>
-      {/* ═══════ BLOCO A — Tipo do registro ═══════ */}
+    <form className="space-y-4" data-testid="service-form" onSubmit={handleSubmit}>
+      {/* ═══════ BLOCO A — Tipo + Status ═══════ */}
       <fieldset className="space-y-2">
         <legend className="text-sm font-semibold text-slate-800">Tipo do registro</legend>
-        <label className={labelClass}>
-          Selecione a categoria
-          <select {...form.register('service_type_id')} className={fieldClass} data-testid="select-service-type">
-            <option value="">Selecione</option>
-            {sortedTypes.extras.length > 0 ? (
-              <optgroup label="Serviço extra remunerado">
-                {sortedTypes.extras.map((st) => (
-                  <option key={st.id} value={st.id}>{st.name}</option>
-                ))}
-              </optgroup>
-            ) : null}
-          </select>
-          {errors.service_type_id ? <span className="mt-1 block text-xs text-rose-700">{errors.service_type_id.message}</span> : null}
-        </label>
+        <div className={`grid gap-3 ${!isEditing ? 'sm:grid-cols-2' : ''}`}>
+          <label className={labelClass}>
+            Categoria
+            <select {...form.register('service_type_id')} className={fieldClass} data-testid="select-service-type">
+              <option value="">Selecione</option>
+              {sortedTypes.extras.length > 0 ? (
+                <optgroup label="Serviço extra remunerado">
+                  {sortedTypes.extras.map((st) => (
+                    <option key={st.id} value={st.id}>{st.name}</option>
+                  ))}
+                </optgroup>
+              ) : null}
+            </select>
+            {errors.service_type_id ? <span className="mt-1 block text-xs text-rose-700">{errors.service_type_id.message}</span> : null}
+          </label>
 
-        {/* badge visual do escopo */}
-        {scope ? (
-          <div className="flex items-center gap-2" data-testid="scope-badge">
-            <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-              scope === 'ORDINARY'
-                ? 'bg-slate-100 text-slate-600'
-                : 'bg-sky-50 text-sky-700'
-            }`}>
-              {SCOPE_LABELS[scope]}
-            </span>
-            {scope === 'ORDINARY' ? (
-              <span className="text-xs text-slate-500">Calendário base — não gera valores financeiros extras</span>
-            ) : null}
-          </div>
-        ) : null}
-      </fieldset>
-
-      {/* ═══════ BLOCO B — Status inicial (somente criação) ═══════ */}
-      {!isEditing ? (
-        <fieldset className="space-y-2" data-testid="block-status">
-          <legend className="text-sm font-semibold text-slate-800">Status inicial</legend>
-          <div className="grid gap-3 sm:grid-cols-2">
+          {!isEditing ? (
             <label className={labelClass}>
               Status operacional
               <select
@@ -319,25 +299,29 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
                 </span>
               ) : null}
             </label>
+          ) : null}
+        </div>
 
-            {isExtra ? (
-              <label className={labelClass}>
-                Status financeiro
-                <select {...form.register('financial_status')} className={fieldClass}>
-                  {FINANCIAL_STATUSES.map((fs) => (
-                    <option key={fs} value={fs}>{fs}</option>
-                  ))}
-                </select>
-              </label>
+        {scope ? (
+          <div className="flex items-center gap-2" data-testid="scope-badge">
+            <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              scope === 'ORDINARY'
+                ? 'bg-slate-100 text-slate-600'
+                : 'bg-sky-50 text-sky-700'
+            }`}>
+              {SCOPE_LABELS[scope]}
+            </span>
+            {scope === 'ORDINARY' ? (
+              <span className="text-xs text-slate-500">Calendário base — não gera valores financeiros extras</span>
             ) : null}
           </div>
-        </fieldset>
-      ) : null}
+        ) : null}
+      </fieldset>
 
-      {/* ═══════ BLOCO C — Dados operacionais ═══════ */}
+      {/* ═══════ BLOCO B — Dados operacionais ═══════ */}
       <fieldset className="space-y-2">
         <legend className="text-sm font-semibold text-slate-800">Dados operacionais</legend>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className={`grid gap-3 ${isExtra ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
           <label className={labelClass}>
             Data/hora
             <input type="datetime-local" {...form.register('start_at')} className={fieldClass} />
@@ -367,34 +351,36 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
         </label>
       </fieldset>
 
-      {/* ═══════ BLOCO D — Dados financeiros (só extras) ═══════ */}
+      {/* ═══════ BLOCO C — Dados financeiros (só extras) ═══════ */}
       {isExtra ? (
         <fieldset className="space-y-2" data-testid="block-financial">
           <legend className="text-sm font-semibold text-slate-800">Valores financeiros</legend>
 
-          <label className={labelClass}>
-            Graduação
-            <select {...form.register('rank_group')} className={fieldClass} data-testid="select-rank-group">
-              <option value="">Selecione a graduação</option>
-              {RANK_GROUPS.map((rg) => (
-                <option key={rg} value={rg}>{RANK_GROUP_LABELS[rg]}</option>
-              ))}
-            </select>
-            {errors.rank_group ? <span className="mt-1 block text-xs text-rose-700">{errors.rank_group.message}</span> : null}
-          </label>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className={`flex-1 min-w-[180px] ${labelClass}`}>
+              Graduação
+              <select {...form.register('rank_group')} className={fieldClass} data-testid="select-rank-group">
+                <option value="">Selecione a graduação</option>
+                {RANK_GROUPS.map((rg) => (
+                  <option key={rg} value={rg}>{RANK_GROUP_LABELS[rg]}</option>
+                ))}
+              </select>
+              {errors.rank_group ? <span className="mt-1 block text-xs text-rose-700">{errors.rank_group.message}</span> : null}
+            </label>
 
-          <label className={`inline-flex items-center gap-2 ${labelClass}`}>
-            <input type="checkbox" {...form.register('edit_values')} data-testid="toggle-edit-values" />
-            Quero editar os valores manualmente
-          </label>
+            <label className={`inline-flex items-center gap-2 pb-2 ${labelClass}`}>
+              <input type="checkbox" {...form.register('edit_values')} data-testid="toggle-edit-values" />
+              Editar valores manualmente
+            </label>
+          </div>
 
           {pricingLoading ? (
             <p className="text-xs text-sky-600" data-testid="pricing-loading">Consultando tabela de valores...</p>
           ) : null}
 
-          {preview ? (
+          {preview && !pricingLoading ? (
             <p className="text-xs text-slate-500" data-testid="pricing-source">
-              Valores preenchidos automaticamente pela tabela de preços vigente
+              Valores da tabela de preços vigente
             </p>
           ) : null}
 
@@ -444,16 +430,14 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
                 <input type="number" step="0.01" {...form.register('amount_additional')} className={fieldClass} />
               </label>
             ) : null}
-            
           </div>
         </fieldset>
       ) : null}
 
-      {/* ═══════ BLOCO E — Resumo financeiro (só extras) ═══════ */}
+      {/* ═══════ BLOCO D — Resumo financeiro (só extras) ═══════ */}
       {isExtra ? (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4" data-testid="financial-summary">
-          <h4 className="mb-3 text-sm font-semibold text-slate-700">Resumo financeiro</h4>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-4">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3" data-testid="financial-summary">
+          <dl className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
             <div>
               <dt className="text-xs text-slate-500">Base</dt>
               <dd className="font-medium tabular-nums" data-testid="summary-base">{formatBRL(financialSummary.base)}</dd>
@@ -468,21 +452,22 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
                 {hasMeal ? formatBRL(financialSummary.meal) : '—'}
               </dd>
             </div>
-            <div>
+            {financialSummary.additional > 0 ? (
+              <div>
+                <dt className="text-xs text-slate-500">Adicional</dt>
+                <dd className="font-medium tabular-nums">{formatBRL(financialSummary.additional)}</dd>
+              </div>
+            ) : null}
+            <div className="ml-auto">
               <dt className="text-xs font-semibold text-slate-700">Total</dt>
               <dd className="text-base font-bold tabular-nums text-sky-700" data-testid="summary-total">{formatBRL(financialSummary.total)}</dd>
             </div>
           </dl>
-          {financialSummary.additional > 0 ? (
-            <div className="mt-2 text-xs text-slate-500">
-              <span>+ Adicional: {formatBRL(financialSummary.additional)}</span>
-            </div>
-          ) : null}
         </div>
       ) : null}
 
       {/* ── force + submit ── */}
-      <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+      <div className="flex items-center justify-between border-t border-slate-100 pt-3">
         <label className="inline-flex items-center gap-2 text-xs text-slate-500">
           <input type="checkbox" {...form.register('force')} />
           Permitir mesmo com conflito de horário

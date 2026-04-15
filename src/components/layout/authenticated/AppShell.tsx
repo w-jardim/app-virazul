@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { isAdminMaster } from '@/features/auth/utils/roles'
 import SubscriptionBanner from '@/features/auth/components/SubscriptionBanner'
+import InsightToast from '@/features/insights/components/InsightToast'
 
 type NavItem = {
   to: string
@@ -53,6 +54,10 @@ const AppShell: React.FC = () => {
     clearSession()
     setMobileMenuOpen(false)
     navigate('/login', { replace: true })
+  }
+  const goProfile = () => {
+    setMobileMenuOpen(false)
+    navigate('/profile')
   }
 
   const renderDesktopNav = () => (
@@ -214,13 +219,22 @@ const AppShell: React.FC = () => {
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={onLogout}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
-              >
-                Sair
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={goProfile}
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
+                >
+                  Meu perfil
+                </button>
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
+                >
+                  Sair
+                </button>
+              </div>
             </div>
           </header>
 
@@ -228,6 +242,8 @@ const AppShell: React.FC = () => {
             <SubscriptionBanner />
             <Outlet />
           </main>
+
+          <InsightToast />
         </div>
       </div>
     </div>

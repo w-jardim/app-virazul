@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { authApi } from '@/features/auth/api/auth.api'
 import { RANK_GROUPS } from '@/features/pricing/types/pricing.types'
+import { usePreferencesStore } from '@/stores/usePreferencesStore'
 
 const inputClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300'
 const selectClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300 bg-white'
@@ -9,6 +10,8 @@ const selectClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm
 const ProfilePage: React.FC = () => {
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
+  const insightsEnabled = usePreferencesStore((s) => s.insightsEnabled)
+  const toggleInsights = usePreferencesStore((s) => s.toggleInsights)
   const [form, setForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -36,7 +39,10 @@ const ProfilePage: React.FC = () => {
     try {
       setBusy(true)
       const payload: any = { name: form.name, email: form.email, rank_group: form.rank_group }
-      if (form.password) payload.password = form.password
+      if (form.password) {
+        payload.password = form.password
+        payload.password_confirm = form.password_confirm
+      }
       const updated = await authApi.updateProfile(payload)
       setUser(updated)
       setSuccess('Perfil atualizado')
@@ -54,6 +60,31 @@ const ProfilePage: React.FC = () => {
         <h1 className="text-2xl font-semibold text-slate-900">Meu perfil</h1>
         <p className="text-sm text-slate-600">Atualize seus dados e graduação.</p>
       </div>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm max-w-lg">
+        <h2 className="mb-4 text-sm font-semibold text-slate-800">Preferências</h2>
+        <label className="flex items-center justify-between gap-3 cursor-pointer">
+          <div>
+            <p className="text-sm font-medium text-slate-700">Insights automáticos</p>
+            <p className="text-xs text-slate-500">Exibir dicas e alertas como popup nas telas</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={insightsEnabled}
+            onClick={toggleInsights}
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 ${
+              insightsEnabled ? 'bg-indigo-600' : 'bg-slate-300'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                insightsEnabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </label>
+      </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm max-w-lg">
         {error && <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>}
