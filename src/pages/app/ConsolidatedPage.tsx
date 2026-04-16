@@ -23,6 +23,8 @@ const ConsolidatedPage: React.FC = () => {
   const [startDate, setStartDate] = useState(startOfMonthLocal)
   const [endDate, setEndDate] = useState(todayLocal)
   const [serviceType, setServiceType] = useState('')
+  const [exporting, setExporting] = useState(false)
+  const [filterError, setFilterError] = useState<string | null>(null)
 
   const month = useMemo(() => (startDate || startOfMonthLocal).slice(0, 7), [startDate])
   const reportFilters = useMemo(
@@ -40,7 +42,30 @@ const ConsolidatedPage: React.FC = () => {
   const operationalReportQuery = useOperationalReport(reportFilters)
   const financialReportQuery = useFinancialReport(reportFilters)
 
+  const anyLoading = (
+    serviceTypesQuery.isLoading ||
+    financeSummaryQuery.isLoading ||
+    planningSummaryQuery.isLoading ||
+    operationalReportQuery.isLoading ||
+    financialReportQuery.isLoading
+  )
+
   const onExportConsolidatedPdf = () => {
+    // Guard: wait for queries to finish
+    if (anyLoading) {
+      setFilterError('Aguarde o carregamento dos dados antes de exportar.')
+      return
+    }
+
+    // Validate date range
+    if (startDate && endDate && startDate > endDate) {
+      setFilterError('Data de início deve ser anterior ou igual à data de fim.')
+      return
+    }
+
+    setFilterError(null)
+    setExporting(true)
+
     const finance = financeSummaryQuery.data
     const planning = planningSummaryQuery.data
     const operational = operationalReportQuery.data
@@ -96,12 +121,26 @@ const ConsolidatedPage: React.FC = () => {
 
     const printWindow = window.open('', '_blank', 'width=1024,height=768')
     if (!printWindow) {
+      setExporting(false)
       return
     }
 
     printWindow.document.write(html)
     printWindow.document.close()
     printWindow.focus()
+
+    // Reset exporting after print completes. Use afterprint event and fallback timeout.
+    const cleanup = () => {
+      try {
+        printWindow.removeEventListener('afterprint', cleanup)
+      } catch (e) {}
+      setExporting(false)
+    }
+
+    printWindow.addEventListener('afterprint', cleanup)
+    // fallback in case afterprint not fired
+    setTimeout(cleanup, 3000)
+
     printWindow.print()
   }
 
