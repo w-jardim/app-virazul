@@ -92,7 +92,7 @@ const DayPanel: React.FC<{ dateKey: string }> = ({ dateKey }) => {
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-semibold capitalize text-slate-800">{label}</p>
         <Link
-          to="/services/new"
+          to={`/services/new?start_at=${encodeURIComponent(dateKey)}`}
           className="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700"
         >
           + Novo

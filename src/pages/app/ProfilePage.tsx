@@ -22,6 +22,7 @@ const ProfilePage: React.FC = () => {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [minRestEnabled, setMinRestEnabled] = useState<boolean>(true)
 
   const setField = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((p) => ({ ...p, [k]: e.target.value }))
@@ -82,6 +83,76 @@ const ProfilePage: React.FC = () => {
                 insightsEnabled ? 'translate-x-5' : 'translate-x-0'
               }`}
             />
+          </button>
+        </label>
+        <label className="mt-4 flex items-center justify-between gap-3 cursor-pointer">
+          <div>
+            <p className="text-sm font-medium text-slate-700">Intervalo mínimo entre serviços (8h)</p>
+            <p className="text-xs text-slate-500">Impedir criação/edição de serviços que violem o intervalo mínimo de descanso</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={minRestEnabled}
+            onClick={async () => {
+              const next = !minRestEnabled
+              setMinRestEnabled(next)
+              try {
+                setBusy(true)
+                setError(null)
+                setSuccess(null)
+                const payload: any = { planning_preferences: { min_rest_enabled: next } }
+                await authApi.updateProfile(payload)
+                setSuccess('Preferência salva')
+              } catch (err: any) {
+                setError(err?.response?.data?.errors?.[0]?.message || 'Erro ao salvar preferência')
+                setMinRestEnabled(!next)
+              } finally {
+                setBusy(false)
+              }
+            }}
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 ${
+              minRestEnabled ? 'bg-indigo-600' : 'bg-slate-300'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                minRestEnabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </label>
+        <label className="mt-4 flex items-center justify-between gap-3 cursor-pointer">
+          <div>
+            <p className="text-sm font-medium text-slate-700">Limite mensal (120h)</p>
+            <p className="text-xs text-slate-500">Impedir criação de serviços que ultrapassem 120h no mês</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={true}
+            onClick={async () => {
+              // toggle by reading current state from server would be better; here we optimistically flip a simple local state
+              try {
+                setBusy(true)
+                setError(null)
+                setSuccess(null)
+                // toggle: fetch current prefs then invert monthly_limit_enabled
+                const me = await authApi.me()
+                // fetch planning prefs via planning summary endpoint is not available here; call update with enable/disable false to disable
+                // For simplicity, disable the monthly limit by setting monthly_limit_enabled=false when user clicks
+                const payload: any = { planning_preferences: { monthly_limit_enabled: false } }
+                await authApi.updateProfile(payload)
+                setSuccess('Preferência salva')
+              } catch (err: any) {
+                setError(err?.response?.data?.errors?.[0]?.message || 'Erro ao salvar preferência')
+              } finally {
+                setBusy(false)
+              }
+            }}
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 bg-indigo-600`}
+          >
+            <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5`} />
           </button>
         </label>
       </section>

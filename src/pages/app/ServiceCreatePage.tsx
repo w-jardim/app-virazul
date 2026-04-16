@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import ServiceForm from '@/features/services/components/ServiceForm'
 import ServiceState from '@/features/services/components/ServiceStates'
 import { useCreateService, useServiceTypes } from '@/features/services/hooks/useServicesData'
@@ -36,6 +36,13 @@ const ServiceCreatePage: React.FC = () => {
   const [importing, setImporting] = useState(false)
 
   const serviceTypes = serviceTypesQuery.data ?? []
+
+  const location = useLocation()
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search])
+  const startAtQuery = params.get('start_at') ?? undefined
+  const initialManualData: Partial<CreateServiceInput> | undefined = startAtQuery
+    ? { start_at: (startAtQuery.length === 10 ? `${startAtQuery}T09:00:00.000Z` : startAtQuery) }
+    : undefined
 
   const handleSubmit = async (payload: CreateServiceInput) => {
     setErrorMessage(null)
@@ -138,6 +145,7 @@ const ServiceCreatePage: React.FC = () => {
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <ServiceForm
                 serviceTypes={serviceTypes}
+                initialData={initialManualData as any}
                 submitLabel="Criar serviço"
                 busy={createMutation.isPending}
                 onSubmit={handleSubmit}

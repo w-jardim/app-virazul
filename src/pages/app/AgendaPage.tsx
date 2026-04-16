@@ -42,7 +42,7 @@ const AgendaPage: React.FC = () => {
           <p className="text-sm text-slate-600">Visualize escala ordinaria e servicos por dia, semana ou mes.</p>
         </div>
         <Link
-          to="/services/new"
+          to={`/services/new?start_at=${encodeURIComponent(day)}`}
           className="inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
         >
           Novo servico
@@ -77,7 +77,7 @@ const AgendaPage: React.FC = () => {
       ) : mode === 'week' && weekQuery.data ? (
         <AgendaWeekView data={weekQuery.data} />
       ) : mode === 'month' && monthQuery.data ? (
-        <AgendaMonthView data={monthQuery.data} />
+        <AgendaMonthView data={monthQuery.data} onDaySelect={setDay} />
       ) : (
         <AgendaState title="Sem dados de agenda para o periodo." />
       )}
