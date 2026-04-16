@@ -1,4 +1,4 @@
-ï»¿import type { PlanningSummary, PlanningSuggestion } from '../types/planning.types'
+import type { PlanningSummary, PlanningSuggestion } from '../types/planning.types'
 import MetricCard from '@/features/dashboard/components/MetricCard'
 import {
   BarChart,
@@ -36,8 +36,8 @@ export function PlanningHoursProgress({ summary }: { summary: PlanningSummary })
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">Progresso do mÃªs</h3>
-      <p className="mt-0.5 text-sm text-slate-500">Meta mensal de {toSafeHours(goal)} â€” acompanhe sua evoluÃ§Ã£o.</p>
+      <h3 className="text-base font-semibold text-slate-900">Progresso do mês</h3>
+      <p className="mt-0.5 text-sm text-slate-500">Meta mensal de {toSafeHours(goal)} — acompanhe sua evolução.</p>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <MetricCard label="Meta mensal" value={toSafeHours(goal)} />
@@ -82,17 +82,17 @@ export function PlanningProjectionChart({ summary }: { summary: PlanningSummary 
   if (entries.length === 0) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold text-slate-900">ProjeÃ§Ã£o por duraÃ§Ã£o</h3>
-        <p className="mt-2 text-sm text-slate-500">Meta jÃ¡ atingida. Nenhuma projeÃ§Ã£o necessÃ¡ria.</p>
+        <h3 className="text-base font-semibold text-slate-900">Projeção por duração</h3>
+        <p className="mt-2 text-sm text-slate-500">Meta já atingida. Nenhuma projeção necessária.</p>
       </section>
     )
   }
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">ProjeÃ§Ã£o por duraÃ§Ã£o</h3>
+      <h3 className="text-base font-semibold text-slate-900">Projeção por duração</h3>
       <p className="mt-0.5 text-sm text-slate-500">
-        Quantos serviÃ§os de cada duraÃ§Ã£o seriam necessÃ¡rios para atingir a meta.
+        Quantos serviços de cada duração seriam necessários para atingir a meta.
       </p>
       <div className="mt-4 h-48">
         <ResponsiveContainer width="100%" height="100%">
@@ -100,10 +100,10 @@ export function PlanningProjectionChart({ summary }: { summary: PlanningSummary 
             <XAxis dataKey="duration" tick={{ fontSize: 12 }} />
             <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
             <Tooltip
-              formatter={(value: number) => [`${toSafeCount(value)} serviÃ§o(s)`, 'Quantidade']}
+              formatter={(value: number) => [`${toSafeCount(value)} serviço(s)`, 'Quantidade']}
               contentStyle={{ fontSize: 12 }}
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+            <Bar dataKey="count" radius={[4, 4, 0, 0]} isAnimationActive={false}>
               {entries.map((_, idx) => (
                 <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
               ))}
@@ -122,17 +122,17 @@ export function PlanningCombinations({ summary }: { summary: PlanningSummary }) 
   if (combinations.length === 0) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold text-slate-900">CombinaÃ§Ãµes possÃ­veis</h3>
-        <p className="mt-2 text-sm text-slate-500">Meta jÃ¡ atingida ou sem combinaÃ§Ãµes disponÃ­veis para o restante.</p>
+        <h3 className="text-base font-semibold text-slate-900">Combinações possíveis</h3>
+        <p className="mt-2 text-sm text-slate-500">Meta já atingida ou sem combinações disponíveis para o restante.</p>
       </section>
     )
   }
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">CombinaÃ§Ãµes possÃ­veis</h3>
+      <h3 className="text-base font-semibold text-slate-900">Combinações possíveis</h3>
       <p className="mt-0.5 text-sm text-slate-500">
-        Formas de atingir (ou aproximar) a meta com diferentes combinaÃ§Ãµes de duraÃ§Ã£o.
+        Formas de atingir (ou aproximar) a meta com diferentes combinações de duração.
       </p>
       <ul className="mt-3 space-y-2">
         {combinations.map((combo, idx) => {
@@ -144,7 +144,7 @@ export function PlanningCombinations({ summary }: { summary: PlanningSummary }) 
             >
               <span className="text-slate-700">
                 {combo.items
-                  .map((item) => `${toSafeCount(item.count)}Ã—${toSafeCount(item.duration)}h`)
+                  .map((item) => `${toSafeCount(item.count)}×${toSafeCount(item.duration)}h`)
                   .join(' + ')}
               </span>
               <span
@@ -152,7 +152,7 @@ export function PlanningCombinations({ summary }: { summary: PlanningSummary }) 
                   totalHours === safeRemaining ? 'text-emerald-600' : 'text-slate-500'
                 }`}
               >
-                {toSafeHours(totalHours)} {totalHours === safeRemaining ? 'âœ“' : ''}
+                {toSafeHours(totalHours)}
               </span>
             </li>
           )
@@ -166,9 +166,9 @@ export function PlanningSuggestionsList({ suggestions }: { suggestions: Planning
   if (suggestions.length === 0) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold text-slate-900">SugestÃµes do sistema</h3>
+        <h3 className="text-base font-semibold text-slate-900">Sugestões do sistema</h3>
         <p className="mt-2 text-sm text-slate-500">
-          Meta jÃ¡ alcanÃ§ada ou nÃ£o hÃ¡ sugestÃµes disponÃ­veis para os prÃ³ximos dias.
+          Meta já alcançada ou não há sugestões disponíveis para os próximos dias.
         </p>
       </section>
     )
@@ -176,16 +176,16 @@ export function PlanningSuggestionsList({ suggestions }: { suggestions: Planning
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">SugestÃµes do sistema</h3>
+      <h3 className="text-base font-semibold text-slate-900">Sugestões do sistema</h3>
       <p className="mt-0.5 text-sm text-slate-500">
-        Datas e duraÃ§Ãµes sugeridas com base nas suas preferÃªncias e escala atual.
+        Datas e durações sugeridas com base nas suas preferências e escala atual.
       </p>
       <ul className="mt-3 divide-y divide-slate-100">
         {suggestions.map((s) => (
           <li key={s.date} className="flex items-start justify-between gap-4 py-2.5">
             <div>
               <p className="text-sm font-medium text-slate-800">
-                {formatDate(s.date)} â€” {toSafeHours(s.suggested_duration)}
+                {formatDate(s.date)} — {toSafeHours(s.suggested_duration)}
               </p>
               <p className="mt-0.5 text-xs text-slate-500">{s.reason}</p>
             </div>
@@ -198,3 +198,5 @@ export function PlanningSuggestionsList({ suggestions }: { suggestions: Planning
     </section>
   )
 }
+
+
