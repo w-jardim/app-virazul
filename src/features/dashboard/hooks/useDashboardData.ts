@@ -1,8 +1,10 @@
-﻿import { useMemo } from 'react'
-import { useQueries } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import { dashboardApi } from '../api/dashboard.api'
-import { getMonthKey, getTodayDateKey } from './dashboard.format'
+import { getTodayDateKey } from './dashboard.format'
 import type { DashboardDataBundle } from '../types/dashboard.types'
+import { servicesApi } from '@/features/services/api/services.api'
+import { financeApi } from '@/features/finance/api/finance.api'
 
 const emptyData: DashboardDataBundle = {
   summary: {
@@ -43,9 +45,8 @@ const emptyData: DashboardDataBundle = {
 
 export function useDashboardData() {
   const today = getTodayDateKey()
-  const month = getMonthKey()
 
-  const [summaryQuery, alertsQuery, agendaQuery, planningQuery, financeQuery] = useQueries({
+  const [summaryQuery, alertsQuery, agendaQuery, planningQuery] = useQueries({
     queries: [
       {
         queryKey: ['dashboard', 'summary'],
@@ -66,20 +67,42 @@ export function useDashboardData() {
         queryKey: ['dashboard', 'planning', 'summary'],
         queryFn: dashboardApi.getPlanningSummary,
         staleTime: 30_000
-      },
-      {
-        queryKey: ['dashboard', 'finance', 'summary', month],
-        queryFn: () => dashboardApi.getFinanceSummary(month),
-        staleTime: 30_000
       }
     ]
   })
 
+  const serviceDateRangeQuery = useQuery({
+    queryKey: ['services', 'date-range'],
+    queryFn: servicesApi.getDateRange,
+    staleTime: 15_000
+  })
+
+  const financeRange = useMemo(() => {
+    if (!serviceDateRangeQuery.data?.start_date || !serviceDateRangeQuery.data?.end_date) {
+      return null
+    }
+
+    return {
+      start_date: serviceDateRangeQuery.data.start_date,
+      end_date: serviceDateRangeQuery.data.end_date,
+    }
+  }, [serviceDateRangeQuery.data?.end_date, serviceDateRangeQuery.data?.start_date])
+
+  const financeQuery = useQuery({
+    queryKey: ['dashboard', 'finance', 'report', financeRange],
+    queryFn: async () => {
+      if (!financeRange) {
+        return emptyData.finance
+      }
+
+      const report = await financeApi.getReport(financeRange)
+      return report.summary
+    },
+    enabled: serviceDateRangeQuery.isSuccess,
+    staleTime: 30_000
+  })
+
   const data = useMemo<DashboardDataBundle>(() => {
-    // Fonte de verdade por bloco:
-    // - /dashboard/summary para KPIs consolidados
-    // - endpoints dedicados para listas e detalhes (agenda, alertas, planejamento e financeiro)
-    // Assim evitamos duplicar agregacoes no frontend e mantemos cada secao com contrato explicito.
     return {
       summary: summaryQuery.data || emptyData.summary,
       alerts: alertsQuery.data || emptyData.alerts,
@@ -94,10 +117,16 @@ export function useDashboardData() {
     alertsQuery.isLoading ||
     agendaQuery.isLoading ||
     planningQuery.isLoading ||
+    serviceDateRangeQuery.isLoading ||
     financeQuery.isLoading
 
   const hasError =
-    summaryQuery.isError || alertsQuery.isError || agendaQuery.isError || planningQuery.isError || financeQuery.isError
+    summaryQuery.isError ||
+    alertsQuery.isError ||
+    agendaQuery.isError ||
+    planningQuery.isError ||
+    serviceDateRangeQuery.isError ||
+    financeQuery.isError
 
   return {
     data,
@@ -106,6 +135,7 @@ export function useDashboardData() {
       alertsQuery,
       agendaQuery,
       planningQuery,
+      serviceDateRangeQuery,
       financeQuery
     },
     isInitialLoading,
@@ -115,6 +145,7 @@ export function useDashboardData() {
       void alertsQuery.refetch()
       void agendaQuery.refetch()
       void planningQuery.refetch()
+      void serviceDateRangeQuery.refetch()
       void financeQuery.refetch()
     }
   }

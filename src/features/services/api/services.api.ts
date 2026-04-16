@@ -3,6 +3,7 @@ import api from '@/lib/api/axios'
 import type {
   ApiEnvelope,
   CreateServiceInput,
+  ServiceDateRange,
   ServiceItem,
   ServiceTransitionInput,
   ServiceType,
@@ -69,6 +70,11 @@ export const servicesApi = {
     const response = await api.get<ApiEnvelope<ServiceItem[]>>('/api/v1/services', {
       params: filters
     })
+    return response.data.data
+  },
+
+  async getDateRange(): Promise<ServiceDateRange> {
+    const response = await api.get<ApiEnvelope<ServiceDateRange>>('/api/v1/services/date-range')
     return response.data.data
   },
 

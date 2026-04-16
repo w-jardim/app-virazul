@@ -1,48 +1,59 @@
-ï»¿import React, { useState } from 'react'
-import { useFinanceSummary, useFinanceReport } from '@/features/finance/hooks/useFinanceData'
+import React, { useMemo } from 'react'
+import { useFinanceReport } from '@/features/finance/hooks/useFinanceData'
 import {
   FinanceSummaryCards,
   FinanceByStatusChart,
   FinanceByServiceTypeTable
 } from '@/features/finance/components/FinanceComponents'
-import { PageLoadingState, PageErrorState } from '@/components/shared/PageStates'
-import { currentMonthLocal } from '@/utils/date-period'
+import { PageLoadingState, PageErrorState, PageEmptyState } from '@/components/shared/PageStates'
+import { useServiceDateRange } from '@/features/services/hooks/useServicesData'
 
 const FinancePage: React.FC = () => {
-  const [month, setMonth] = useState(currentMonthLocal)
+  const dateRangeQuery = useServiceDateRange()
 
-  const summaryQuery = useFinanceSummary(month)
-  const reportQuery = useFinanceReport({})
+  const reportFilters = useMemo(() => {
+    if (!dateRangeQuery.data?.start_date || !dateRangeQuery.data?.end_date) {
+      return {}
+    }
+
+    return {
+      start_date: dateRangeQuery.data.start_date,
+      end_date: dateRangeQuery.data.end_date,
+    }
+  }, [dateRangeQuery.data?.end_date, dateRangeQuery.data?.start_date])
+
+  const reportQuery = useFinanceReport(reportFilters)
+  const hasServiceRange = Boolean(dateRangeQuery.data?.start_date && dateRangeQuery.data?.end_date)
 
   return (
     <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Financeiro</h1>
-          <p className="text-sm text-slate-600">Acompanhe recebimentos, pendÃªncias e valores por tipo de serviÃ§o.</p>
+          <p className="text-sm text-slate-600">Acompanhe recebimentos, pendências e valores do primeiro ao último serviço cadastrado.</p>
+          {hasServiceRange ? (
+            <p className="mt-1 text-xs text-slate-500">
+              Período considerado: {dateRangeQuery.data?.start_date} a {dateRangeQuery.data?.end_date}
+            </p>
+          ) : null}
         </div>
-        <label className="block text-xs font-medium text-slate-600">
-          MÃªs de referÃªncia
-          <input
-            type="month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            className="mt-1 block rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          />
-        </label>
       </header>
 
-      {summaryQuery.isLoading ? (
+      {dateRangeQuery.isLoading || reportQuery.isLoading ? (
         <PageLoadingState />
-      ) : summaryQuery.isError || !summaryQuery.data ? (
-        <PageErrorState title="Falha ao carregar dados financeiros" description="Verifique o mÃªs selecionado e tente novamente." />
+      ) : dateRangeQuery.isError || reportQuery.isError ? (
+        <PageErrorState title="Falha ao carregar dados financeiros" description="Tente novamente em instantes." />
+      ) : !hasServiceRange ? (
+        <PageEmptyState title="Sem serviços cadastrados" description="Cadastre serviços para visualizar o consolidado financeiro do período real." />
+      ) : !reportQuery.data ? (
+        <PageErrorState title="Falha ao carregar dados financeiros" description="Tente novamente em instantes." />
       ) : (
         <div className="space-y-4">
-          <FinanceSummaryCards summary={summaryQuery.data} />
+          <FinanceSummaryCards summary={reportQuery.data.summary} />
 
           <div className="grid gap-4 xl:grid-cols-2">
-            <FinanceByStatusChart summary={summaryQuery.data} />
-            <FinanceByServiceTypeTable rows={reportQuery.data?.by_service_type ?? []} />
+            <FinanceByStatusChart summary={reportQuery.data.summary} />
+            <FinanceByServiceTypeTable rows={reportQuery.data.by_service_type} />
           </div>
         </div>
       )}
@@ -51,4 +62,3 @@ const FinancePage: React.FC = () => {
 }
 
 export default FinancePage
-

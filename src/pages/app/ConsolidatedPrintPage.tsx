@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { useServiceTypes } from '@/features/services/hooks/useServicesData'
-import { useFinanceSummary } from '@/features/finance/hooks/useFinanceData'
+import { useFinanceReport, useFinanceSummary } from '@/features/finance/hooks/useFinanceData'
 import { usePlanningSummary } from '@/features/planning/hooks/usePlanningData'
 import { useFinancialReport, useOperationalReport } from '@/features/reports/hooks/useReportsData'
 import { useSearchParams } from 'react-router-dom'
@@ -13,15 +13,23 @@ const ConsolidatedPrintPage: React.FC = () => {
   const serviceType = params.get('type') || ''
 
   const month = useMemo(() => (startDate || '').slice(0, 7), [startDate])
-
   const serviceTypesQuery = useServiceTypes()
-  const financeSummaryQuery = useFinanceSummary(month)
   const planningSummaryQuery = usePlanningSummary()
-  const reportFilters = useMemo(() => ({ start_date: startDate || undefined, end_date: endDate || undefined, service_type: serviceType || undefined }), [startDate, endDate, serviceType])
+  const reportFilters = useMemo(
+    () => ({
+      start_date: startDate || undefined,
+      end_date: endDate || undefined,
+      service_type: serviceType || undefined,
+    }),
+    [endDate, serviceType, startDate],
+  )
+  const financeSummaryQuery = useFinanceSummary(month)
+  const financeReportQuery = useFinanceReport(reportFilters)
   const operationalReportQuery = useOperationalReport(reportFilters)
   const financialReportQuery = useFinancialReport(reportFilters)
 
-  const finance = financeSummaryQuery.data
+  const useMonthlyFinanceSummary = !serviceType && startDate.slice(0, 7) === endDate.slice(0, 7)
+  const finance = useMonthlyFinanceSummary ? financeSummaryQuery.data : financeReportQuery.data?.summary
   const planning = planningSummaryQuery.data
   const operational = operationalReportQuery.data
   const financial = financialReportQuery.data
@@ -31,7 +39,9 @@ const ConsolidatedPrintPage: React.FC = () => {
   return (
     <div style={{ padding: 24, fontFamily: 'Arial, sans-serif', color: '#111827' }}>
       <h1 style={{ marginBottom: 4 }}>Consolidado Operacional e Financeiro</h1>
-      <div style={{ color: '#6b7280', fontSize: 12, marginBottom: 12 }}>Período: {escapeHtml(startDate || '-')} até {escapeHtml(endDate || '-')} | Tipo: {escapeHtml(serviceTypeLabel)}</div>
+      <div style={{ color: '#6b7280', fontSize: 12, marginBottom: 12 }}>
+        Periodo: {escapeHtml(startDate || '-')} ate {escapeHtml(endDate || '-')} | Tipo: {escapeHtml(serviceTypeLabel)}
+      </div>
 
       <h2 style={{ marginTop: 12, borderBottom: '1px solid #e5e7eb', paddingBottom: 6 }}>Financeiro</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12 }}>
@@ -49,9 +59,9 @@ const ConsolidatedPrintPage: React.FC = () => {
         <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 10 }}><div style={{ color: '#6b7280', fontSize: 12 }}>Horas restantes</div><div style={{ fontSize: 16, fontWeight: 600 }}>{planning?.remaining_hours || 0}</div></div>
       </div>
 
-      <h2 style={{ marginTop: 20, borderBottom: '1px solid #e5e7eb', paddingBottom: 6 }}>Relatórios</h2>
+      <h2 style={{ marginTop: 20, borderBottom: '1px solid #e5e7eb', paddingBottom: 6 }}>Relatorios</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12 }}>
-        <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 10 }}><div style={{ color: '#6b7280', fontSize: 12 }}>Serviços no período</div><div style={{ fontSize: 16, fontWeight: 600 }}>{operational?.summary?.total_services || 0}</div></div>
+        <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 10 }}><div style={{ color: '#6b7280', fontSize: 12 }}>Servicos no periodo</div><div style={{ fontSize: 16, fontWeight: 600 }}>{operational?.summary?.total_services || 0}</div></div>
         <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 10 }}><div style={{ color: '#6b7280', fontSize: 12 }}>Horas realizadas</div><div style={{ fontSize: 16, fontWeight: 600 }}>{operational?.summary?.realized_hours || 0}</div></div>
         <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 10 }}><div style={{ color: '#6b7280', fontSize: 12 }}>Recebimento (%)</div><div style={{ fontSize: 16, fontWeight: 600 }}>{pct(financial?.summary?.received_percentage || 0)}</div></div>
         <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 10 }}><div style={{ color: '#6b7280', fontSize: 12 }}>Pendente (%)</div><div style={{ fontSize: 16, fontWeight: 600 }}>{pct(financial?.summary?.pending_percentage || 0)}</div></div>
@@ -61,3 +71,5 @@ const ConsolidatedPrintPage: React.FC = () => {
 }
 
 export default ConsolidatedPrintPage
+
+

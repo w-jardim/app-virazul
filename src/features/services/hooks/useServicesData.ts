@@ -39,6 +39,14 @@ export function useServiceTypes() {
   })
 }
 
+export function useServiceDateRange() {
+  return useQuery({
+    queryKey: ['services', 'date-range'],
+    queryFn: servicesApi.getDateRange,
+    staleTime: 15_000
+  })
+}
+
 export function useServicesList(filters: ServiceListFilters) {
   const query = useQuery({
     queryKey: ['services', 'list', filters.serviceTypeId || null],
@@ -80,11 +88,14 @@ export function useServiceDetail(id?: number) {
 
 function invalidateServices(queryClient: ReturnType<typeof useQueryClient>, id?: number) {
   void queryClient.invalidateQueries({ queryKey: ['services', 'list'] })
+  void queryClient.invalidateQueries({ queryKey: ['services', 'date-range'] })
   if (id) {
     void queryClient.invalidateQueries({ queryKey: ['services', 'detail', id] })
   }
   void queryClient.invalidateQueries({ queryKey: ['agenda'] })
   void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+  void queryClient.invalidateQueries({ queryKey: ['finance'] })
+  void queryClient.invalidateQueries({ queryKey: ['reports'] })
 }
 
 export function useCreateService() {

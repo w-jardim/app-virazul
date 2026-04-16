@@ -1,19 +1,109 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { money, pct, escapeHtml } from '@/utils/format'
 import html2pdf from 'html2pdf.js'
 import api from '@/lib/api/axios'
-import FinancePage from './FinancePage'
 import PlanningPage from './PlanningPage'
 import ReportsPage from './ReportsPage'
-import { startOfMonthLocal, todayLocal } from '@/utils/date-period'
-import { useServiceTypes } from '@/features/services/hooks/useServicesData'
-import { useFinanceSummary } from '@/features/finance/hooks/useFinanceData'
+import { startOfMonthLocal } from '@/utils/date-period'
+import { useServiceDateRange, useServiceTypes } from '@/features/services/hooks/useServicesData'
+import { useFinanceReport, useFinanceSummary } from '@/features/finance/hooks/useFinanceData'
+import {
+  FinanceSummaryCards,
+  FinanceByStatusChart,
+  FinanceByServiceTypeTable,
+} from '@/features/finance/components/FinanceComponents'
 import { usePlanningSummary } from '@/features/planning/hooks/usePlanningData'
 import { useFinancialReport, useOperationalReport } from '@/features/reports/hooks/useReportsData'
+import { PageEmptyState, PageErrorState, PageLoadingState } from '@/components/shared/PageStates'
 
 type ConsolidatedTab = 'finance' | 'planning' | 'reports'
 
+type ConsolidatedFinancePanelProps = {
+  startDate: string
+  endDate: string
+  serviceTypeLabel: string
+  isLoading: boolean
+  isError: boolean
+  data: {
+    summary: {
+      total_expected: number
+      total_received: number
+      total_pending: number
+      total_overdue: number
+      by_status: Record<string, number>
+    }
+    by_service_type: Array<{
+      service_type: string
+      service_type_name: string
+      total_expected: number
+      total_received: number
+      total_pending: number
+      total_overdue: number
+    }>
+  } | undefined
+}
 
+function hasFinanceData(data: ConsolidatedFinancePanelProps['data']) {
+  if (!data) return false
+
+  const summary = data.summary
+  const total =
+    (summary.total_expected || 0) +
+    (summary.total_received || 0) +
+    (summary.total_pending || 0) +
+    (summary.total_overdue || 0)
+
+  return total > 0 || data.by_service_type.length > 0
+}
+
+function ConsolidatedFinancePanel({
+  startDate,
+  endDate,
+  serviceTypeLabel,
+  isLoading,
+  isError,
+  data,
+}: ConsolidatedFinancePanelProps) {
+  if (isLoading) {
+    return <PageLoadingState />
+  }
+
+  if (isError || !data) {
+    return (
+      <PageErrorState
+        title="Falha ao carregar financeiro consolidado"
+        description="Revise os filtros aplicados e tente novamente."
+      />
+    )
+  }
+
+  if (!hasFinanceData(data)) {
+    return (
+      <PageEmptyState
+        title="Sem dados financeiros no consolidado"
+        description="Ajuste o periodo ou o tipo de servico para visualizar valores financeiros neste painel."
+      />
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="text-base font-semibold text-slate-900">Financeiro consolidado</h2>
+        <p className="mt-0.5 text-sm text-slate-500">
+          Este painel usa os filtros da pagina consolidada: {startDate || '-'} a {endDate || '-'} | Tipo: {serviceTypeLabel}.
+        </p>
+      </section>
+
+      <FinanceSummaryCards summary={data.summary} />
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <FinanceByStatusChart summary={data.summary} />
+        <FinanceByServiceTypeTable rows={data.by_service_type} />
+      </div>
+    </div>
+  )
+}
 
 const ConsolidatedPage: React.FC = () => {
   const [tab, setTab] = useState<ConsolidatedTab>('finance')
@@ -23,52 +113,65 @@ const ConsolidatedPage: React.FC = () => {
   const [exporting, setExporting] = useState(false)
   const [filterError, setFilterError] = useState<string | null>(null)
 
-  const month = useMemo(() => (startDate || startOfMonthLocal).slice(0, 7), [startDate])
   const reportFilters = useMemo(
     () => ({
       start_date: startDate || undefined,
       end_date: endDate || undefined,
       service_type: serviceType || undefined,
     }),
-    [endDate, serviceType, startDate]
+    [endDate, serviceType, startDate],
   )
 
+  const month = useMemo(() => (startDate || startOfMonthLocal).slice(0, 7), [startDate])
+
+  const serviceDateRangeQuery = useServiceDateRange()
   const serviceTypesQuery = useServiceTypes()
   const financeSummaryQuery = useFinanceSummary(month)
+  const financeReportQuery = useFinanceReport(reportFilters)
   const planningSummaryQuery = usePlanningSummary()
   const operationalReportQuery = useOperationalReport(reportFilters)
   const financialReportQuery = useFinancialReport(reportFilters)
 
-  const anyLoading = (
+  const anyLoading =
     serviceTypesQuery.isLoading ||
-    financeSummaryQuery.isLoading ||
+    financeReportQuery.isLoading ||
     planningSummaryQuery.isLoading ||
     operationalReportQuery.isLoading ||
     financialReportQuery.isLoading
-  )
+
+  
+  useEffect(() => {
+    if (!serviceDateRangeQuery.data?.start_date || !serviceDateRangeQuery.data?.end_date) {
+      return
+    }
+
+    setStartDate((current) => current || serviceDateRangeQuery.data.start_date || '')
+    setEndDate((current) => current || serviceDateRangeQuery.data.end_date || '')
+  }, [serviceDateRangeQuery.data?.end_date, serviceDateRangeQuery.data?.start_date])
+  const serviceTypeLabel = serviceTypesQuery.data?.find((s) => s.key === serviceType)?.name || 'Todos'
+  const useMonthlyFinanceSummary = !serviceType && startDate.slice(0, 7) === endDate.slice(0, 7)
+  const effectiveFinanceSummary = useMonthlyFinanceSummary
+    ? financeSummaryQuery.data
+    : financeReportQuery.data?.summary
 
   const onExportConsolidatedPdf = async () => {
-    // Guard: wait for queries to finish
     if (anyLoading) {
       setFilterError('Aguarde o carregamento dos dados antes de exportar.')
       return
     }
 
-    // Validate date range
     if (startDate && endDate && startDate > endDate) {
-      setFilterError('Data de início deve ser anterior ou igual à data de fim.')
+      setFilterError('Data de inicio deve ser anterior ou igual a data de fim.')
       return
     }
 
     setFilterError(null)
     setExporting(true)
 
-    const finance = financeSummaryQuery.data
+    const finance = effectiveFinanceSummary
     const planning = planningSummaryQuery.data
     const operational = operationalReportQuery.data
     const financial = financialReportQuery.data
-
-    const serviceTypeLabel = serviceTypesQuery.data?.find((s) => s.key === serviceType)?.name || 'Todos'
 
     const html = `
       <html>
@@ -87,7 +190,7 @@ const ConsolidatedPage: React.FC = () => {
         </head>
         <body>
           <h1>Consolidado Operacional e Financeiro</h1>
-          <div class="muted">Período: ${escapeHtml(startDate || '-') } até ${escapeHtml(endDate || '-')} | Tipo: ${escapeHtml(serviceTypeLabel)}</div>
+          <div class="muted">Periodo: ${escapeHtml(startDate || '-')} ate ${escapeHtml(endDate || '-')} | Tipo: ${escapeHtml(serviceTypeLabel)}</div>
 
           <h2>Financeiro</h2>
           <div class="grid">
@@ -105,9 +208,9 @@ const ConsolidatedPage: React.FC = () => {
             <div class="card"><div class="k">Horas restantes</div><div class="v">${escapeHtml(planning?.remaining_hours || 0)}</div></div>
           </div>
 
-          <h2>Relatórios</h2>
+          <h2>Relatorios</h2>
           <div class="grid">
-            <div class="card"><div class="k">Serviços no período</div><div class="v">${escapeHtml(operational?.summary?.total_services || 0)}</div></div>
+            <div class="card"><div class="k">Servicos no periodo</div><div class="v">${escapeHtml(operational?.summary?.total_services || 0)}</div></div>
             <div class="card"><div class="k">Horas realizadas</div><div class="v">${escapeHtml(operational?.summary?.realized_hours || 0)}</div></div>
             <div class="card"><div class="k">Recebimento (%)</div><div class="v">${escapeHtml(pct(financial?.summary?.received_percentage || 0))}</div></div>
             <div class="card"><div class="k">Pendente (%)</div><div class="v">${escapeHtml(pct(financial?.summary?.pending_percentage || 0))}</div></div>
@@ -119,18 +222,22 @@ const ConsolidatedPage: React.FC = () => {
     const filename = `consolidado-${startDate || 'period'}.pdf`
 
     try {
-      const resp = await api.post(
-        '/reports/export',
-        { html, filename },
-        { responseType: 'blob' }
-      )
-
+      const resp = await api.post('/reports/export', { html, filename }, { responseType: 'blob' })
       const blob = resp.data as Blob
       const url = URL.createObjectURL(blob)
-      try { window.open(url, '_blank') } catch (e) { /* ignore */ }
-      setTimeout(() => { try { URL.revokeObjectURL(url) } catch (e) {} }, 60 * 1000)
-    } catch (err) {
-      // fallback: try client-side generation if server fails
+      try {
+        window.open(url, '_blank')
+      } catch {
+        // ignore popup blockers
+      }
+      setTimeout(() => {
+        try {
+          URL.revokeObjectURL(url)
+        } catch {
+          // ignore revoke errors
+        }
+      }, 60 * 1000)
+    } catch {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pdf: any = await html2pdf()
@@ -140,10 +247,20 @@ const ConsolidatedPage: React.FC = () => {
           .get('pdf')
         const blob: Blob = pdf.output('blob')
         const url = URL.createObjectURL(blob)
-        try { window.open(url, '_blank') } catch (e) {}
-        setTimeout(() => { try { URL.revokeObjectURL(url) } catch (e) {} }, 60 * 1000)
-      } catch (e) {
-        // final fallback: no-op
+        try {
+          window.open(url, '_blank')
+        } catch {
+          // ignore popup blockers
+        }
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(url)
+          } catch {
+            // ignore revoke errors
+          }
+        }, 60 * 1000)
+      } catch {
+        // no-op fallback
       }
     } finally {
       setExporting(false)
@@ -155,14 +272,15 @@ const ConsolidatedPage: React.FC = () => {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Consolidado</h1>
-          <p className="text-sm text-slate-600">Centralize financeiro, planejamento e relatórios em uma única área.</p>
+          <p className="text-sm text-slate-600">Centralize financeiro, planejamento e relatorios com os mesmos filtros.</p>
         </div>
 
-        <button
-          type="button"
-          onClick={onExportConsolidatedPdf}
-          className="inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
-        >
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onExportConsolidatedPdf}
+            className="inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+          >
             {exporting ? 'Gerando...' : 'Gerar dados consolidados e PDF'}
           </button>
           <button
@@ -176,13 +294,18 @@ const ConsolidatedPage: React.FC = () => {
             }}
             className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Abrir versão para impressão
+            Abrir versao para impressao
           </button>
+        </div>
       </header>
+
+      {filterError ? (
+        <PageErrorState title="Nao foi possivel exportar" description={filterError} />
+      ) : null}
 
       <section className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-3">
         <label className="block text-xs font-medium text-slate-600">
-          Início
+          Inicio
           <input
             type="date"
             value={startDate}
@@ -202,7 +325,7 @@ const ConsolidatedPage: React.FC = () => {
         </label>
 
         <label className="block text-xs font-medium text-slate-600">
-          Tipo de serviço
+          Tipo de servico
           <select
             value={serviceType}
             onChange={(e) => setServiceType(e.target.value)}
@@ -210,7 +333,9 @@ const ConsolidatedPage: React.FC = () => {
           >
             <option value="">Todos</option>
             {(serviceTypesQuery.data || []).map((st) => (
-              <option key={st.key} value={st.key}>{st.name}</option>
+              <option key={st.key} value={st.key}>
+                {st.name}
+              </option>
             ))}
           </select>
         </label>
@@ -248,11 +373,20 @@ const ConsolidatedPage: React.FC = () => {
               : 'border-transparent text-slate-500 hover:text-slate-700'
           }`}
         >
-          Relatórios
+          Relatorios
         </button>
       </nav>
 
-      {tab === 'finance' ? <FinancePage /> : null}
+      {tab === 'finance' ? (
+        <ConsolidatedFinancePanel
+          startDate={startDate}
+          endDate={endDate}
+          serviceTypeLabel={serviceTypeLabel}
+          isLoading={financeReportQuery.isLoading}
+          isError={financeReportQuery.isError}
+          data={financeReportQuery.data}
+        />
+      ) : null}
       {tab === 'planning' ? <PlanningPage /> : null}
       {tab === 'reports' ? <ReportsPage /> : null}
     </div>
@@ -260,3 +394,4 @@ const ConsolidatedPage: React.FC = () => {
 }
 
 export default ConsolidatedPage
+

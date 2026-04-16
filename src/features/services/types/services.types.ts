@@ -13,6 +13,11 @@ export type ServiceType = {
   counts_in_financial: boolean
 }
 
+export type ServiceDateRange = {
+  start_date: string | null
+  end_date: string | null
+}
+
 export type ServiceScope =
   | 'ORDINARY'
   | 'RAS_VOLUNTARY'

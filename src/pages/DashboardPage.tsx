@@ -1,4 +1,4 @@
-﻿import React from 'react'
+import React from 'react'
 import { useDashboardData } from '@/features/dashboard/hooks/useDashboardData'
 import DashboardSection from '@/features/dashboard/components/DashboardSection'
 import MetricCard from '@/features/dashboard/components/MetricCard'
@@ -127,7 +127,7 @@ const DashboardPage: React.FC = () => {
           )}
         </DashboardSection>
 
-        <DashboardSection title="Financeiro" subtitle="Resumo financeiro consolidado no mês atual.">
+        <DashboardSection title="Financeiro" subtitle="Resumo financeiro consolidado do primeiro ao ultimo servico cadastrado.">
           {queries.financeQuery.isLoading ? (
             <LoadingState title="Carregando financeiro..." />
           ) : queries.financeQuery.isError ? (

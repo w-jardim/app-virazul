@@ -3,8 +3,10 @@ import { renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { dashboardApi } from '../api/dashboard.api'
-import { getMonthKey, getTodayDateKey } from '../hooks/dashboard.format'
+import { getTodayDateKey } from '../hooks/dashboard.format'
 import { useDashboardData } from '../hooks/useDashboardData'
+import { servicesApi } from '@/features/services/api/services.api'
+import { financeApi } from '@/features/finance/api/finance.api'
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -25,7 +27,7 @@ describe('useDashboardData integration', () => {
     vi.restoreAllMocks()
   })
 
-  it('calls feature endpoints with expected date and month parameters', async () => {
+  it('calls feature endpoints with expected date and first-to-last service range parameters', async () => {
     const getSummarySpy = vi.spyOn(dashboardApi, 'getSummary').mockResolvedValue({
       today: { confirmed: [], reservations: [] },
       counts: { alerts_active: 0, operational_pending: 0, financial_pending: 0 },
@@ -43,12 +45,21 @@ describe('useDashboardData integration', () => {
       waiting_hours: 0,
       remaining_hours: 0
     })
-    const getFinanceSpy = vi.spyOn(dashboardApi, 'getFinanceSummary').mockResolvedValue({
-      total_expected: 0,
-      total_received: 0,
-      total_pending: 0,
-      total_overdue: 0,
-      by_status: {}
+    const getDateRangeSpy = vi.spyOn(servicesApi, 'getDateRange').mockResolvedValue({
+      start_date: '2026-04-01',
+      end_date: '2026-04-16',
+    })
+    const getFinanceSpy = vi.spyOn(financeApi, 'getReport').mockResolvedValue({
+      filters: { start_date: '2026-04-01', end_date: '2026-04-16', service_type: null, financial_status: null },
+      summary: {
+        total_expected: 0,
+        total_received: 0,
+        total_pending: 0,
+        total_overdue: 0,
+        by_status: {}
+      },
+      by_service_type: [],
+      items: []
     })
 
     const { result } = renderHook(() => useDashboardData(), { wrapper: createWrapper() })
@@ -59,7 +70,11 @@ describe('useDashboardData integration', () => {
     expect(getAlertsSpy).toHaveBeenCalledTimes(1)
     expect(getPlanningSpy).toHaveBeenCalledTimes(1)
     expect(getAgendaSpy).toHaveBeenCalledWith(getTodayDateKey())
-    expect(getFinanceSpy).toHaveBeenCalledWith(getMonthKey())
+    expect(getDateRangeSpy).toHaveBeenCalledTimes(1)
+    expect(getFinanceSpy).toHaveBeenCalledWith({
+      start_date: '2026-04-01',
+      end_date: '2026-04-16',
+    })
   })
 
   it('keeps available blocks when one query fails', async () => {
@@ -80,12 +95,21 @@ describe('useDashboardData integration', () => {
       waiting_hours: 2,
       remaining_hours: 110
     })
-    vi.spyOn(dashboardApi, 'getFinanceSummary').mockResolvedValue({
-      total_expected: 1000,
-      total_received: 500,
-      total_pending: 500,
-      total_overdue: 0,
-      by_status: {}
+    vi.spyOn(servicesApi, 'getDateRange').mockResolvedValue({
+      start_date: '2026-04-01',
+      end_date: '2026-04-16',
+    })
+    vi.spyOn(financeApi, 'getReport').mockResolvedValue({
+      filters: { start_date: '2026-04-01', end_date: '2026-04-16', service_type: null, financial_status: null },
+      summary: {
+        total_expected: 1000,
+        total_received: 500,
+        total_pending: 500,
+        total_overdue: 0,
+        by_status: {}
+      },
+      by_service_type: [],
+      items: []
     })
 
     const { result } = renderHook(() => useDashboardData(), { wrapper: createWrapper() })

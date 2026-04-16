@@ -3,33 +3,37 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ConsolidatedPage from '@/pages/app/ConsolidatedPage'
-
-vi.mock('@/pages/app/FinancePage', () => ({
-  default: () => <div data-testid="finance-content">Finance content</div>
-}))
+import api from '@/lib/api/axios'
+import { useFinanceReport, useFinanceSummary } from '@/features/finance/hooks/useFinanceData'
 
 vi.mock('@/pages/app/PlanningPage', () => ({
-  default: () => <div data-testid="planning-content">Planning content</div>
+  default: () => <div data-testid="planning-content">Planning content</div>,
 }))
 
 vi.mock('@/pages/app/ReportsPage', () => ({
-  default: () => <div data-testid="reports-content">Reports content</div>
+  default: () => <div data-testid="reports-content">Reports content</div>,
+}))
+
+vi.mock('@/lib/api/axios', () => ({
+  default: {
+    post: vi.fn(),
+  },
 }))
 
 vi.mock('@/features/services/hooks/useServicesData', () => ({
-  useServiceTypes: () => ({ data: [] })
+  useServiceDateRange: () => ({
+    data: { start_date: '2026-04-01', end_date: '2026-04-16' },
+    isLoading: false,
+  }),
+  useServiceTypes: () => ({
+    data: [{ id: 1, key: 'ras', name: 'RAS Voluntario' }],
+    isLoading: false,
+  }),
 }))
 
 vi.mock('@/features/finance/hooks/useFinanceData', () => ({
-  useFinanceSummary: () => ({
-    data: {
-      total_expected: 1000,
-      total_received: 800,
-      total_pending: 150,
-      total_overdue: 50,
-      by_status: {},
-    },
-  }),
+  useFinanceSummary: vi.fn(),
+  useFinanceReport: vi.fn(),
 }))
 
 vi.mock('@/features/planning/hooks/usePlanningData', () => ({
@@ -48,6 +52,7 @@ vi.mock('@/features/planning/hooks/usePlanningData', () => ({
         max_single_shift_hours: null,
       },
     },
+    isLoading: false,
   }),
 }))
 
@@ -63,6 +68,7 @@ vi.mock('@/features/reports/hooks/useReportsData', () => ({
         conversion_rate: 50,
       },
     },
+    isLoading: false,
   }),
   useFinancialReport: () => ({
     data: {
@@ -78,8 +84,13 @@ vi.mock('@/features/reports/hooks/useReportsData', () => ({
       by_financial_status: {},
       by_service_type: {},
     },
+    isLoading: false,
   }),
 }))
+
+const mockUseFinanceSummary = vi.mocked(useFinanceSummary)
+const mockUseFinanceReport = vi.mocked(useFinanceReport)
+const mockApi = vi.mocked(api)
 
 function renderWithQuery(ui: React.ReactNode) {
   const client = new QueryClient({
@@ -92,40 +103,107 @@ function renderWithQuery(ui: React.ReactNode) {
 describe('ConsolidatedPage', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+    mockUseFinanceSummary.mockReturnValue({
+      data: {
+        total_expected: 1000,
+        total_received: 800,
+        total_pending: 150,
+        total_overdue: 50,
+        by_status: { PAGO: 800, NAO_PAGO: 150, PREVISTO: 50 },
+      },
+      isLoading: false,
+      isError: false,
+    } as never)
+    mockUseFinanceReport.mockReturnValue({
+      data: {
+        summary: {
+          total_expected: 1000,
+          total_received: 800,
+          total_pending: 150,
+          total_overdue: 50,
+          by_status: { PAGO: 800, NAO_PAGO: 150, PREVISTO: 50 },
+        },
+        by_service_type: [
+          {
+            service_type: 'ras',
+            service_type_name: 'RAS Voluntario',
+            total_expected: 1000,
+            total_received: 800,
+            total_pending: 150,
+            total_overdue: 50,
+          },
+        ],
+        items: [],
+        filters: {
+          start_date: '2026-04-01',
+          end_date: '2026-04-16',
+          service_type: null,
+          financial_status: null,
+        },
+      },
+      isLoading: false,
+      isError: false,
+    } as never)
+    mockApi.post.mockResolvedValue({ data: new Blob(['pdf'], { type: 'application/pdf' }) } as never)
+    vi.stubGlobal('URL', {
+      createObjectURL: vi.fn(() => 'blob:mock'),
+      revokeObjectURL: vi.fn(),
+    })
   })
 
   it('starts on Finance tab and switches to Planning/Reports', async () => {
     const user = userEvent.setup()
     renderWithQuery(<ConsolidatedPage />)
 
-    expect(screen.getByTestId('finance-content')).toBeInTheDocument()
+    expect(screen.getByText(/Resumo financeiro/i)).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Planejamento' }))
     expect(screen.getByTestId('planning-content')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Relatórios' }))
+    await user.click(screen.getByRole('button', { name: 'Relatorios' }))
     expect(screen.getByTestId('reports-content')).toBeInTheDocument()
   })
 
-  it('exports consolidated pdf through print window', async () => {
-    const user = userEvent.setup()
-    const write = vi.fn()
-    const close = vi.fn()
-    const focus = vi.fn()
-    const print = vi.fn()
+  it('uses first-to-last registered service dates in the finance query by default', async () => {
+    renderWithQuery(<ConsolidatedPage />)
 
-    const openSpy = vi.spyOn(window, 'open').mockReturnValue({
-      document: { write, close } as unknown as Document,
-      focus,
-      print,
-    } as unknown as Window)
+    expect(mockUseFinanceReport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        start_date: '2026-04-01',
+        end_date: '2026-04-16',
+      }),
+    )
+  })
+
+  it('uses consolidated filters in the finance query', async () => {
+    const user = userEvent.setup()
+    renderWithQuery(<ConsolidatedPage />)
+
+    await user.selectOptions(screen.getByRole('combobox'), 'ras')
+
+    expect(mockUseFinanceReport).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        service_type: 'ras',
+      }),
+    )
+  })
+
+  it('exports consolidated pdf through the backend export endpoint', async () => {
+    const user = userEvent.setup()
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
 
     renderWithQuery(<ConsolidatedPage />)
 
     await user.click(screen.getByRole('button', { name: 'Gerar dados consolidados e PDF' }))
 
+    expect(mockApi.post).toHaveBeenCalledWith(
+      '/reports/export',
+      expect.objectContaining({
+        filename: expect.stringContaining('consolidado-'),
+        html: expect.stringContaining('Financeiro'),
+      }),
+      expect.objectContaining({ responseType: 'blob' }),
+    )
     expect(openSpy).toHaveBeenCalled()
-    expect(write).toHaveBeenCalled()
-    expect(print).toHaveBeenCalled()
   })
 })
