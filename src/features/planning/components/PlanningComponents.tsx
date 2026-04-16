@@ -1,17 +1,6 @@
-import type { PlanningSummary, PlanningSuggestion } from '../types/planning.types'
+ï»¿import type { PlanningSummary, PlanningSuggestion } from '../types/planning.types'
 import MetricCard from '@/features/dashboard/components/MetricCard'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts'
 import { toSafeCount, toSafeHours, toSafeNonNegative } from '../utils/safe-number'
-
-const COLORS = ['#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd', '#e0f2fe', '#f0f9ff']
 
 function formatConfidence(value: number) {
   const safe = Math.max(0, Math.min(100, toSafeNonNegative(value, 0) * 100))
@@ -25,19 +14,26 @@ function formatDate(dateKey: string) {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(parsed)
 }
 
+function pluralizeShifts(count: number, duration: string) {
+  const safeCount = toSafeCount(count)
+  const label = safeCount === 1 ? 'plantÃ£o' : 'plantÃµes'
+  return `${safeCount} ${label} de ${duration}h`
+}
+
 export function PlanningHoursProgress({ summary }: { summary: PlanningSummary }) {
   const goal = toSafeNonNegative(summary.goal, 0)
   const confirmedHours = toSafeNonNegative(summary.confirmed_hours, 0)
   const waitingHours = toSafeNonNegative(summary.waiting_hours, 0)
   const remainingHours = toSafeNonNegative(summary.remaining_hours, 0)
+  const capGapHours = toSafeNonNegative(summary.cap_gap_hours ?? 0, 0)
 
   const confirmedPct = goal > 0 ? Math.min((confirmedHours / goal) * 100, 100) : 0
   const waitingPct = goal > 0 ? Math.min((waitingHours / goal) * 100, 100 - confirmedPct) : 0
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">Progresso do mês</h3>
-      <p className="mt-0.5 text-sm text-slate-500">Meta mensal de {toSafeHours(goal)} — acompanhe sua evolução.</p>
+      <h3 className="text-base font-semibold text-slate-900">Progresso do mÃªs</h3>
+      <p className="mt-0.5 text-sm text-slate-500">Meta mensal de {toSafeHours(goal)} â€” acompanhe sua evoluÃ§Ã£o.</p>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <MetricCard label="Meta mensal" value={toSafeHours(goal)} />
@@ -45,6 +41,16 @@ export function PlanningHoursProgress({ summary }: { summary: PlanningSummary })
         <MetricCard label="Em espera" value={toSafeHours(waitingHours)} />
         <MetricCard label="Faltantes" value={toSafeHours(remainingHours)} tone={remainingHours > 0 ? 'warning' : 'success'} />
       </div>
+
+      {capGapHours > 0 && (
+        <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <span className="mt-0.5 text-base leading-none">âš ï¸</span>
+          <span>
+            <strong>{toSafeHours(capGapHours)}</strong> ficaram de fora este mÃªs â€” o limite de{' '}
+            <strong>{toSafeHours(goal)}</strong> foi atingido antes de completar o prÃ³ximo plantÃ£o disponÃ­vel.
+          </span>
+        </div>
+      )}
 
       <div className="mt-4">
         <div className="mb-1 flex justify-between text-xs text-slate-500">
@@ -71,45 +77,44 @@ export function PlanningHoursProgress({ summary }: { summary: PlanningSummary })
 }
 
 export function PlanningProjectionChart({ summary }: { summary: PlanningSummary }) {
+  const goal = toSafeNonNegative(summary.goal, 0)
+  const remainingHours = toSafeNonNegative(summary.remaining_hours, 0)
   const entries = Object.entries(summary.projection.by_duration)
     .map(([duration, count]) => ({
-      duration: `${toSafeCount(duration)}h`,
-      count: toSafeNonNegative(count, 0),
+      duration,
+      count: toSafeCount(count),
     }))
     .filter((item) => item.count > 0)
-    .sort((a, b) => Number(a.duration.replace('h', '')) - Number(b.duration.replace('h', '')))
+    .sort((a, b) => {
+      if (a.count !== b.count) return a.count - b.count
+      return Number(b.duration) - Number(a.duration)
+    })
 
-  if (entries.length === 0) {
+  if (entries.length === 0 || remainingHours <= 0) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold text-slate-900">Projeção por duração</h3>
-        <p className="mt-2 text-sm text-slate-500">Meta já atingida. Nenhuma projeção necessária.</p>
+        <h3 className="text-base font-semibold text-slate-900">Jeitos simples de fechar a meta</h3>
+        <p className="mt-2 text-sm text-slate-500">Meta jÃ¡ atingida. Nenhuma projeÃ§Ã£o adicional Ã© necessÃ¡ria.</p>
       </section>
     )
   }
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">Projeção por duração</h3>
+      <h3 className="text-base font-semibold text-slate-900">Jeitos simples de fechar a meta</h3>
       <p className="mt-0.5 text-sm text-slate-500">
-        Quantos serviços de cada duração seriam necessários para atingir a meta.
+        Faltam {toSafeHours(remainingHours)} para chegar em {toSafeHours(goal)} neste mÃªs. Veja opÃ§Ãµes fÃ¡ceis de entender.
       </p>
-      <div className="mt-4 h-48">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={entries} barCategoryGap="30%">
-            <XAxis dataKey="duration" tick={{ fontSize: 12 }} />
-            <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-            <Tooltip
-              formatter={(value: number) => [`${toSafeCount(value)} serviço(s)`, 'Quantidade']}
-              contentStyle={{ fontSize: 12 }}
-            />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-              {entries.map((_, idx) => (
-                <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {entries.map((item) => (
+          <article key={item.duration} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">OpÃ§Ã£o com {item.duration}h</p>
+            <p className="mt-2 text-base font-semibold text-slate-900">{pluralizeShifts(item.count, item.duration)}</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Fecha as {toSafeHours(remainingHours)} restantes se vocÃª priorizar esse tipo de escala.
+            </p>
+          </article>
+        ))}
       </div>
     </section>
   )
@@ -118,42 +123,56 @@ export function PlanningProjectionChart({ summary }: { summary: PlanningSummary 
 export function PlanningCombinations({ summary }: { summary: PlanningSummary }) {
   const { combinations } = summary.projection
   const safeRemaining = toSafeNonNegative(summary.remaining_hours, 0)
+  const goal = toSafeNonNegative(summary.goal, 0)
+  const confirmedHours = toSafeNonNegative(summary.confirmed_hours, 0)
 
-  if (combinations.length === 0) {
+  if (combinations.length === 0 || safeRemaining <= 0) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold text-slate-900">Combinações possíveis</h3>
-        <p className="mt-2 text-sm text-slate-500">Meta já atingida ou sem combinações disponíveis para o restante.</p>
+        <h3 className="text-base font-semibold text-slate-900">CenÃ¡rios de fechamento do mÃªs</h3>
+        <p className="mt-2 text-sm text-slate-500">Meta jÃ¡ atingida ou sem combinaÃ§Ãµes disponÃ­veis para o restante.</p>
       </section>
     )
   }
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">Combinações possíveis</h3>
+      <h3 className="text-base font-semibold text-slate-900">CenÃ¡rios de fechamento do mÃªs</h3>
       <p className="mt-0.5 text-sm text-slate-500">
-        Formas de atingir (ou aproximar) a meta com diferentes combinações de duração.
+        As combinaÃ§Ãµes abaixo respeitam a meta de {toSafeHours(goal)}. Se nÃ£o fecharem o mÃªs, mostramos o que ainda fica pendente.
       </p>
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-3 space-y-3">
         {combinations.map((combo, idx) => {
           const totalHours = toSafeNonNegative(combo.total_hours, 0)
+          const pendingHours = toSafeNonNegative(combo.pending_hours, 0)
+          const projectedTotal = confirmedHours + totalHours
+          const description =
+            combo.items.length > 0
+              ? combo.items.map((item) => `${toSafeCount(item.count)}Ã—${toSafeCount(item.duration)}h`).join(' + ')
+              : 'Sem combinaÃ§Ã£o viÃ¡vel com as duraÃ§Ãµes atuais.'
+
           return (
             <li
               key={idx}
-              className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-2 text-sm"
+              className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm"
             >
-              <span className="text-slate-700">
-                {combo.items
-                  .map((item) => `${toSafeCount(item.count)}×${toSafeCount(item.duration)}h`)
-                  .join(' + ')}
-              </span>
-              <span
-                className={`font-semibold ${
-                  totalHours === safeRemaining ? 'text-emerald-600' : 'text-slate-500'
-                }`}
-              >
-                {toSafeHours(totalHours)}
-              </span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-medium text-slate-800">{description}</p>
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    pendingHours === 0
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-amber-100 text-amber-700'
+                  }`}
+                >
+                  {pendingHours === 0 ? `Fecha o mÃªs em ${toSafeHours(goal)}` : `${toSafeHours(pendingHours)} pendentes`}
+                </span>
+              </div>
+              <p className="mt-1 text-slate-500">
+                {totalHours > 0
+                  ? `Este cenÃ¡rio adiciona ${toSafeHours(totalHours)} e leva o mÃªs a ${toSafeHours(projectedTotal)}.`
+                  : `Com as duraÃ§Ãµes disponÃ­veis, o mÃªs fecharia ainda com ${toSafeHours(safeRemaining)} pendentes.`}
+              </p>
             </li>
           )
         })}
@@ -166,9 +185,9 @@ export function PlanningSuggestionsList({ suggestions }: { suggestions: Planning
   if (suggestions.length === 0) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold text-slate-900">Sugestões do sistema</h3>
+        <h3 className="text-base font-semibold text-slate-900">SugestÃµes do sistema</h3>
         <p className="mt-2 text-sm text-slate-500">
-          Meta já alcançada ou não há sugestões disponíveis para os próximos dias.
+          Meta jÃ¡ alcanÃ§ada ou nÃ£o hÃ¡ sugestÃµes disponÃ­veis para os prÃ³ximos dias.
         </p>
       </section>
     )
@@ -176,16 +195,16 @@ export function PlanningSuggestionsList({ suggestions }: { suggestions: Planning
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">Sugestões do sistema</h3>
+      <h3 className="text-base font-semibold text-slate-900">SugestÃµes do sistema</h3>
       <p className="mt-0.5 text-sm text-slate-500">
-        Datas e durações sugeridas com base nas suas preferências e escala atual.
+        Datas e duraÃ§Ãµes sugeridas com base nas suas preferÃªncias e escala atual.
       </p>
       <ul className="mt-3 divide-y divide-slate-100">
         {suggestions.map((s) => (
           <li key={s.date} className="flex items-start justify-between gap-4 py-2.5">
             <div>
               <p className="text-sm font-medium text-slate-800">
-                {formatDate(s.date)} — {toSafeHours(s.suggested_duration)}
+                {formatDate(s.date)} â€” {toSafeHours(s.suggested_duration)}
               </p>
               <p className="mt-0.5 text-xs text-slate-500">{s.reason}</p>
             </div>
@@ -198,5 +217,3 @@ export function PlanningSuggestionsList({ suggestions }: { suggestions: Planning
     </section>
   )
 }
-
-

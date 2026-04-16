@@ -1,4 +1,4 @@
-export type ApiEnvelope<T> = {
+﻿export type ApiEnvelope<T> = {
   data: T
   meta: unknown | null
   errors: Array<{ code: string; message: string }> | null
@@ -12,6 +12,7 @@ export type PlanningProjectionItem = {
 export type PlanningCombination = {
   items: PlanningProjectionItem[]
   total_hours: number
+  pending_hours: number
 }
 
 export type PlanningPreferences = {
@@ -27,6 +28,8 @@ export type PlanningSummary = {
   confirmed_hours: number
   waiting_hours: number
   remaining_hours: number
+  /** Hours that could not be scheduled because no service duration fits within the remaining cap */
+  cap_gap_hours?: number
   projection: {
     by_duration: Record<string, number>
     combinations: PlanningCombination[]
