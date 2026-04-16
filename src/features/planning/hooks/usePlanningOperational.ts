@@ -33,6 +33,8 @@ export function usePlanningOperational() {
     [],
   )
 
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
+
   const [mode, setMode] = useState<PlanningMode>('HOURS')
   const [targetHours, setTargetHoursState] = useState<number>(120)
   const [targetServices, setTargetServicesState] = useState<number>(15)
@@ -127,24 +129,39 @@ export function usePlanningOperational() {
     return buildHistoricalData(servicesQuery.data, 3)
   }, [servicesQuery.data])
 
-  const planInput: PlanningInput = useMemo(
-    () => ({
+  const planInput: PlanningInput = useMemo(() => {
+    // derive period from selectedMonth when provided
+    let start = period.start_date
+    let end = period.end_date
+    if (selectedMonth && /^\d{4}-\d{2}$/.test(selectedMonth)) {
+      const [yStr, mStr] = selectedMonth.split('-')
+      const y = Number(yStr)
+      const m = Number(mStr)
+      if (Number.isFinite(y) && Number.isFinite(m) && m >= 1 && m <= 12) {
+        start = `${y}-${String(m).padStart(2, '0')}-01`
+        // last day of month: create Date of next month day 0
+        const last = new Date(y, m, 0)
+        const lastDay = last.getDate()
+        end = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+      }
+    }
+
+    return {
       mode,
       target_hours: mode === 'HOURS' ? targetHours : undefined,
       target_services: mode === 'COUNT' ? targetServices : undefined,
       service_types: selectedTypes.length > 0 ? selectedTypes : availableTypes.map((t) => t.key),
       period: {
-        start_date: period.start_date,
-        end_date: period.end_date,
+        start_date: start,
+        end_date: end,
       },
       cap_hours: planningSummaryQuery.data?.remaining_hours,
       preferred_durations: selectedDurations.length > 0
         ? selectedDurations
         : planningSummaryQuery.data?.preferences.preferred_durations,
       preferred_work_days: selectedWeekdays,
-    }),
-    [mode, targetHours, targetServices, selectedTypes, availableTypes, period.end_date, period.start_date, planningSummaryQuery.data, selectedDurations, selectedWeekdays],
-  )
+    }
+  }, [mode, targetHours, targetServices, selectedTypes, availableTypes, period, planningSummaryQuery.data, selectedDurations, selectedWeekdays, selectedMonth])
 
   const inputValidation = useMemo(() => validatePlanningInput(planInput), [planInput])
   const hasInsufficientInput = !isLoading && !inputValidation.isValid
@@ -185,6 +202,10 @@ export function usePlanningOperational() {
     period,
     selectedWeekdays,
     setSelectedWeekdays,
+    selectedMonth,
+    setSelectedMonth,
+    selectedDurations,
+    setSelectedDurations,
     selectedDurations,
     setSelectedDurations,
 

@@ -1,6 +1,8 @@
 ﻿import React, { useState } from 'react'
 import { usePlanningSummary, usePlanningSuggestions } from '@/features/planning/hooks/usePlanningData'
 import { usePlanningOperational } from '@/features/planning/hooks/usePlanningOperational'
+import { useAuthStore } from '@/features/auth/store/useAuthStore'
+import { authApi } from '@/features/auth/api/auth.api'
 import {
   PlanningHoursProgress,
   PlanningCombinations,
@@ -32,6 +34,10 @@ const PlanningPage: React.FC = () => {
 
   // Operational planner
   const operational = usePlanningOperational()
+  const setUser = useAuthStore((s) => s.setUser)
+  const [saveBusy, setSaveBusy] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null)
 
   return (
     <div className="space-y-4">
@@ -130,6 +136,50 @@ const PlanningPage: React.FC = () => {
                   selected={operational.selectedTypes}
                   onChangeSelected={operational.setSelectedTypes}
                 />
+
+                <div className="pt-2 grid grid-cols-3 gap-3 items-end">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">Mês planejado</label>
+                    <input
+                      type="month"
+                      value={operational.selectedMonth ?? ''}
+                      onChange={(e) => operational.setSelectedMonth(e.target.value || null)}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">Salvar mês</label>
+                    <button
+                      type="button"
+                      disabled={!operational.selectedMonth || saveBusy}
+                      onClick={async () => {
+                        if (!operational.selectedMonth) return
+                        setSaveBusy(true)
+                        setSaveError(null)
+                        setSaveSuccess(null)
+                        try {
+                          const payload: any = { planning_preferences: { saved_planned_month: operational.selectedMonth } }
+                          const updated = await authApi.updateProfile(payload)
+                          setUser(updated)
+                          setSaveSuccess('Mês salvo como base')
+                        } catch (err: any) {
+                          setSaveError(err?.response?.data?.errors?.[0]?.message || 'Erro ao salvar mês')
+                        } finally {
+                          setSaveBusy(false)
+                        }
+                      }}
+                      className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                      {saveBusy ? 'Salvando...' : 'Salvar como base'}
+                    </button>
+                  </div>
+
+                  <div>
+                    {saveError && <div className="text-xs text-rose-600">{saveError}</div>}
+                    {saveSuccess && <div className="text-xs text-emerald-700">{saveSuccess}</div>}
+                  </div>
+                </div>
 
                 <div className="pt-2 grid grid-cols-2 gap-3">
                   <WeekdayPicker selected={operational.selectedWeekdays} onChange={operational.setSelectedWeekdays} />
