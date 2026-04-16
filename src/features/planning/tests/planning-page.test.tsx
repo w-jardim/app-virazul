@@ -1,21 +1,9 @@
-import { cloneElement, isValidElement } from 'react'
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+﻿import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import PlanningPage from '@/pages/app/PlanningPage'
 import type { PlanningSummary, PlanningSuggestion } from '@/features/planning/types/planning.types'
-
-// ── ResizeObserver polyfill for jsdom (recharts) ──────────────────────────────
-beforeAll(() => {
-  global.ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-})
-
-// ── Mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('@/features/planning/hooks/usePlanningData', () => ({
   usePlanningSummary: vi.fn(),
@@ -26,20 +14,6 @@ vi.mock('@/features/planning/hooks/usePlanningOperational', () => ({
   usePlanningOperational: vi.fn(),
 }))
 
-vi.mock('recharts', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('recharts')>()
-
-  return {
-    ...actual,
-    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => {
-      if (isValidElement(children)) {
-        return cloneElement(children, { width: 800, height: 300 })
-      }
-      return <div>{children}</div>
-    },
-  }
-})
-
 import { usePlanningSummary, usePlanningSuggestions } from '@/features/planning/hooks/usePlanningData'
 import { usePlanningOperational } from '@/features/planning/hooks/usePlanningOperational'
 
@@ -47,17 +21,16 @@ const mockSummary = vi.mocked(usePlanningSummary)
 const mockSuggestions = vi.mocked(usePlanningSuggestions)
 const mockOperational = vi.mocked(usePlanningOperational)
 
-// ── Fixtures ──────────────────────────────────────────────────────────────────
-
 const baseSummary: PlanningSummary = {
   goal: 120,
   confirmed_hours: 36,
   waiting_hours: 12,
   remaining_hours: 84,
   projection: {
-    by_duration: { '12': 7, '8': 11 },
+    by_duration: { '24': 4, '12': 7, '8': 11, '6': 14 },
     combinations: [
-      { items: [{ duration: 12, count: 7 }], total_hours: 84 },
+      { items: [{ duration: 12, count: 7 }], total_hours: 84, pending_hours: 0 },
+      { items: [{ duration: 24, count: 3 }], total_hours: 72, pending_hours: 12 },
     ],
   },
   preferences: {
@@ -143,8 +116,6 @@ const operationalInsufficientInput = {
   inputValidationMessage: 'Selecione pelo menos um tipo de serviço para simular.',
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 const loadingState = { isLoading: true, isError: false, data: undefined } as ReturnType<typeof usePlanningSummary>
 const errorState = { isLoading: false, isError: true, data: undefined } as ReturnType<typeof usePlanningSummary>
 
@@ -165,18 +136,13 @@ function renderPage() {
   }
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
-
 describe('PlanningPage', () => {
   beforeEach(() => {
     mockSummary.mockReset()
     mockSuggestions.mockReset()
     mockOperational.mockReset()
-    // Default: operational loading
     mockOperational.mockReturnValue(operationalLoading as any)
   })
-
-  // ── Header & Tabs ───────────────────────────────────────────────────
 
   it('renders page title and period', () => {
     mockSummary.mockReturnValue(loadingState)
@@ -193,8 +159,6 @@ describe('PlanningPage', () => {
     expect(screen.getByText('Resumo mensal')).toBeInTheDocument()
     expect(screen.getByText('Simulador operacional')).toBeInTheDocument()
   })
-
-  // ── Summary Tab ─────────────────────────────────────────────────────
 
   it('renders loading state in summary tab', () => {
     mockSummary.mockReturnValue(loadingState)
@@ -220,18 +184,21 @@ describe('PlanningPage', () => {
     expect(screen.getAllByText('84h').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('renders projection chart section', () => {
+  it('renders simplified projection section for lay users', () => {
     mockSummary.mockReturnValue(successState(baseSummary))
     mockSuggestions.mockReturnValue(successState(baseSuggestions) as any)
     renderPage()
-    expect(screen.getByRole('heading', { name: /Proje/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Jeitos simples de fechar a meta' })).toBeInTheDocument()
+    expect(screen.getByText(/4 plantões de 24h/i)).toBeInTheDocument()
   })
 
-  it('renders combinations section', () => {
+  it('renders combinations with exact and pending outcomes', () => {
     mockSummary.mockReturnValue(successState(baseSummary))
     mockSuggestions.mockReturnValue(successState(baseSuggestions) as any)
     renderPage()
-    expect(screen.getByRole('heading', { name: /Combina/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Cenários de fechamento do mês' })).toBeInTheDocument()
+    expect(screen.getByText(/Fecha o mês em 120h/i)).toBeInTheDocument()
+    expect(screen.getByText(/12h pendentes/i)).toBeInTheDocument()
   })
 
   it('renders suggestions list', () => {
@@ -243,14 +210,12 @@ describe('PlanningPage', () => {
   })
 
   it('renders empty suggestions when goal is met', () => {
-    const metGoal = { ...baseSummary, remaining_hours: 0 }
+    const metGoal = { ...baseSummary, remaining_hours: 0, projection: { by_duration: {}, combinations: [] } }
     mockSummary.mockReturnValue(successState(metGoal))
     mockSuggestions.mockReturnValue(successState([]) as any)
     renderPage()
-    expect(screen.getByText(/Meta j/i)).toBeInTheDocument()
+    expect(screen.getByText(/Meta já/i)).toBeInTheDocument()
   })
-
-  // ── Simulator Tab ───────────────────────────────────────────────────
 
   it('switches to simulator tab', async () => {
     mockSummary.mockReturnValue(successState(baseSummary))
@@ -380,5 +345,3 @@ describe('PlanningPage', () => {
     expect(screen.getByText('R$ 0,00')).toBeInTheDocument()
   })
 })
-
-

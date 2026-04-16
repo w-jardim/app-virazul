@@ -4,7 +4,7 @@ import html2pdf from 'html2pdf.js'
 import api from '@/lib/api/axios'
 import PlanningPage from './PlanningPage'
 import ReportsPage from './ReportsPage'
-import { startOfMonthLocal } from '@/utils/date-period'
+import { startOfMonthLocal, todayLocal } from '@/utils/date-period'
 import { useServiceDateRange, useServiceTypes } from '@/features/services/hooks/useServicesData'
 import { useFinanceReport, useFinanceSummary } from '@/features/finance/hooks/useFinanceData'
 import {
@@ -81,7 +81,7 @@ function ConsolidatedFinancePanel({
     return (
       <PageEmptyState
         title="Sem dados financeiros no consolidado"
-        description="Ajuste o periodo ou o tipo de servico para visualizar valores financeiros neste painel."
+        description="Ajuste o período ou o tipo de serviço para visualizar valores financeiros neste painel."
       />
     )
   }
@@ -91,7 +91,7 @@ function ConsolidatedFinancePanel({
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">Financeiro consolidado</h2>
         <p className="mt-0.5 text-sm text-slate-500">
-          Este painel usa os filtros da pagina consolidada: {startDate || '-'} a {endDate || '-'} | Tipo: {serviceTypeLabel}.
+          Este painel usa os filtros da página consolidada: {startDate || '-'} a {endDate || '-'} | Tipo: {serviceTypeLabel}.
         </p>
       </section>
 
@@ -161,7 +161,7 @@ const ConsolidatedPage: React.FC = () => {
     }
 
     if (startDate && endDate && startDate > endDate) {
-      setFilterError('Data de inicio deve ser anterior ou igual a data de fim.')
+      setFilterError('Data de início deve ser anterior ou igual à data de fim.')
       return
     }
 
@@ -190,7 +190,7 @@ const ConsolidatedPage: React.FC = () => {
         </head>
         <body>
           <h1>Consolidado Operacional e Financeiro</h1>
-          <div class="muted">Periodo: ${escapeHtml(startDate || '-')} ate ${escapeHtml(endDate || '-')} | Tipo: ${escapeHtml(serviceTypeLabel)}</div>
+          <div class="muted">Período: ${escapeHtml(startDate || '-')} até ${escapeHtml(endDate || '-')} | Tipo: ${escapeHtml(serviceTypeLabel)}</div>
 
           <h2>Financeiro</h2>
           <div class="grid">
@@ -208,9 +208,9 @@ const ConsolidatedPage: React.FC = () => {
             <div class="card"><div class="k">Horas restantes</div><div class="v">${escapeHtml(planning?.remaining_hours || 0)}</div></div>
           </div>
 
-          <h2>Relatorios</h2>
+          <h2>Relatórios</h2>
           <div class="grid">
-            <div class="card"><div class="k">Servicos no periodo</div><div class="v">${escapeHtml(operational?.summary?.total_services || 0)}</div></div>
+            <div class="card"><div class="k">Serviços no período</div><div class="v">${escapeHtml(operational?.summary?.total_services || 0)}</div></div>
             <div class="card"><div class="k">Horas realizadas</div><div class="v">${escapeHtml(operational?.summary?.realized_hours || 0)}</div></div>
             <div class="card"><div class="k">Recebimento (%)</div><div class="v">${escapeHtml(pct(financial?.summary?.received_percentage || 0))}</div></div>
             <div class="card"><div class="k">Pendente (%)</div><div class="v">${escapeHtml(pct(financial?.summary?.pending_percentage || 0))}</div></div>
@@ -272,7 +272,7 @@ const ConsolidatedPage: React.FC = () => {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Consolidado</h1>
-          <p className="text-sm text-slate-600">Centralize financeiro, planejamento e relatorios com os mesmos filtros.</p>
+          <p className="text-sm text-slate-600">Centralize financeiro, planejamento e relatórios com os mesmos filtros.</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -294,18 +294,18 @@ const ConsolidatedPage: React.FC = () => {
             }}
             className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Abrir versao para impressao
+            Abrir versão para impressão
           </button>
         </div>
       </header>
 
       {filterError ? (
-        <PageErrorState title="Nao foi possivel exportar" description={filterError} />
+        <PageErrorState title="Não foi possível exportar" description={filterError} />
       ) : null}
 
       <section className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-3">
         <label className="block text-xs font-medium text-slate-600">
-          Inicio
+          Início
           <input
             type="date"
             value={startDate}
@@ -325,7 +325,7 @@ const ConsolidatedPage: React.FC = () => {
         </label>
 
         <label className="block text-xs font-medium text-slate-600">
-          Tipo de servico
+          Tipo de serviço
           <select
             value={serviceType}
             onChange={(e) => setServiceType(e.target.value)}
@@ -373,7 +373,7 @@ const ConsolidatedPage: React.FC = () => {
               : 'border-transparent text-slate-500 hover:text-slate-700'
           }`}
         >
-          Relatorios
+          Relatórios
         </button>
       </nav>
 
@@ -394,4 +394,5 @@ const ConsolidatedPage: React.FC = () => {
 }
 
 export default ConsolidatedPage
+
 
