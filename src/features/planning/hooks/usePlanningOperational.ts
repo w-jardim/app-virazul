@@ -155,7 +155,17 @@ export function usePlanningOperational() {
         start_date: start,
         end_date: end,
       },
-      cap_hours: planningSummaryQuery.data?.remaining_hours,
+      // If user selected a different month than current, use full monthly goal (fresh month)
+      cap_hours: (function() {
+        const sel = selectedMonth
+        const current = currentMonthLocal()
+        if (sel && sel !== current) {
+          // plan for a future month: use configured monthly goal when available, else 120h
+          return planningSummaryQuery.data?.goal ?? 120
+        }
+        // default: current month, respect remaining_hours
+        return planningSummaryQuery.data?.remaining_hours
+      })(),
       preferred_durations: selectedDurations.length > 0
         ? selectedDurations
         : planningSummaryQuery.data?.preferences.preferred_durations,
