@@ -151,8 +151,21 @@ const ConsolidatedPage: React.FC = () => {
           onClick={onExportConsolidatedPdf}
           className="inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
         >
-          Gerar dados consolidados e PDF
-        </button>
+            {exporting ? 'Gerando...' : 'Gerar dados consolidados e PDF'}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const qs = new URLSearchParams()
+              if (startDate) qs.set('start', startDate)
+              if (endDate) qs.set('end', endDate)
+              if (serviceType) qs.set('type', serviceType)
+              window.open(`/consolidated/print?${qs.toString()}`, '_blank')
+            }}
+            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Abrir versão para impressão
+          </button>
       </header>
 
       <section className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-3">
