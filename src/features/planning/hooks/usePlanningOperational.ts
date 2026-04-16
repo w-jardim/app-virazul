@@ -38,6 +38,7 @@ export function usePlanningOperational() {
   const [targetServices, setTargetServicesState] = useState<number>(15)
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([])
+  const [selectedDurations, setSelectedDurations] = useState<number[]>([])
 
   const setTargetHours = (value: number) => setTargetHoursState(toSafePositive(value, 1))
   const setTargetServices = (value: number) => setTargetServicesState(toSafePositive(value, 1))
@@ -137,10 +138,12 @@ export function usePlanningOperational() {
         end_date: period.end_date,
       },
       cap_hours: planningSummaryQuery.data?.remaining_hours,
-      preferred_durations: planningSummaryQuery.data?.preferences.preferred_durations,
+      preferred_durations: selectedDurations.length > 0
+        ? selectedDurations
+        : planningSummaryQuery.data?.preferences.preferred_durations,
       preferred_work_days: selectedWeekdays,
     }),
-    [mode, targetHours, targetServices, selectedTypes, availableTypes, period.end_date, period.start_date, planningSummaryQuery.data],
+    [mode, targetHours, targetServices, selectedTypes, availableTypes, period.end_date, period.start_date, planningSummaryQuery.data, selectedDurations, selectedWeekdays],
   )
 
   const inputValidation = useMemo(() => validatePlanningInput(planInput), [planInput])
@@ -182,6 +185,8 @@ export function usePlanningOperational() {
     period,
     selectedWeekdays,
     setSelectedWeekdays,
+    selectedDurations,
+    setSelectedDurations,
 
     isLoading,
     isAllError,

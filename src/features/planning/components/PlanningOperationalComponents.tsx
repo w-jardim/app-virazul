@@ -155,6 +155,56 @@ export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
   )
 }
 
+type DurationPickerProps = {
+  selected: number[]
+  onChange: (durations: number[]) => void
+}
+
+export function DurationPicker({ selected, onChange }: DurationPickerProps) {
+  const opts = [6, 8, 12, 24]
+
+  function toggle(d: number) {
+    if (selected.includes(d)) onChange(selected.filter((x) => x !== d))
+    else onChange([...selected, d].sort((a, b) => a - b))
+  }
+
+  const allSelected = selected.length === 0
+
+  return (
+    <div>
+      <p className="text-sm font-medium text-slate-700 mb-2">Durações preferidas</p>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => onChange([])}
+          className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+            allSelected ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+        >
+          Todos
+        </button>
+        {opts.map((d) => (
+          <button
+            key={d}
+            type="button"
+            onClick={() => toggle(d)}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+              selected.includes(d) ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            {d}h
+          </button>
+        ))}
+      </div>
+      {allSelected ? (
+        <p className="text-xs text-slate-400 mt-1">Sem preferência: todas as durações serão consideradas.</p>
+      ) : (
+        <p className="text-xs text-slate-400 mt-1">Selecione as durações que prefere ofertar.</p>
+      )}
+    </div>
+  )
+}
+
 type TargetInputProps = {
   mode: PlanningMode
   targetHours: number
