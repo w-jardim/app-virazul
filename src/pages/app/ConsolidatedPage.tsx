@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { money, pct, escapeHtml } from '@/utils/format'
 import FinancePage from './FinancePage'
 import PlanningPage from './PlanningPage'
 import ReportsPage from './ReportsPage'
@@ -10,13 +11,7 @@ import { useFinancialReport, useOperationalReport } from '@/features/reports/hoo
 
 type ConsolidatedTab = 'finance' | 'planning' | 'reports'
 
-function money(value: number) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0)
-}
 
-function pct(value: number) {
-  return `${(value || 0).toFixed(2)}%`
-}
 
 const ConsolidatedPage: React.FC = () => {
   const [tab, setTab] = useState<ConsolidatedTab>('finance')
@@ -90,30 +85,30 @@ const ConsolidatedPage: React.FC = () => {
         </head>
         <body>
           <h1>Consolidado Operacional e Financeiro</h1>
-          <div class="muted">Período: ${startDate || '-'} até ${endDate || '-'} | Tipo: ${serviceTypeLabel}</div>
+          <div class="muted">Período: ${escapeHtml(startDate || '-') } até ${escapeHtml(endDate || '-')} | Tipo: ${escapeHtml(serviceTypeLabel)}</div>
 
           <h2>Financeiro</h2>
           <div class="grid">
-            <div class="card"><div class="k">Total previsto</div><div class="v">${money(finance?.total_expected || 0)}</div></div>
-            <div class="card"><div class="k">Total recebido</div><div class="v">${money(finance?.total_received || 0)}</div></div>
-            <div class="card"><div class="k">Total pendente</div><div class="v">${money(finance?.total_pending || 0)}</div></div>
-            <div class="card"><div class="k">Total em atraso</div><div class="v">${money(finance?.total_overdue || 0)}</div></div>
+            <div class="card"><div class="k">Total previsto</div><div class="v">${escapeHtml(money(finance?.total_expected || 0))}</div></div>
+            <div class="card"><div class="k">Total recebido</div><div class="v">${escapeHtml(money(finance?.total_received || 0))}</div></div>
+            <div class="card"><div class="k">Total pendente</div><div class="v">${escapeHtml(money(finance?.total_pending || 0))}</div></div>
+            <div class="card"><div class="k">Total em atraso</div><div class="v">${escapeHtml(money(finance?.total_overdue || 0))}</div></div>
           </div>
 
           <h2>Planejamento</h2>
           <div class="grid">
-            <div class="card"><div class="k">Meta mensal (h)</div><div class="v">${planning?.goal || 0}</div></div>
-            <div class="card"><div class="k">Horas confirmadas</div><div class="v">${planning?.confirmed_hours || 0}</div></div>
-            <div class="card"><div class="k">Horas em espera</div><div class="v">${planning?.waiting_hours || 0}</div></div>
-            <div class="card"><div class="k">Horas restantes</div><div class="v">${planning?.remaining_hours || 0}</div></div>
+            <div class="card"><div class="k">Meta mensal (h)</div><div class="v">${escapeHtml(planning?.goal || 0)}</div></div>
+            <div class="card"><div class="k">Horas confirmadas</div><div class="v">${escapeHtml(planning?.confirmed_hours || 0)}</div></div>
+            <div class="card"><div class="k">Horas em espera</div><div class="v">${escapeHtml(planning?.waiting_hours || 0)}</div></div>
+            <div class="card"><div class="k">Horas restantes</div><div class="v">${escapeHtml(planning?.remaining_hours || 0)}</div></div>
           </div>
 
           <h2>Relatórios</h2>
           <div class="grid">
-            <div class="card"><div class="k">Serviços no período</div><div class="v">${operational?.summary?.total_services || 0}</div></div>
-            <div class="card"><div class="k">Horas realizadas</div><div class="v">${operational?.summary?.realized_hours || 0}</div></div>
-            <div class="card"><div class="k">Recebimento (%)</div><div class="v">${pct(financial?.summary?.received_percentage || 0)}</div></div>
-            <div class="card"><div class="k">Pendente (%)</div><div class="v">${pct(financial?.summary?.pending_percentage || 0)}</div></div>
+            <div class="card"><div class="k">Serviços no período</div><div class="v">${escapeHtml(operational?.summary?.total_services || 0)}</div></div>
+            <div class="card"><div class="k">Horas realizadas</div><div class="v">${escapeHtml(operational?.summary?.realized_hours || 0)}</div></div>
+            <div class="card"><div class="k">Recebimento (%)</div><div class="v">${escapeHtml(pct(financial?.summary?.received_percentage || 0))}</div></div>
+            <div class="card"><div class="k">Pendente (%)</div><div class="v">${escapeHtml(pct(financial?.summary?.pending_percentage || 0))}</div></div>
           </div>
         </body>
       </html>
