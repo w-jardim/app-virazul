@@ -3,6 +3,7 @@
   PlanningResult,
   HistoricalData,
   Feasibility,
+  StrategyStep,
 } from '../types/planning-operational.types'
 import { toSafeInt, toSafeNonNegative, toSafeNumber } from '../utils/safe-number'
 
@@ -21,6 +22,10 @@ const NEUTRAL_RESULT: PlanningResult = {
   estimated_income: 0,
   distribution_by_type: {},
   feasibility: 'MEDIUM',
+  cap_exceeded: false,
+  cap_available_hours: 0,
+  effective_hours: 0,
+  strategy: [],
 }
 
 type InputValidation = {
@@ -81,6 +86,29 @@ function computeFeasibility(targetHours: number, avgHoursPerMonth: number): Feas
   if (ratio <= FEASIBILITY_THRESHOLDS.highMax) return 'HIGH'
   if (ratio <= FEASIBILITY_THRESHOLDS.mediumMax) return 'MEDIUM'
   return 'LOW'
+}
+
+function buildStrategy(effectiveHours: number, preferredDurations: number[]): StrategyStep[] {
+  const FALLBACK = [12, 8, 6, 4]
+  const sorted = (preferredDurations.length > 0 ? preferredDurations : FALLBACK)
+    .filter((d) => Number.isFinite(d) && d > 0)
+    .sort((a, b) => b - a)
+
+  if (sorted.length === 0) return []
+
+  let remaining = Math.floor(toSafeNonNegative(effectiveHours, 0))
+  const steps: StrategyStep[] = []
+
+  for (const dur of sorted) {
+    if (remaining <= 0) break
+    const count = Math.floor(remaining / dur)
+    if (count > 0) {
+      steps.push({ duration_hours: dur, count, hours: count * dur })
+      remaining -= count * dur
+    }
+  }
+
+  return steps
 }
 
 function distributeByType(
@@ -193,19 +221,45 @@ export function simulatePlan(input: PlanningInput, historical: HistoricalData): 
   estimatedHours = toSafeNonNegative(estimatedHours, 0)
   requiredServices = toSafeInt(toSafeNonNegative(requiredServices, 0), 0)
 
+  // Cap logic: respect the 120h monthly cap
+  const rawCap = input.cap_hours
+  const capAvailable =
+    typeof rawCap === 'number' && Number.isFinite(rawCap) && rawCap >= 0
+      ? toSafeNonNegative(rawCap, 0)
+      : estimatedHours
+  const capExceeded = estimatedHours > capAvailable + 0.5
+  const effectiveHours = Math.min(estimatedHours, capAvailable)
+
+  // Services count adjusted to effective hours when capped
+  const effectiveServices = capExceeded
+    ? Math.max(1, Math.ceil(effectiveHours / Math.max(avgHPS, 1)))
+    : requiredServices
+
+  // Strategy: fit preferred durations into effective hours greedily
+  const preferredDurations =
+    Array.isArray(input.preferred_durations) && input.preferred_durations.length > 0
+      ? input.preferred_durations
+      : [12, 8, 6, 4]
+  const strategy = buildStrategy(effectiveHours, preferredDurations)
+
+  // Income and distribution are based on achievable (effective) hours
   const estimatedIncome = toSafeNonNegative(
-    Math.round(estimatedHours * avgIPH * 100) / 100,
+    Math.round(effectiveHours * avgIPH * 100) / 100,
     0,
   )
-  const distribution = distributeByType(requiredServices, selectedTypes, historical)
-  const feasibility = computeFeasibility(estimatedHours, avgHPM)
+  const distribution = distributeByType(effectiveServices, selectedTypes, historical)
+  const feasibility = computeFeasibility(effectiveHours, avgHPM)
 
   return {
-    required_services: requiredServices,
+    required_services: effectiveServices,
     estimated_hours: estimatedHours,
     estimated_income: estimatedIncome,
     distribution_by_type: distribution,
     feasibility,
+    cap_exceeded: capExceeded,
+    cap_available_hours: capAvailable,
+    effective_hours: effectiveHours,
+    strategy,
   }
 }
 

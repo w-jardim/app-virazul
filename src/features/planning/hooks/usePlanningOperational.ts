@@ -135,8 +135,10 @@ export function usePlanningOperational() {
         start_date: period.start_date,
         end_date: period.end_date,
       },
+      cap_hours: planningSummaryQuery.data?.remaining_hours,
+      preferred_durations: planningSummaryQuery.data?.preferences.preferred_durations,
     }),
-    [mode, targetHours, targetServices, selectedTypes, availableTypes, period.end_date, period.start_date],
+    [mode, targetHours, targetServices, selectedTypes, availableTypes, period.end_date, period.start_date, planningSummaryQuery.data],
   )
 
   const inputValidation = useMemo(() => validatePlanningInput(planInput), [planInput])

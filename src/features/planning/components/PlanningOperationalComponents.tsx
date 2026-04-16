@@ -171,7 +171,7 @@ type SimResultProps = {
 
 export function SimulationResultCards({ result, mode }: SimResultProps) {
   const safeRequired = toSafeInt(toSafeNonNegative(result.required_services, 0), 0)
-  const safeHours = toSafeNonNegative(result.estimated_hours, 0)
+  const safeHours = toSafeNonNegative(result.effective_hours, 0)
   const safeIncome = toSafeNonNegative(result.estimated_income, 0)
 
   return (
@@ -278,5 +278,55 @@ export function PlanningInputHint({ message }: { message: string }) {
     <div className="rounded-xl border border-slate-200 bg-slate-50 p-4" role="status">
       <p className="text-sm text-slate-700">{message}</p>
     </div>
+  )
+}
+
+export function StrategyPanel({ result }: { result: PlanningResult }) {
+  if (!result.strategy || result.strategy.length === 0) return null
+
+  const totalServices = result.strategy.reduce((s, i) => s + i.count, 0)
+  const totalHours = result.strategy.reduce((s, i) => s + i.hours, 0)
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-semibold text-slate-900">Estratégia dentro do limite de 120h</h3>
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+          {result.cap_available_hours}h disponíveis
+        </span>
+      </div>
+
+      {result.cap_exceeded && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+          <span className="font-semibold">Meta ajustada:</span> sua meta de {result.estimated_hours}h
+          excede o limite disponível ({result.cap_available_hours}h). A estratégia usa as{' '}
+          <span className="font-semibold">{result.effective_hours}h</span> restantes.
+        </div>
+      )}
+
+      <div className="divide-y divide-slate-100">
+        {result.strategy.map((step) => (
+          <div key={step.duration_hours} className="flex items-center justify-between py-2.5">
+            <div className="flex items-center gap-3">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-sky-100 text-xs font-bold text-sky-700">
+                {step.count}
+              </span>
+              <span className="text-sm text-slate-700">
+                {step.count === 1 ? 'serviço' : 'serviços'} de{' '}
+                <span className="font-semibold">{step.duration_hours}h</span>
+              </span>
+            </div>
+            <span className="text-sm font-semibold text-slate-900">{step.hours}h</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between border-t border-slate-200 pt-3">
+        <span className="text-sm font-semibold text-slate-700">
+          {totalServices} serviço{totalServices !== 1 ? 's' : ''} · {totalHours}h
+        </span>
+        <span className="text-sm font-semibold text-emerald-700">{toSafeCurrency(result.estimated_income)}</span>
+      </div>
+    </section>
   )
 }

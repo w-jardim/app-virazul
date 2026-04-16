@@ -11,9 +11,17 @@ export type PlanningInput = {
     start_date: string
     end_date: string
   }
+  cap_hours?: number
+  preferred_durations?: number[]
 }
 
 export type Feasibility = 'LOW' | 'MEDIUM' | 'HIGH'
+
+export type StrategyStep = {
+  duration_hours: number
+  count: number
+  hours: number
+}
 
 export type PlanningResult = {
   required_services: number
@@ -21,6 +29,10 @@ export type PlanningResult = {
   estimated_income: number
   distribution_by_type: Record<string, number>
   feasibility: Feasibility
+  cap_exceeded: boolean
+  cap_available_hours: number
+  effective_hours: number
+  strategy: StrategyStep[]
 }
 
 export type HistoricalData = {

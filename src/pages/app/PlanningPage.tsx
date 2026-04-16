@@ -11,6 +11,7 @@ import {
   ServiceTypePicker,
   PlanTargetInput,
   SimulationResultCards,
+  StrategyPanel,
   DistributionList,
   HistoricalSummary,
   PlanningWarningBanner,
@@ -138,6 +139,8 @@ const PlanningPage: React.FC = () => {
                     result={operational.result}
                     mode={operational.mode}
                   />
+
+                  <StrategyPanel result={operational.result} />
 
                   <DistributionList
                     distribution={operational.result.distribution_by_type}
