@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { money, pct, escapeHtml } from '@/utils/format'
+import html2pdf from 'html2pdf.js'
 import FinancePage from './FinancePage'
 import PlanningPage from './PlanningPage'
 import ReportsPage from './ReportsPage'
@@ -114,29 +115,27 @@ const ConsolidatedPage: React.FC = () => {
       </html>
     `
 
-    const printWindow = window.open('', '_blank', 'width=1024,height=768')
-    if (!printWindow) {
-      setExporting(false)
-      return
-    }
+    // Create offscreen container and render HTML into it for html2pdf
+    const container = document.createElement('div')
+    container.style.position = 'fixed'
+    container.style.left = '-9999px'
+    container.innerHTML = html
+    document.body.appendChild(container)
 
-    printWindow.document.write(html)
-    printWindow.document.close()
-    printWindow.focus()
+    const filename = `consolidado-${startDate || 'period'}.pdf`
 
-    // Reset exporting after print completes. Use afterprint event and fallback timeout.
-    const cleanup = () => {
-      try {
-        printWindow.removeEventListener('afterprint', cleanup)
-      } catch (e) {}
-      setExporting(false)
-    }
-
-    printWindow.addEventListener('afterprint', cleanup)
-    // fallback in case afterprint not fired
-    setTimeout(cleanup, 3000)
-
-    printWindow.print()
+    html2pdf()
+      .from(container)
+      .set({ filename, margin: 12, html2canvas: { scale: 2 } })
+      .save()
+      .then(() => {
+        try { document.body.removeChild(container) } catch (e) {}
+        setExporting(false)
+      })
+      .catch(() => {
+        try { document.body.removeChild(container) } catch (e) {}
+        setExporting(false)
+      })
   }
 
   return (
