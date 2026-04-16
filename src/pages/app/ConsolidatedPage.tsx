@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { money, pct, escapeHtml } from '@/utils/format'
 import html2pdf from 'html2pdf.js'
+import api from '@/lib/api/axios'
 import FinancePage from './FinancePage'
 import PlanningPage from './PlanningPage'
 import ReportsPage from './ReportsPage'
@@ -46,7 +47,7 @@ const ConsolidatedPage: React.FC = () => {
     financialReportQuery.isLoading
   )
 
-  const onExportConsolidatedPdf = () => {
+  const onExportConsolidatedPdf = async () => {
     // Guard: wait for queries to finish
     if (anyLoading) {
       setFilterError('Aguarde o carregamento dos dados antes de exportar.')
@@ -115,27 +116,38 @@ const ConsolidatedPage: React.FC = () => {
       </html>
     `
 
-    // Create offscreen container and render HTML into it for html2pdf
-    const container = document.createElement('div')
-    container.style.position = 'fixed'
-    container.style.left = '-9999px'
-    container.innerHTML = html
-    document.body.appendChild(container)
-
     const filename = `consolidado-${startDate || 'period'}.pdf`
 
-    html2pdf()
-      .from(container)
-      .set({ filename, margin: 12, html2canvas: { scale: 2 } })
-      .save()
-      .then(() => {
-        try { document.body.removeChild(container) } catch (e) {}
-        setExporting(false)
-      })
-      .catch(() => {
-        try { document.body.removeChild(container) } catch (e) {}
-        setExporting(false)
-      })
+    try {
+      const resp = await api.post(
+        '/reports/export',
+        { html, filename },
+        { responseType: 'blob' }
+      )
+
+      const blob = resp.data as Blob
+      const url = URL.createObjectURL(blob)
+      try { window.open(url, '_blank') } catch (e) { /* ignore */ }
+      setTimeout(() => { try { URL.revokeObjectURL(url) } catch (e) {} }, 60 * 1000)
+    } catch (err) {
+      // fallback: try client-side generation if server fails
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pdf: any = await html2pdf()
+          .from(document.createElement('div'))
+          .set({ filename, margin: 12, html2canvas: { scale: 2 } })
+          .toPdf()
+          .get('pdf')
+        const blob: Blob = pdf.output('blob')
+        const url = URL.createObjectURL(blob)
+        try { window.open(url, '_blank') } catch (e) {}
+        setTimeout(() => { try { URL.revokeObjectURL(url) } catch (e) {} }, 60 * 1000)
+      } catch (e) {
+        // final fallback: no-op
+      }
+    } finally {
+      setExporting(false)
+    }
   }
 
   return (
