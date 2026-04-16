@@ -3,7 +3,6 @@ import { usePlanningSummary, usePlanningSuggestions } from '@/features/planning/
 import { usePlanningOperational } from '@/features/planning/hooks/usePlanningOperational'
 import {
   PlanningHoursProgress,
-  PlanningProjectionChart,
   PlanningCombinations,
   PlanningSuggestionsList
 } from '@/features/planning/components/PlanningComponents'
@@ -78,10 +77,7 @@ const PlanningPage: React.FC = () => {
             <div className="space-y-4">
               <PlanningHoursProgress summary={summaryQuery.data} />
 
-              <div className="grid gap-4 xl:grid-cols-2">
-                <PlanningProjectionChart summary={summaryQuery.data} />
-                <PlanningCombinations summary={summaryQuery.data} />
-              </div>
+              <PlanningCombinations summary={summaryQuery.data} />
 
               {suggestionsQuery.isLoading ? (
                 <div className="h-24 animate-pulse rounded-2xl bg-slate-100" />
