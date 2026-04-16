@@ -14,9 +14,9 @@ function formatDate(dateKey: string) {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(parsed)
 }
 
-function pluralizeShifts(count: number, duration: string) {
+function pluralizeServices(count: number, duration: string) {
   const safeCount = toSafeCount(count)
-  const label = safeCount === 1 ? 'plantão' : 'plantões'
+  const label = safeCount === 1 ? 'serviço' : 'serviços'
   return `${safeCount} ${label} de ${duration}h`
 }
 
@@ -90,32 +90,33 @@ export function PlanningProjectionChart({ summary }: { summary: PlanningSummary 
       return Number(b.duration) - Number(a.duration)
     })
 
-  if (entries.length === 0 || remainingHours <= 0) {
-    return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold text-slate-900">Jeitos simples de fechar a meta</h3>
-        <p className="mt-2 text-sm text-slate-500">Meta já atingida. Nenhuma projeção adicional é necessária.</p>
-      </section>
-    )
-  }
+  const metaAtingida = remainingHours <= 0
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <h3 className="text-base font-semibold text-slate-900">Jeitos simples de fechar a meta</h3>
-      <p className="mt-0.5 text-sm text-slate-500">
-        Faltam {toSafeHours(remainingHours)} para chegar em {toSafeHours(goal)} neste mês. Veja opções fáceis de entender.
-      </p>
-      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        {entries.map((item) => (
-          <article key={item.duration} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Opção com {item.duration}h</p>
-            <p className="mt-2 text-base font-semibold text-slate-900">{pluralizeShifts(item.count, item.duration)}</p>
-            <p className="mt-1 text-sm text-slate-500">
-              Fecha as {toSafeHours(remainingHours)} restantes se você priorizar esse tipo de escala.
-            </p>
-          </article>
-        ))}
-      </div>
+      {metaAtingida ? (
+        <p className="mt-2 text-sm text-slate-500">Meta de {toSafeHours(goal)} atingida este mês.</p>
+      ) : (
+        <p className="mt-0.5 text-sm text-slate-500">
+          Faltam {toSafeHours(remainingHours)} para chegar em {toSafeHours(goal)} neste mês. Veja opções fáceis de entender.
+        </p>
+      )}
+      {entries.length > 0 && (
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {entries.map((item) => (
+            <article key={item.duration} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Opção com {item.duration}h</p>
+              <p className="mt-2 text-base font-semibold text-slate-900">{pluralizeServices(item.count, item.duration)}</p>
+              <p className="mt-1 text-sm text-slate-500">
+                {metaAtingida
+                  ? `Seriam necessários ${item.count} serviço${item.count === 1 ? '' : 's'} de ${item.duration}h para a meta de ${toSafeHours(goal)}.`
+                  : `Fecha as ${toSafeHours(remainingHours)} restantes se você priorizar este tipo de serviço.`}
+              </p>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
@@ -126,21 +127,18 @@ export function PlanningCombinations({ summary }: { summary: PlanningSummary }) 
   const goal = toSafeNonNegative(summary.goal, 0)
   const confirmedHours = toSafeNonNegative(summary.confirmed_hours, 0)
 
-  if (combinations.length === 0 || safeRemaining <= 0) {
-    return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold text-slate-900">Cenários de fechamento do mês</h3>
-        <p className="mt-2 text-sm text-slate-500">Meta já atingida ou sem combinações disponíveis para o restante.</p>
-      </section>
-    )
-  }
+  const metaAtingidaCombos = safeRemaining <= 0
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <h3 className="text-base font-semibold text-slate-900">Cenários de fechamento do mês</h3>
-      <p className="mt-0.5 text-sm text-slate-500">
-        As combinações abaixo respeitam a meta de {toSafeHours(goal)}. Se não fecharem o mês, mostramos o que ainda fica pendente.
-      </p>
+      {metaAtingidaCombos ? (
+        <p className="mt-2 text-sm text-slate-500">Meta de {toSafeHours(goal)} atingida. Veja abaixo os cenários que levariam a meta.</p>
+      ) : (
+        <p className="mt-0.5 text-sm text-slate-500">
+          As combinações abaixo respeitam a meta de {toSafeHours(goal)}. Se não fecharem o mês, mostramos o que ainda fica pendente.
+        </p>
+      )}
       <ul className="mt-3 space-y-3">
         {combinations.map((combo, idx) => {
           const totalHours = toSafeNonNegative(combo.total_hours, 0)
