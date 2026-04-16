@@ -36,14 +36,14 @@ export function usePlanningOperational() {
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
 
   const [mode, setMode] = useState<PlanningMode>('HOURS')
-  const [targetHours, setTargetHoursState] = useState<number>(120)
-  const [targetServices, setTargetServicesState] = useState<number>(15)
+  const [targetHours, setTargetHoursState] = useState<number>(0)
+  const [targetServices, setTargetServicesState] = useState<number>(0)
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([])
   const [selectedDurations, setSelectedDurations] = useState<number[]>([])
 
-  const setTargetHours = (value: number) => setTargetHoursState(toSafePositive(value, 1))
-  const setTargetServices = (value: number) => setTargetServicesState(toSafePositive(value, 1))
+  const setTargetHours = (value: number) => setTargetHoursState(toSafeNonNegative(value, 0))
+  const setTargetServices = (value: number) => setTargetServicesState(toSafeNonNegative(value, 0))
 
   const serviceTypesQuery = useServiceTypes()
   const planningSummaryQuery = usePlanningSummary()

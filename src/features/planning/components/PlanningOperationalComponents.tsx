@@ -227,9 +227,9 @@ export function PlanTargetInput({
           <span className="text-sm font-medium text-slate-700">Meta de horas</span>
           <input
             type="number"
-            min={1}
-            value={toSafeInt(toSafePositive(targetHours, 1), 1)}
-            onChange={(e) => onChangeHours(toSafePositive(e.target.value, 1))}
+            min={0}
+            value={toSafeInt(toSafeNonNegative(targetHours, 0), 0)}
+            onChange={(e) => onChangeHours(toSafeNonNegative(e.target.value, 0))}
             className="mt-1 block w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
           />
         </label>
@@ -238,9 +238,9 @@ export function PlanTargetInput({
           <span className="text-sm font-medium text-slate-700">Meta de serviços</span>
           <input
             type="number"
-            min={1}
-            value={toSafeInt(toSafePositive(targetServices, 1), 1)}
-            onChange={(e) => onChangeServices(toSafePositive(e.target.value, 1))}
+            min={0}
+            value={toSafeInt(toSafeNonNegative(targetServices, 0), 0)}
+            onChange={(e) => onChangeServices(toSafeNonNegative(e.target.value, 0))}
             className="mt-1 block w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
           />
         </label>
