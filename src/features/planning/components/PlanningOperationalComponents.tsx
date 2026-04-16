@@ -104,6 +104,57 @@ export function ServiceTypePicker({ available, selected, onChangeSelected }: Typ
   )
 }
 
+type WeekdayPickerProps = {
+  selected: number[]
+  onChange: (days: number[]) => void
+}
+
+export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
+  const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+
+  function toggle(d: number) {
+    if (selected.includes(d)) onChange(selected.filter((x) => x !== d))
+    else onChange([...selected, d])
+  }
+
+  const allSelected = selected.length === 0
+
+  return (
+    <div>
+      <p className="text-sm font-medium text-slate-700 mb-2">Dias preferidos para trabalhar</p>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => onChange([])}
+          className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+            allSelected ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+        >
+          Todos
+        </button>
+
+        {labels.map((lab, i) => (
+          <button
+            key={lab}
+            type="button"
+            onClick={() => toggle(i)}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+              selected.includes(i) ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            {lab}
+          </button>
+        ))}
+      </div>
+      {allSelected ? (
+        <p className="text-xs text-slate-400 mt-1">Sem preferência: todos os dias possíveis serão considerados.</p>
+      ) : (
+        <p className="text-xs text-slate-400 mt-1">Selecione os dias que prefere trabalhar.</p>
+      )}
+    </div>
+  )
+}
+
 type TargetInputProps = {
   mode: PlanningMode
   targetHours: number
@@ -327,6 +378,11 @@ export function StrategyPanel({ result }: { result: PlanningResult }) {
         </span>
         <span className="text-sm font-semibold text-emerald-700">{toSafeCurrency(result.estimated_income)}</span>
       </div>
+          {typeof result.working_days_count === 'number' && (
+            <div className="text-xs text-slate-500 mt-2">
+              <strong>{result.working_days_count}</strong> dia(s) disponíveis no período • média de <strong>{result.avg_services_per_day}</strong> serviço(s)/dia
+            </div>
+          )}
     </section>
   )
 }

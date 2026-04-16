@@ -37,6 +37,7 @@ export function usePlanningOperational() {
   const [targetHours, setTargetHoursState] = useState<number>(120)
   const [targetServices, setTargetServicesState] = useState<number>(15)
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
+  const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([])
 
   const setTargetHours = (value: number) => setTargetHoursState(toSafePositive(value, 1))
   const setTargetServices = (value: number) => setTargetServicesState(toSafePositive(value, 1))
@@ -137,6 +138,7 @@ export function usePlanningOperational() {
       },
       cap_hours: planningSummaryQuery.data?.remaining_hours,
       preferred_durations: planningSummaryQuery.data?.preferences.preferred_durations,
+      preferred_work_days: selectedWeekdays,
     }),
     [mode, targetHours, targetServices, selectedTypes, availableTypes, period.end_date, period.start_date, planningSummaryQuery.data],
   )
@@ -178,6 +180,8 @@ export function usePlanningOperational() {
     result,
     currentProgress,
     period,
+    selectedWeekdays,
+    setSelectedWeekdays,
 
     isLoading,
     isAllError,

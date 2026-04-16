@@ -194,6 +194,25 @@ function avgHoursPerService(selectedTypes: string[], historical: HistoricalData)
     : DEFAULT_AVG_HOURS_PER_SERVICE
 }
 
+function countWorkingDays(startIso: string, endIso: string, preferredWeekdays?: number[]): number {
+  const start = new Date(`${startIso}T00:00:00`)
+  const end = new Date(`${endIso}T00:00:00`)
+  if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end < start) return 0
+
+  const preferred = Array.isArray(preferredWeekdays) && preferredWeekdays.length > 0
+    ? new Set(preferredWeekdays.map((d) => Number(d)).filter((d) => Number.isFinite(d) && d >= 0 && d <= 6))
+    : null
+
+  let count = 0
+  const cur = new Date(start)
+  while (cur <= end) {
+    const w = cur.getDay()
+    if (!preferred || preferred.has(w)) count += 1
+    cur.setDate(cur.getDate() + 1)
+  }
+  return count
+}
+
 export function simulatePlan(input: PlanningInput, historical: HistoricalData): PlanningResult {
   const validation = validatePlanningInput(input)
   if (!validation.isValid) {
@@ -250,6 +269,10 @@ export function simulatePlan(input: PlanningInput, historical: HistoricalData): 
   const distribution = distributeByType(effectiveServices, selectedTypes, historical)
   const feasibility = computeFeasibility(effectiveHours, avgHPM)
 
+  // Compute working days and average services/day
+  const workingDays = countWorkingDays(input.period.start_date, input.period.end_date, input.preferred_work_days)
+  const avgPerDay = workingDays > 0 ? Math.ceil(effectiveServices / workingDays) : effectiveServices
+
   return {
     required_services: effectiveServices,
     estimated_hours: estimatedHours,
@@ -260,6 +283,8 @@ export function simulatePlan(input: PlanningInput, historical: HistoricalData): 
     cap_available_hours: capAvailable,
     effective_hours: effectiveHours,
     strategy,
+    working_days_count: workingDays,
+    avg_services_per_day: avgPerDay,
   }
 }
 

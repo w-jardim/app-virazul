@@ -13,6 +13,8 @@ export type PlanningInput = {
   }
   cap_hours?: number
   preferred_durations?: number[]
+  /** Weekdays user prefers to work: 0=Sunday .. 6=Saturday. Empty = all days */
+  preferred_work_days?: number[]
 }
 
 export type Feasibility = 'LOW' | 'MEDIUM' | 'HIGH'
@@ -33,6 +35,10 @@ export type PlanningResult = {
   cap_available_hours: number
   effective_hours: number
   strategy: StrategyStep[]
+  /** Number of working days in the target period (respecting preferred_work_days) */
+  working_days_count?: number
+  /** Average planned services per working day (rounded up) */
+  avg_services_per_day?: number
 }
 
 export type HistoricalData = {

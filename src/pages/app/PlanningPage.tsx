@@ -12,6 +12,7 @@ import {
   PlanTargetInput,
   SimulationResultCards,
   StrategyPanel,
+  WeekdayPicker,
   DistributionList,
   HistoricalSummary,
   PlanningWarningBanner,
@@ -128,6 +129,15 @@ const PlanningPage: React.FC = () => {
                   selected={operational.selectedTypes}
                   onChangeSelected={operational.setSelectedTypes}
                 />
+
+                <div className="pt-2">
+                  {/* Weekday picker for preferred work days */}
+                  {/* default empty = all days */}
+                  {/* Component from PlanningOperationalComponents */}
+                  {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                  {/* @ts-ignore */}
+                  <WeekdayPicker selected={operational.selectedWeekdays} onChange={operational.setSelectedWeekdays} />
+                </div>
               </section>
 
               {/* Results */}
