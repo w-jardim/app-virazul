@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   PlanningInput,
   PlanningResult,
   HistoricalData,
@@ -10,6 +10,7 @@ import { toSafeInt, toSafeNonNegative, toSafeNumber } from '../utils/safe-number
 const DEFAULT_AVG_HOURS_PER_SERVICE = 8
 const DEFAULT_AVG_INCOME_PER_HOUR = 25
 const DEFAULT_AVG_HOURS_PER_MONTH = 96
+const FALLBACK_PREFERRED_DURATIONS = [12, 8, 6, 4]
 
 export const FEASIBILITY_THRESHOLDS = {
   highMax: 1.2,
@@ -52,6 +53,34 @@ function normalizeServiceTypes(value: unknown): string[] {
   )
 }
 
+function normalizePreferredDurations(value: unknown): number[] {
+  if (!Array.isArray(value)) return []
+  return Array.from(
+    new Set(
+      value
+        .map((item) => toSafeInt(toSafeNonNegative(item, 0), 0))
+        .filter((item) => item > 0),
+    ),
+  ).sort((a, b) => a - b)
+}
+
+function normalizeDateHours(value: unknown): Record<string, number> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+
+  const entries = Object.entries(value as Record<string, unknown>)
+    .filter(([date, hours]) => isValidDateInput(date) && Number.isFinite(Number(hours)) && Number(hours) > 0)
+    .map(([date, hours]) => [date, toSafeInt(toSafeNonNegative(hours, 0), 0)] as const)
+
+  return Object.fromEntries(entries)
+}
+
+function sumDateHoursWithinPeriod(dateHours: Record<string, number>, startIso: string, endIso: string): number {
+  return Object.entries(dateHours).reduce((sum, [date, hours]) => {
+    if (date < startIso || date > endIso) return sum
+    return sum + toSafeNonNegative(hours, 0)
+  }, 0)
+}
+
 export function validatePlanningInput(input: PlanningInput): InputValidation {
   const selectedTypes = normalizeServiceTypes(input.service_types)
 
@@ -89,8 +118,7 @@ function computeFeasibility(targetHours: number, avgHoursPerMonth: number): Feas
 }
 
 function buildStrategy(effectiveHours: number, preferredDurations: number[]): StrategyStep[] {
-  const FALLBACK = [12, 8, 6, 4]
-  const sorted = (preferredDurations.length > 0 ? preferredDurations : FALLBACK)
+  const sorted = (preferredDurations.length > 0 ? preferredDurations : FALLBACK_PREFERRED_DURATIONS)
     .filter((d) => Number.isFinite(d) && d > 0)
     .sort((a, b) => b - a)
 
@@ -194,10 +222,30 @@ function avgHoursPerService(selectedTypes: string[], historical: HistoricalData)
     : DEFAULT_AVG_HOURS_PER_SERVICE
 }
 
-function countWorkingDays(startIso: string, endIso: string, preferredWeekdays?: number[]): number {
+function countWorkingDays(
+  startIso: string,
+  endIso: string,
+  preferredWeekdays?: number[],
+  preferredDates?: string[],
+  preferredDateHours?: Record<string, number>,
+): number {
   const start = new Date(`${startIso}T00:00:00`)
   const end = new Date(`${endIso}T00:00:00`)
   if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end < start) return 0
+
+  const normalizedDateHours = normalizeDateHours(preferredDateHours)
+  const explicitDates = Object.keys(normalizedDateHours).filter((value) => value >= startIso && value <= endIso)
+  if (explicitDates.length > 0) {
+    return explicitDates.length
+  }
+
+  const normalizedDates = Array.isArray(preferredDates)
+    ? Array.from(new Set(preferredDates.filter((value) => isValidDateInput(value))))
+    : []
+
+  if (normalizedDates.length > 0) {
+    return normalizedDates.filter((value) => value >= startIso && value <= endIso).length
+  }
 
   const preferred = Array.isArray(preferredWeekdays) && preferredWeekdays.length > 0
     ? new Set(preferredWeekdays.map((d) => Number(d)).filter((d) => Number.isFinite(d) && d >= 0 && d <= 6))
@@ -240,28 +288,29 @@ export function simulatePlan(input: PlanningInput, historical: HistoricalData): 
   estimatedHours = toSafeNonNegative(estimatedHours, 0)
   requiredServices = toSafeInt(toSafeNonNegative(requiredServices, 0), 0)
 
-  // Cap logic: respect the 120h monthly cap
+  const preferredDurations = normalizePreferredDurations(input.preferred_durations)
+  const normalizedDateHours = normalizeDateHours(input.preferred_date_hours)
+  const selectedDateHoursTotal = sumDateHoursWithinPeriod(
+    normalizedDateHours,
+    input.period.start_date,
+    input.period.end_date,
+  )
+
   const rawCap = input.cap_hours
-  const capAvailable =
-    typeof rawCap === 'number' && Number.isFinite(rawCap) && rawCap >= 0
-      ? toSafeNonNegative(rawCap, 0)
-      : estimatedHours
+  const hasMonthlyCap = typeof rawCap === 'number' && Number.isFinite(rawCap) && rawCap >= 0
+  let capAvailable = hasMonthlyCap ? toSafeNonNegative(rawCap, 0) : estimatedHours
+
+  if (selectedDateHoursTotal > 0) {
+    capAvailable = Math.min(capAvailable, selectedDateHoursTotal)
+  }
+
   const capExceeded = estimatedHours > capAvailable + 0.5
   const effectiveHours = Math.min(estimatedHours, capAvailable)
-
-  // Services count adjusted to effective hours when capped
   const effectiveServices = capExceeded
     ? Math.max(1, Math.ceil(effectiveHours / Math.max(avgHPS, 1)))
     : requiredServices
 
-  // Strategy: fit preferred durations into effective hours greedily
-  const preferredDurations =
-    Array.isArray(input.preferred_durations) && input.preferred_durations.length > 0
-      ? input.preferred_durations
-      : [12, 8, 6, 4]
   const strategy = buildStrategy(effectiveHours, preferredDurations)
-
-  // Income and distribution are based on achievable (effective) hours
   const estimatedIncome = toSafeNonNegative(
     Math.round(effectiveHours * avgIPH * 100) / 100,
     0,
@@ -269,8 +318,13 @@ export function simulatePlan(input: PlanningInput, historical: HistoricalData): 
   const distribution = distributeByType(effectiveServices, selectedTypes, historical)
   const feasibility = computeFeasibility(effectiveHours, avgHPM)
 
-  // Compute working days and average services/day
-  const workingDays = countWorkingDays(input.period.start_date, input.period.end_date, input.preferred_work_days)
+  const workingDays = countWorkingDays(
+    input.period.start_date,
+    input.period.end_date,
+    input.preferred_work_days,
+    input.preferred_dates,
+    normalizedDateHours,
+  )
   const avgPerDay = workingDays > 0 ? Math.ceil(effectiveServices / workingDays) : effectiveServices
 
   return {
@@ -285,6 +339,13 @@ export function simulatePlan(input: PlanningInput, historical: HistoricalData): 
     strategy,
     working_days_count: workingDays,
     avg_services_per_day: avgPerDay,
+    selected_dates_count:
+      Object.keys(normalizedDateHours).length > 0
+        ? Object.keys(normalizedDateHours).length
+        : Array.isArray(input.preferred_dates)
+          ? input.preferred_dates.length
+          : 0,
+    selected_date_hours_total: selectedDateHoursTotal,
   }
 }
 

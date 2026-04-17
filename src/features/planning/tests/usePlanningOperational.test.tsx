@@ -180,4 +180,61 @@ describe('usePlanningOperational', () => {
       expect(result.current.result?.required_services).toBeGreaterThan(0)
     })
   })
+
+  it('uses selected date hours as the simulation limit and keeps them aligned with preferred durations', async () => {
+    mockUseServiceTypes.mockReturnValue(
+      successState([{ id: 1, key: 'RAS_VOLUNTARIO', name: 'RAS', category: 'RAS' }]),
+    )
+    mockUseFinanceSummary.mockReturnValue(successState({}))
+    mockUseOperationalReport.mockReturnValue(successState({}))
+    mockUsePlanningSummary.mockReturnValue(
+      successState({
+        goal: 120,
+        confirmed_hours: 24,
+        waiting_hours: 8,
+        remaining_hours: 96,
+        preferences: { preferred_durations: [6, 12] },
+      }),
+    )
+    vi.spyOn(servicesApi, 'list').mockResolvedValue([
+      {
+        id: 1,
+        service_type_key: 'RAS_VOLUNTARIO',
+        duration_hours: 8,
+        amount_total: 200,
+        operational_status: 'REALIZADO',
+      } as any,
+    ])
+
+    const { result } = renderHook(() => usePlanningOperational(), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    act(() => {
+      result.current.setSelectedMonth('2026-04')
+      result.current.setSelectedDurations([6, 12])
+      result.current.setSelectedDates(['2026-04-06', '2026-04-13'])
+    })
+
+    await waitFor(() => {
+      expect(result.current.selectedDateHours).toEqual({
+        '2026-04-06': 12,
+        '2026-04-13': 12,
+      })
+      expect(result.current.result?.cap_available_hours).toBe(24)
+      expect(result.current.result?.selected_date_hours_total).toBe(24)
+    })
+
+    act(() => {
+      result.current.setSelectedDateHours({
+        '2026-04-06': 12,
+        '2026-04-13': 6,
+      })
+    })
+
+    await waitFor(() => {
+      expect(result.current.result?.cap_available_hours).toBe(18)
+      expect(result.current.result?.effective_hours).toBe(18)
+      expect(result.current.result?.selected_date_hours_total).toBe(18)
+    })
+  })
 })

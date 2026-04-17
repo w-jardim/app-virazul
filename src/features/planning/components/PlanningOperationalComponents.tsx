@@ -1,4 +1,5 @@
-﻿import type {
+import { useEffect, useMemo, useState } from 'react'
+import type {
   PlanningResult,
   PlanningMode,
   Feasibility,
@@ -13,12 +14,38 @@ import {
   toSafeHours,
   toSafeInt,
   toSafeNonNegative,
-  toSafePositive,
 } from '../utils/safe-number'
 
 type ModeSelectorProps = {
   mode: PlanningMode
   onChangeMode: (m: PlanningMode) => void
+}
+
+const FALLBACK_DURATION_OPTIONS = [6, 8, 12, 24]
+
+function normalizeDurationOptions(preferredDurations?: number[]) {
+  const values = Array.isArray(preferredDurations) ? preferredDurations : []
+  const normalized = Array.from(new Set(values.filter((value) => Number.isFinite(value) && value > 0))).sort((a, b) => a - b)
+  return normalized.length > 0 ? normalized : FALLBACK_DURATION_OPTIONS
+}
+
+function getDefaultDayHours(options: number[]) {
+  if (options.includes(12)) return 12
+  return options[options.length - 1] ?? 8
+}
+
+function formatCalendarDate(year: number, month: number, day: number) {
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
+function formatSelectedDate(isoDate: string) {
+  const date = new Date(`${isoDate}T00:00:00`)
+  if (!Number.isFinite(date.getTime())) return isoDate
+  return new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+  }).format(date)
 }
 
 export function PlanModeSelector({ mode, onChangeMode }: ModeSelectorProps) {
@@ -69,7 +96,7 @@ export function ServiceTypePicker({ available, selected, onChangeSelected }: Typ
 
   return (
     <div>
-      <p className="text-sm font-medium text-slate-700 mb-2">Tipos de serviço</p>
+      <p className="mb-2 text-sm font-medium text-slate-700">Tipos de servi?o</p>
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -98,7 +125,207 @@ export function ServiceTypePicker({ available, selected, onChangeSelected }: Typ
         ))}
       </div>
       {allSelected && (
-        <p className="text-xs text-slate-400 mt-1">Todos os tipos incluídos na simulação.</p>
+        <p className="mt-1 text-xs text-slate-400">Todos os tipos inclu?dos na simula??o.</p>
+      )}
+    </div>
+  )
+}
+
+type CalendarPickerProps = {
+  month: string | null
+  selectedDates: string[]
+  selectedDateHours?: Record<string, number>
+  preferredDurations?: number[]
+  onChange: (dates: string[]) => void
+  onChangeDateHours?: (value: Record<string, number>) => void
+}
+
+export function CalendarDayPicker({
+  month,
+  selectedDates,
+  selectedDateHours = {},
+  preferredDurations,
+  onChange,
+  onChangeDateHours,
+}: CalendarPickerProps) {
+  const durationOptions = useMemo(
+    () => normalizeDurationOptions(preferredDurations),
+    [preferredDurations],
+  )
+
+  if (!month || !/^\d{4}-\d{2}$/.test(month)) {
+    return (
+      <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
+        <p className="text-sm font-medium text-slate-700">Escolha o m?s para liberar o calend?rio</p>
+        <p className="mt-1 text-xs text-slate-500">Depois disso, clique nos dias e defina quantas horas quer trabalhar em cada um.</p>
+      </div>
+    )
+  }
+
+  const [yearStr, monthStr] = month.split('-')
+  const year = Number(yearStr)
+  const monthNumber = Number(monthStr)
+  const totalDays = new Date(year, monthNumber, 0).getDate()
+  const firstWeekday = new Date(year, monthNumber - 1, 1).getDay()
+  const selectedSet = new Set(selectedDates)
+  const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'S?b']
+  const monthDates = Array.from({ length: totalDays }, (_, index) => formatCalendarDate(year, monthNumber, index + 1))
+  const defaultHours = getDefaultDayHours(durationOptions)
+
+  function syncDateHours(nextDates: string[]) {
+    if (!onChangeDateHours) return
+    const nextHours: Record<string, number> = {}
+
+    for (const date of nextDates) {
+      const currentHours = selectedDateHours[date]
+      nextHours[date] = durationOptions.includes(currentHours) ? currentHours : defaultHours
+    }
+
+    onChangeDateHours(nextHours)
+  }
+
+  function toggle(date: string) {
+    if (selectedSet.has(date)) {
+      const nextDates = selectedDates.filter((value) => value !== date)
+      onChange(nextDates)
+      syncDateHours(nextDates)
+      return
+    }
+
+    const nextDates = [...selectedDates, date].sort()
+    onChange(nextDates)
+    syncDateHours(nextDates)
+  }
+
+  function applyToAllDates() {
+    onChange(monthDates)
+    syncDateHours(monthDates)
+  }
+
+  function clearAllDates() {
+    onChange([])
+    onChangeDateHours?.({})
+  }
+
+  function updateHours(date: string, hours: number) {
+    if (!selectedSet.has(date)) return
+    onChangeDateHours?.({
+      ...selectedDateHours,
+      [date]: hours,
+    })
+  }
+
+  const totalConfiguredHours = selectedDates.reduce((sum, date) => {
+    const hours = durationOptions.includes(selectedDateHours[date]) ? selectedDateHours[date] : defaultHours
+    return sum + hours
+  }, 0)
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-slate-700">Dias escolhidos no calend?rio</p>
+          <p className="text-xs text-slate-500">Selecione os dias do m?s e escolha a carga de cada dia com base nas dura??es preferidas.</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={applyToAllDates}
+            className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200"
+          >
+            Marcar todos
+          </button>
+          <button
+            type="button"
+            onClick={clearAllDates}
+            className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200"
+          >
+            Limpar
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-2 grid grid-cols-7 gap-2">
+        {labels.map((label) => (
+          <span key={label} className="text-center text-xs font-medium uppercase tracking-wide text-slate-400">
+            {label}
+          </span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-2">
+        {Array.from({ length: firstWeekday }).map((_, index) => (
+          <div key={`empty-${index}`} className="h-10 rounded-lg bg-transparent" />
+        ))}
+        {monthDates.map((date, index) => {
+          const active = selectedSet.has(date)
+          const dayHours = durationOptions.includes(selectedDateHours[date]) ? selectedDateHours[date] : defaultHours
+          return (
+            <button
+              key={date}
+              type="button"
+              onClick={() => toggle(date)}
+              className={`flex h-14 flex-col items-center justify-center rounded-lg border text-sm font-medium transition ${
+                active
+                  ? 'border-sky-500 bg-sky-600 text-white shadow-sm'
+                  : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:bg-sky-50'
+              }`}
+              title={date}
+            >
+              <span>{index + 1}</span>
+              {active ? <span className="text-[11px] opacity-90">{dayHours}h</span> : null}
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-slate-500">
+        <span>{selectedDates.length} dia(s) selecionado(s).</span>
+        <span>{totalConfiguredHours}h configuradas no calend?rio.</span>
+      </div>
+
+      {selectedDates.length > 0 && (
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium text-slate-700">Horas por dia</p>
+              <p className="text-xs text-slate-500">Cada dia usa apenas as dura??es que voc? deixou ativas.</p>
+            </div>
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+              {durationOptions.map((duration) => `${duration}h`).join(' ? ')}
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {selectedDates.slice().sort().map((date) => {
+              const currentHours = durationOptions.includes(selectedDateHours[date]) ? selectedDateHours[date] : defaultHours
+              return (
+                <div key={date} className="rounded-lg bg-white p-3 ring-1 ring-slate-200">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <span className="text-sm font-medium text-slate-700">{formatSelectedDate(date)}</span>
+                    <span className="text-xs text-slate-500">{date}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {durationOptions.map((duration) => (
+                      <button
+                        key={`${date}-${duration}`}
+                        type="button"
+                        onClick={() => updateHours(date, duration)}
+                        className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                          currentHours === duration
+                            ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        {duration}h
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       )}
     </div>
   )
@@ -110,7 +337,7 @@ type WeekdayPickerProps = {
 }
 
 export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
-  const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+  const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'S?b']
 
   function toggle(d: number) {
     if (selected.includes(d)) onChange(selected.filter((x) => x !== d))
@@ -121,7 +348,7 @@ export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
 
   return (
     <div>
-      <p className="text-sm font-medium text-slate-700 mb-2">Dias preferidos para trabalhar</p>
+      <p className="mb-2 text-sm font-medium text-slate-700">Dias preferidos para trabalhar</p>
       <div className="flex gap-2">
         <button
           type="button"
@@ -132,7 +359,6 @@ export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
         >
           Todos
         </button>
-
         {labels.map((lab, i) => (
           <button
             key={lab}
@@ -146,11 +372,6 @@ export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
           </button>
         ))}
       </div>
-      {allSelected ? (
-        <p className="text-xs text-slate-400 mt-1">Sem preferência: todos os dias possíveis serão considerados.</p>
-      ) : (
-        <p className="text-xs text-slate-400 mt-1">Selecione os dias que prefere trabalhar.</p>
-      )}
     </div>
   )
 }
@@ -161,7 +382,7 @@ type DurationPickerProps = {
 }
 
 export function DurationPicker({ selected, onChange }: DurationPickerProps) {
-  const opts = [6, 8, 12, 24]
+  const opts = FALLBACK_DURATION_OPTIONS
 
   function toggle(d: number) {
     if (selected.includes(d)) onChange(selected.filter((x) => x !== d))
@@ -172,7 +393,7 @@ export function DurationPicker({ selected, onChange }: DurationPickerProps) {
 
   return (
     <div>
-      <p className="text-sm font-medium text-slate-700 mb-2">Durações preferidas</p>
+      <p className="mb-2 text-sm font-medium text-slate-700">Dura??es preferidas</p>
       <div className="flex gap-2">
         <button
           type="button"
@@ -197,9 +418,9 @@ export function DurationPicker({ selected, onChange }: DurationPickerProps) {
         ))}
       </div>
       {allSelected ? (
-        <p className="text-xs text-slate-400 mt-1">Sem preferência: todas as durações serão consideradas.</p>
+        <p className="mt-1 text-xs text-slate-400">Sem prefer?ncia: todas as dura??es ser?o consideradas.</p>
       ) : (
-        <p className="text-xs text-slate-400 mt-1">Selecione as durações que prefere ofertar.</p>
+        <p className="mt-1 text-xs text-slate-400">Essas dura??es tamb?m ser?o usadas para escolher as horas de cada dia no calend?rio.</p>
       )}
     </div>
   )
@@ -220,6 +441,35 @@ export function PlanTargetInput({
   onChangeHours,
   onChangeServices,
 }: TargetInputProps) {
+  const [hoursStr, setHoursStr] = useState<string>(String(toSafeInt(toSafeNonNegative(targetHours, 0), 0)))
+  const [servicesStr, setServicesStr] = useState<string>(String(toSafeInt(toSafeNonNegative(targetServices, 0), 0)))
+
+  useEffect(() => {
+    setHoursStr(String(toSafeInt(toSafeNonNegative(targetHours, 0), 0)))
+  }, [targetHours])
+
+  useEffect(() => {
+    setServicesStr(String(toSafeInt(toSafeNonNegative(targetServices, 0), 0)))
+  }, [targetServices])
+
+  function commitHours(value: string) {
+    const parsed = Number(value)
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      onChangeHours(0)
+      return
+    }
+    onChangeHours(Math.floor(parsed))
+  }
+
+  function commitServices(value: string) {
+    const parsed = Number(value)
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      onChangeServices(0)
+      return
+    }
+    onChangeServices(Math.floor(parsed))
+  }
+
   return (
     <div>
       {mode === 'HOURS' ? (
@@ -228,19 +478,33 @@ export function PlanTargetInput({
           <input
             type="number"
             min={0}
-            value={toSafeInt(toSafeNonNegative(targetHours, 0), 0)}
-            onChange={(e) => onChangeHours(toSafeNonNegative(e.target.value, 0))}
+            value={hoursStr}
+            onChange={(e) => setHoursStr(e.target.value)}
+            onBlur={(e) => commitHours(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                commitHours((e.target as HTMLInputElement).value)
+                ;(e.target as HTMLInputElement).blur()
+              }
+            }}
             className="mt-1 block w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
           />
         </label>
       ) : (
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Meta de serviços</span>
+          <span className="text-sm font-medium text-slate-700">Meta de servi?os</span>
           <input
             type="number"
             min={0}
-            value={toSafeInt(toSafeNonNegative(targetServices, 0), 0)}
-            onChange={(e) => onChangeServices(toSafeNonNegative(e.target.value, 0))}
+            value={servicesStr}
+            onChange={(e) => setServicesStr(e.target.value)}
+            onBlur={(e) => commitServices(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                commitServices((e.target as HTMLInputElement).value)
+                ;(e.target as HTMLInputElement).blur()
+              }
+            }}
             className="mt-1 block w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
           />
         </label>
@@ -250,9 +514,9 @@ export function PlanTargetInput({
 }
 
 const feasibilityConfig: Record<Feasibility, { label: string; color: string; icon: string }> = {
-  HIGH: { label: 'Alta viabilidade', color: 'bg-emerald-100 text-emerald-800 border-emerald-300', icon: '🟢' },
-  MEDIUM: { label: 'Viabilidade moderada', color: 'bg-amber-100 text-amber-800 border-amber-300', icon: '🟡' },
-  LOW: { label: 'Baixa viabilidade', color: 'bg-rose-100 text-rose-800 border-rose-300', icon: '🔴' },
+  HIGH: { label: 'Alta viabilidade', color: 'bg-emerald-100 text-emerald-800 border-emerald-300', icon: 'OK' },
+  MEDIUM: { label: 'Viabilidade moderada', color: 'bg-amber-100 text-amber-800 border-amber-300', icon: 'AV' },
+  LOW: { label: 'Baixa viabilidade', color: 'bg-rose-100 text-rose-800 border-rose-300', icon: 'AT' },
 }
 
 export function FeasibilityBadge({ feasibility }: { feasibility: Feasibility }) {
@@ -274,25 +538,83 @@ export function SimulationResultCards({ result, mode }: SimResultProps) {
   const safeRequired = toSafeInt(toSafeNonNegative(result.required_services, 0), 0)
   const safeHours = toSafeNonNegative(result.effective_hours, 0)
   const safeIncome = toSafeNonNegative(result.estimated_income, 0)
+  const safeCap = toSafeNonNegative(result.cap_available_hours, 0)
+  const safeSelectedDateHours = toSafeNonNegative(result.selected_date_hours_total, 0)
+  const totalServices = result.strategy?.reduce((sum, item) => sum + item.count, 0) ?? safeRequired
+  const totalStrategyHours = result.strategy?.reduce((sum, item) => sum + item.hours, 0) ?? safeHours
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-slate-900">Resultado da simulação</h3>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-slate-900">Resultado da simula??o</h3>
+          <p className="text-sm text-slate-500">Servi?os e valor calculados a partir das escolhas de horas, tipos, datas e dura??es.</p>
+        </div>
         <FeasibilityBadge feasibility={result.feasibility} />
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricCard
-          label={mode === 'HOURS' ? 'Serviços necessários' : 'Horas estimadas'}
-          value={mode === 'HOURS' ? safeRequired : toSafeHours(safeHours)}
+          label={mode === 'COUNT' ? 'Servi?os planejados' : 'Servi?os sugeridos'}
+          value={safeRequired}
           tone="default"
         />
-        <MetricCard
-          label={mode === 'COUNT' ? 'Serviços planejados' : 'Horas-alvo'}
-          value={mode === 'COUNT' ? safeRequired : toSafeHours(safeHours)}
-          tone="default"
-        />
+        <MetricCard label="Horas aproveitadas" value={toSafeHours(safeHours)} tone="default" />
         <MetricCard label="Receita estimada" value={toSafeCurrency(safeIncome)} tone="success" />
+        <MetricCard
+          label="Dias selecionados"
+          value={toSafeInt(toSafeNonNegative(result.selected_dates_count ?? result.working_days_count ?? 0, 0), 0)}
+          tone="default"
+        />
+      </div>
+
+      <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <h4 className="text-sm font-semibold text-slate-900">Estrat?gia dentro do limite</h4>
+            <p className="text-xs text-slate-500">Distribui??o final respeitando o limite dispon?vel no m?s escolhido.</p>
+          </div>
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+            {safeCap}h dispon?veis
+          </span>
+        </div>
+
+        {safeSelectedDateHours > 0 && (
+          <div className="mb-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">
+            Calend?rio configurado com <span className="font-semibold">{safeSelectedDateHours}h</span> somadas nos dias escolhidos.
+          </div>
+        )}
+
+        {result.cap_exceeded && (
+          <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+            <span className="font-semibold">Meta ajustada:</span> o plano original tinha {result.estimated_hours}h, mas o c?lculo final ficou em {result.effective_hours}h para respeitar o limite do m?s.
+          </div>
+        )}
+
+        {result.strategy && result.strategy.length > 0 ? (
+          <div className="space-y-2">
+            {result.strategy.map((step) => (
+              <div key={step.duration_hours} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200">
+                <span className="text-sm text-slate-700">
+                  <strong>{step.count}</strong> servi?o{step.count !== 1 ? 's' : ''} de <strong>{step.duration_hours}h</strong>
+                </span>
+                <span className="text-sm font-semibold text-slate-900">{step.hours}h</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500">N?o foi poss?vel montar uma combina??o de dura??es com as escolhas atuais.</p>
+        )}
+
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3 text-sm">
+          <span className="font-semibold text-slate-700">{totalServices} servi?o{totalServices !== 1 ? 's' : ''} ? {totalStrategyHours}h</span>
+        </div>
+
+        {typeof result.working_days_count === 'number' && (
+          <p className="mt-2 text-xs text-slate-500">
+            {result.working_days_count} dia(s) considerados no c?lculo ? m?dia de <strong>{result.avg_services_per_day}</strong> servi?o(s) por dia.
+          </p>
+        )}
       </div>
     </section>
   )
@@ -315,17 +637,17 @@ export function DistributionList({ distribution, serviceTypes }: DistributionPro
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900 mb-3">Distribuição por tipo</h3>
+      <h3 className="mb-3 text-base font-semibold text-slate-900">Distribui??o por tipo</h3>
       <div className="space-y-2.5">
         {entries.map(([key, count]) => {
           const pct = total > 0 ? Math.max(0, Math.min(100, (count / total) * 100)) : 0
           return (
             <div key={key}>
-              <div className="flex justify-between text-sm mb-1">
+              <div className="mb-1 flex justify-between text-sm">
                 <span className="text-slate-700">{typeNameMap[key] ?? key}</span>
-                <span className="text-slate-500 font-medium">{toSafeCount(count)} serviço(s)</span>
+                <span className="font-medium text-slate-500">{toSafeCount(count)} servi?o(s)</span>
               </div>
-              <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
                 <div
                   className="h-full rounded-full bg-sky-400 transition-all duration-500"
                   style={{ width: `${pct}%` }}
@@ -342,17 +664,17 @@ export function DistributionList({ distribution, serviceTypes }: DistributionPro
 export function HistoricalSummary({ data, hasHistoryData }: { data: HistoricalData; hasHistoryData?: boolean }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900 mb-3">Base histórica (últimos 3 meses)</h3>
+      <h3 className="mb-3 text-base font-semibold text-slate-900">Base hist?rica (?ltimos 3 meses)</h3>
       {!hasHistoryData ? (
         <p className="mb-3 text-sm text-slate-500">
-          Sem histórico suficiente no período. A simulação está usando médias seguras padrão.
+          Sem hist?rico suficiente no per?odo. A simula??o est? usando m?dias seguras padr?o.
         </p>
       ) : null}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <MetricCard label="Média h/serviço" value={toSafeHours(data.avg_hours_per_service, 1)} />
-        <MetricCard label="Média R$/h" value={toSafeCurrency(data.avg_income_per_hour)} />
-        <MetricCard label="Serviços/mês" value={toSafeNonNegative(data.avg_services_per_month, 0).toFixed(1)} />
-        <MetricCard label="Horas/mês" value={toSafeHours(data.avg_hours_per_month, 1)} />
+        <MetricCard label="M?dia h/servi?o" value={toSafeHours(data.avg_hours_per_service, 1)} />
+        <MetricCard label="M?dia R$/h" value={toSafeCurrency(data.avg_income_per_hour)} />
+        <MetricCard label="Servi?os/m?s" value={toSafeNonNegative(data.avg_services_per_month, 0).toFixed(1)} />
+        <MetricCard label="Horas/m?s" value={toSafeHours(data.avg_hours_per_month, 1)} />
       </div>
     </section>
   )
@@ -365,10 +687,10 @@ export function PlanningWarningBanner({ sources }: { sources: PlanningSourceStat
   return (
     <div className="rounded-xl border border-amber-300 bg-amber-50 p-4" role="alert">
       <p className="text-sm font-medium text-amber-900">
-        Algumas fontes de dados não puderam ser carregadas: {failed.map((s) => s.label).join(', ')}.
+        Algumas fontes de dados n?o puderam ser carregadas: {failed.map((s) => s.label).join(', ')}.
       </p>
       <p className="mt-1 text-xs text-amber-700">
-        A simulação pode estar incompleta e usará médias seguras quando faltar histórico.
+        A simula??o pode estar incompleta e usar? m?dias seguras quando faltar hist?rico.
       </p>
     </div>
   )
@@ -389,50 +711,19 @@ export function StrategyPanel({ result }: { result: PlanningResult }) {
   const totalHours = result.strategy.reduce((s, i) => s + i.hours, 0)
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+    <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-slate-900">Estratégia dentro do limite de 120h</h3>
+        <h3 className="text-base font-semibold text-slate-900">Estrat?gia dentro do limite</h3>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-          {result.cap_available_hours}h disponíveis
+          {result.cap_available_hours}h dispon?veis
         </span>
       </div>
-
-      {result.cap_exceeded && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
-          <span className="font-semibold">Meta ajustada:</span> sua meta de {result.estimated_hours}h
-          excede o limite disponível ({result.cap_available_hours}h). A estratégia usa as{' '}
-          <span className="font-semibold">{result.effective_hours}h</span> restantes.
-        </div>
-      )}
-
-      <div className="divide-y divide-slate-100">
-        {result.strategy.map((step) => (
-          <div key={step.duration_hours} className="flex items-center justify-between py-2.5">
-            <div className="flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-sky-100 text-xs font-bold text-sky-700">
-                {step.count}
-              </span>
-              <span className="text-sm text-slate-700">
-                {step.count === 1 ? 'serviço' : 'serviços'} de{' '}
-                <span className="font-semibold">{step.duration_hours}h</span>
-              </span>
-            </div>
-            <span className="text-sm font-semibold text-slate-900">{step.hours}h</span>
-          </div>
-        ))}
-      </div>
-
       <div className="flex items-center justify-between border-t border-slate-200 pt-3">
         <span className="text-sm font-semibold text-slate-700">
-          {totalServices} serviço{totalServices !== 1 ? 's' : ''} · {totalHours}h
+          {totalServices} servi?o{totalServices !== 1 ? 's' : ''} ? {totalHours}h
         </span>
         <span className="text-sm font-semibold text-emerald-700">{toSafeCurrency(result.estimated_income)}</span>
       </div>
-          {typeof result.working_days_count === 'number' && (
-            <div className="text-xs text-slate-500 mt-2">
-              <strong>{result.working_days_count}</strong> dia(s) disponíveis no período • média de <strong>{result.avg_services_per_day}</strong> serviço(s)/dia
-            </div>
-          )}
     </section>
   )
 }

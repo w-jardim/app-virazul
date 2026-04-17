@@ -1,4 +1,5 @@
-﻿import type { PlanningSummary, PlanningSuggestion } from '../types/planning.types'
+﻿import React, { useState, useEffect } from 'react'
+import type { PlanningSummary, PlanningSuggestion } from '../types/planning.types'
 import MetricCard from '@/features/dashboard/components/MetricCard'
 import { toSafeCount, toSafeHours, toSafeNonNegative } from '../utils/safe-number'
 
@@ -16,12 +17,20 @@ function formatDate(dateKey: string) {
 
 function pluralizeServices(count: number, duration: string) {
   const safeCount = toSafeCount(count)
-  const label = safeCount === 1 ? 'serviço' : 'serviços'
+  const label = safeCount === '1' ? 'plantão' : 'plantões'
   return `${safeCount} ${label} de ${duration}h`
 }
 
-export function PlanningHoursProgress({ summary }: { summary: PlanningSummary }) {
+export function PlanningHoursProgress({ summary, onChangeGoal }: { summary: PlanningSummary, onChangeGoal?: (n: number) => Promise<void> }) {
+  const [editing, setEditing] = useState(false)
+  const [valueStr, setValueStr] = useState<string>(String(toSafeNonNegative(summary.goal, 0)))
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   const goal = toSafeNonNegative(summary.goal, 0)
+  useEffect(() => {
+    setValueStr(String(goal))
+  }, [goal])
   const confirmedHours = toSafeNonNegative(summary.confirmed_hours, 0)
   const waitingHours = toSafeNonNegative(summary.waiting_hours, 0)
   const remainingHours = toSafeNonNegative(summary.remaining_hours, 0)
@@ -32,8 +41,60 @@ export function PlanningHoursProgress({ summary }: { summary: PlanningSummary })
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">Progresso do mês</h3>
-      <p className="mt-0.5 text-sm text-slate-500">Meta mensal de {toSafeHours(goal)} — acompanhe sua evolução.</p>
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-semibold text-slate-900">Progresso do mês</h3>
+        <div className="text-sm text-slate-500">
+          {editing ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={0}
+                value={valueStr}
+                onChange={(e) => setValueStr(e.target.value)}
+                className="w-24 rounded-lg border border-slate-300 px-2 py-1 text-sm"
+              />
+              <button
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  if (!onChangeGoal) { setEditing(false); return }
+                  setBusy(true)
+                  setError(null)
+                  try {
+                    const parsed = Number(valueStr)
+                    if (!Number.isFinite(parsed) || parsed < 0) throw new Error('Valor inválido')
+                    await onChangeGoal(Math.floor(parsed))
+                    setEditing(false)
+                  } catch (err: any) {
+                    setError(err?.message || 'Erro ao salvar meta')
+                  } finally {
+                    setBusy(false)
+                  }
+                }}
+                className="rounded px-2 py-1 bg-sky-600 text-white text-xs"
+              >
+                Salvar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing(false)
+                  setValueStr(String(goal))
+                  setError(null)
+                }}
+                className="text-xs text-slate-500"
+              >
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span>Meta mensal de {toSafeHours(goal)}</span>
+              <button type="button" onClick={() => setEditing(true)} className="text-xs text-slate-500 underline">Editar</button>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <MetricCard label="Meta mensal" value={toSafeHours(goal)} />

@@ -1,4 +1,4 @@
-// ── Planning Operational (F7) ─────────────────────────────────────────────────
+// Planning Operational
 
 export type PlanningMode = 'HOURS' | 'COUNT'
 
@@ -13,6 +13,10 @@ export type PlanningInput = {
   }
   cap_hours?: number
   preferred_durations?: number[]
+  /** Specific calendar dates selected by the user in YYYY-MM-DD format */
+  preferred_dates?: string[]
+  /** Explicit hour choice per selected date. Values should follow preferred_durations when present. */
+  preferred_date_hours?: Record<string, number>
   /** Weekdays user prefers to work: 0=Sunday .. 6=Saturday. Empty = all days */
   preferred_work_days?: number[]
 }
@@ -39,6 +43,10 @@ export type PlanningResult = {
   working_days_count?: number
   /** Average planned services per working day (rounded up) */
   avg_services_per_day?: number
+  /** Number of specific dates selected in the calendar */
+  selected_dates_count?: number
+  /** Sum of configured hours across selected dates */
+  selected_date_hours_total?: number
 }
 
 export type HistoricalData = {
@@ -46,13 +54,16 @@ export type HistoricalData = {
   avg_income_per_hour: number
   avg_services_per_month: number
   avg_hours_per_month: number
-  by_service_type: Record<string, {
-    count: number
-    total_hours: number
-    total_income: number
-    avg_duration: number
-    avg_income_per_hour: number
-  }>
+  by_service_type: Record<
+    string,
+    {
+      count: number
+      total_hours: number
+      total_income: number
+      avg_duration: number
+      avg_income_per_hour: number
+    }
+  >
 }
 
 export type PlanningSourceName =

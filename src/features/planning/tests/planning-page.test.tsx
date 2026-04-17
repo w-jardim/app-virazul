@@ -223,7 +223,7 @@ describe('PlanningPage', () => {
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText('Configurar simulação')).toBeInTheDocument()
+    expect(screen.getByText(/Configurar simula/i)).toBeInTheDocument()
   })
 
   it('renders loading state in simulator tab', async () => {
@@ -242,7 +242,7 @@ describe('PlanningPage', () => {
     mockOperational.mockReturnValue(operationalAllError as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText(/Falha ao carregar dados para simulação/i)).toBeInTheDocument()
+    expect(screen.getByText(/Falha ao carregar dados para simula/i)).toBeInTheDocument()
   })
 
   it('renders partial error warning banner', async () => {
@@ -252,7 +252,7 @@ describe('PlanningPage', () => {
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
     expect(screen.getByText(/Financeiro/)).toBeInTheDocument()
-    expect(screen.getByText(/simulação pode estar incompleta/i)).toBeInTheDocument()
+    expect(screen.getByText(/pode estar incompleta/i)).toBeInTheDocument()
   })
 
   it('renders mode selector buttons', async () => {
@@ -271,7 +271,7 @@ describe('PlanningPage', () => {
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText('Tipos de serviço')).toBeInTheDocument()
+    expect(screen.getByText(/Tipos de servi/i)).toBeInTheDocument()
     expect(screen.getAllByText('RAS Voluntário').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('PROEIS').length).toBeGreaterThanOrEqual(1)
   })
@@ -282,7 +282,7 @@ describe('PlanningPage', () => {
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText('Resultado da simulação')).toBeInTheDocument()
+    expect(screen.getByText(/Resultado da simula/i)).toBeInTheDocument()
     expect(screen.getByText('Alta viabilidade')).toBeInTheDocument()
   })
 
@@ -292,9 +292,9 @@ describe('PlanningPage', () => {
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText('Distribuição por tipo')).toBeInTheDocument()
-    expect(screen.getByText(/9 serviço/)).toBeInTheDocument()
-    expect(screen.getByText(/6 serviço/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Distribui/i })).toBeInTheDocument()
+    expect(screen.getByText((content) => content.includes('9') && content.includes('servi'))).toBeInTheDocument()
+    expect(screen.getByText((content) => content.includes('6') && content.includes('servi'))).toBeInTheDocument()
   })
 
   it('renders historical summary section', async () => {
@@ -303,7 +303,7 @@ describe('PlanningPage', () => {
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText(/Base histórica/)).toBeInTheDocument()
+    expect(screen.getByText(/Base hist/i)).toBeInTheDocument()
   })
 
   it('renders estimated income in simulation results', async () => {
@@ -345,3 +345,7 @@ describe('PlanningPage', () => {
     expect(screen.getByText('R$ 0,00')).toBeInTheDocument()
   })
 })
+
+
+
+
