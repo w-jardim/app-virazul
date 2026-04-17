@@ -199,6 +199,7 @@ const PlanningPage: React.FC = () => {
                       selectedDates={operational.selectedDates ?? []}
                       selectedDateHours={operational.selectedDateHours ?? {}}
                       preferredDurations={operational.durationOptions ?? operational.selectedDurations ?? []}
+                      baseWorkDays={Object.keys(operational.ordinaryScheduleMap ?? {})}
                       onChange={operational.setSelectedDates ?? (() => undefined)}
                       onChangeDateHours={operational.setSelectedDateHours ?? (() => undefined)}
                     />

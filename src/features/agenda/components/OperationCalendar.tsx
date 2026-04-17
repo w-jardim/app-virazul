@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAgendaMonth, useAgendaDay, getDateKey, getMonthKey } from '../hooks/useAgendaData'
+import { useScheduleCalendar } from '@/features/ordinary-schedule/hooks/useScheduleData'
+import { buildOrdinaryScheduleMap } from '@/features/ordinary-schedule/utils/ordinary-schedule-calendar'
 import type { AgendaServiceItem, AgendaWeekDayPayload } from '../types/agenda.types'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -139,6 +141,7 @@ const OperationCalendar: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<string | null>(today)
 
   const monthQuery = useAgendaMonth(month)
+  const ordinaryScheduleQuery = useScheduleCalendar(month)
 
   // index services by date key
   const servicesByDate = useMemo<Record<string, AgendaWeekDayPayload>>(() => {
@@ -149,6 +152,9 @@ const OperationCalendar: React.FC = () => {
     }
     return map
   }, [monthQuery.data])
+
+  const ordinaryMap = useMemo(() => buildOrdinaryScheduleMap(ordinaryScheduleQuery.data?.work_days), [ordinaryScheduleQuery.data?.work_days])
+  const ordinarySet = useMemo(() => new Set(Object.keys(ordinaryMap)), [ordinaryMap])
 
   const weeks = useMemo(() => buildCalendarWeeks(month), [month])
   const [mYear, mMonthIdx] = month.split('-').map(Number)
@@ -217,9 +223,11 @@ const OperationCalendar: React.FC = () => {
                       type="button"
                       onClick={() => setSelectedDay(dateKey)}
                       className={[
-                        'min-h-[72px] p-1.5 text-left transition-colors',
-                        isSelected ? 'bg-sky-50 ring-1 ring-inset ring-sky-300' : 'hover:bg-slate-50',
-                      ].join(' ')}
+                          'min-h-[72px] p-1.5 text-left transition-colors',
+                          // visually indicate ordinary schedule days as a subtle gray background (suggestion only)
+                          ordinarySet.has(dateKey) && !isSelected ? 'bg-slate-50' : '',
+                          isSelected ? 'bg-sky-50 ring-1 ring-inset ring-sky-300' : 'hover:bg-slate-50',
+                        ].join(' ')}
                     >
                       <span
                         className={[
@@ -252,18 +260,22 @@ const OperationCalendar: React.FC = () => {
         )}
 
         {/* Legend */}
-        <div className="border-t border-slate-100 px-4 py-2 flex items-center gap-4 flex-wrap">
+        <div className="border-t border-slate-100 px-4 py-2 flex flex-col gap-2">
+          <div className="flex items-center gap-4 flex-wrap">
           {[
             { label: 'Titular', cls: 'bg-sky-500' },
             { label: 'Reserva', cls: 'bg-amber-400' },
             { label: 'Realizado', cls: 'bg-emerald-500' },
             { label: 'Faltou', cls: 'bg-rose-500' },
+            { label: 'Dia ordinário (base)', cls: 'bg-slate-300' },
           ].map(({ label, cls }) => (
             <span key={label} className="flex items-center gap-1 text-xs text-slate-500">
               <span className={`h-2 w-2 rounded-full ${cls}`} />
               {label}
             </span>
           ))}
+          </div>
+          <p className="text-xs text-slate-400">Dias da escala ordinária: representam sua escala regular de trabalho (base). Você pode agendar serviços extras ou plantões nesses dias — eles são apenas uma indicação visual da sua jornada padrão.</p>
         </div>
       </div>
 

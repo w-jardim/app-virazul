@@ -136,6 +136,7 @@ type CalendarPickerProps = {
   selectedDates: string[]
   selectedDateHours?: Record<string, number>
   preferredDurations?: number[]
+  baseWorkDays?: string[]
   onChange: (dates: string[]) => void
   onChangeDateHours?: (value: Record<string, number>) => void
 }
@@ -145,6 +146,7 @@ export function CalendarDayPicker({
   selectedDates,
   selectedDateHours = {},
   preferredDurations,
+  baseWorkDays,
   onChange,
   onChangeDateHours,
 }: CalendarPickerProps) {
@@ -168,6 +170,7 @@ export function CalendarDayPicker({
   const totalDays = new Date(year, monthNumber, 0).getDate()
   const firstWeekday = new Date(year, monthNumber - 1, 1).getDay()
   const selectedSet = new Set(selectedDates)
+  const baseSet = new Set(baseWorkDays ?? [])
   const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
   const monthDates = Array.from({ length: totalDays }, (_, index) => formatCalendarDate(year, monthNumber, index + 1))
   const defaultHours = getDefaultDayHours(durationOptions)
@@ -265,13 +268,21 @@ export function CalendarDayPicker({
               key={date}
               type="button"
               onClick={() => toggle(date)}
-              className={`flex h-14 flex-col items-center justify-center rounded-lg border text-sm font-medium transition ${
+              className={`relative flex h-14 flex-col items-center justify-center rounded-lg border text-sm font-medium transition ${
                 active
                   ? 'border-sky-500 bg-sky-600 text-white shadow-sm'
                   : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:bg-sky-50'
               }`}
               title={date}
             >
+              {baseSet.has(date) ? (
+                <span
+                  className={`absolute -top-1 left-1 inline-block h-2 w-2 rounded-full ${
+                    active ? 'bg-white ring-1 ring-slate-200' : 'bg-slate-300'
+                  }`}
+                  aria-hidden
+                />
+              ) : null}
               <span>{index + 1}</span>
               {active ? <span className="text-[11px] opacity-90">{dayHours}h</span> : null}
             </button>
@@ -282,6 +293,11 @@ export function CalendarDayPicker({
       <div className="mt-3 flex items-center justify-between gap-3 text-xs text-slate-500">
         <span>{selectedDates.length} dia(s) selecionado(s).</span>
         <span>{totalConfiguredHours}h configuradas no calendário.</span>
+      </div>
+
+      {/** Legend / note about ordinary schedule days if provided visually elsewhere */}
+      <div className="mt-2 text-xs text-slate-400">
+        <p>Nota: dias indicados como "ordinários" são sua escala base. Eles aparecem apenas como sugestão — você ainda pode agendar serviços extras nesses dias.</p>
       </div>
 
       {selectedDates.length > 0 && (

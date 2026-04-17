@@ -8,6 +8,8 @@ import { currentMonthLocal, startOfMonthLocal, todayLocal } from '@/utils/date-p
 import { servicesApi } from '@/features/services/api/services.api'
 import { simulatePlan, buildHistoricalData, validatePlanningInput } from '../engine/simulate-plan'
 import { toSafePositive } from '../utils/safe-number'
+import { useScheduleCalendar } from '@/features/ordinary-schedule/hooks/useScheduleData'
+import { buildOrdinaryScheduleMap } from '@/features/ordinary-schedule/utils/ordinary-schedule-calendar'
 import type {
   PlanningInput,
   PlanningMode,
@@ -73,6 +75,9 @@ export function usePlanningOperational() {
     end_date: period.end_date,
   })
 
+  const ordinaryScheduleMonth = selectedMonth ?? period.month
+  const ordinaryScheduleQuery = useScheduleCalendar(ordinaryScheduleMonth)
+
   const servicesQuery = useQuery({
     queryKey: ['services', 'list-all'],
     queryFn: () => servicesApi.list(),
@@ -123,6 +128,8 @@ export function usePlanningOperational() {
       operationalQuery.isLoading,
       servicesQuery.isError,
       servicesQuery.isLoading,
+      ordinaryScheduleQuery.isError,
+      ordinaryScheduleQuery.isLoading,
     ],
   )
 
@@ -138,6 +145,16 @@ export function usePlanningOperational() {
   )
 
   const hasHistoryData = Array.isArray(servicesQuery.data) && servicesQuery.data.length > 0
+
+  const ordinaryScheduleMap = useMemo(
+    () => buildOrdinaryScheduleMap(ordinaryScheduleQuery.data?.work_days),
+    [ordinaryScheduleQuery.data?.work_days],
+  )
+
+  const ordinaryScheduleBlockedDates = useMemo(
+    () => Object.keys(ordinaryScheduleMap).sort(),
+    [ordinaryScheduleMap],
+  )
 
   const historical: HistoricalData = useMemo(() => {
     if (!servicesQuery.data || servicesQuery.data.length === 0) {
@@ -161,6 +178,11 @@ export function usePlanningOperational() {
 
     return FALLBACK_PREFERRED_DURATIONS
   }, [planningSummaryQuery.data?.preferences?.preferred_durations, selectedDurations])
+
+  // The ordinary schedule is used as a base reference (ordinaryScheduleMap/ordinaryScheduleBlockedDates),
+  // but we must NOT automatically remove or "block" user-selected dates or hours. Users can schedule
+  // extras on the same day after their usual shift. Therefore we intentionally avoid filtering
+  // `selectedDates` or `selectedDateHours` when ordinary schedule data changes.
 
   useEffect(() => {
     const selectedSet = new Set(selectedDates)
@@ -306,6 +328,9 @@ export function usePlanningOperational() {
     selectedDurations,
     setSelectedDurations,
     durationOptions,
+    ordinaryScheduleMonth,
+    ordinaryScheduleMap,
+    ordinaryScheduleBlockedDates,
 
     isLoading,
     isAllError,
@@ -316,3 +341,4 @@ export function usePlanningOperational() {
     inputValidationMessage,
   }
 }
+

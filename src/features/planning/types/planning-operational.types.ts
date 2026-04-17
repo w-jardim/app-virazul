@@ -72,6 +72,7 @@ export type PlanningSourceName =
   | 'operational'
   | 'service_types'
   | 'services_history'
+  | 'ordinary_schedule'
 
 export type PlanningSourceStatus = {
   name: PlanningSourceName
@@ -79,3 +80,4 @@ export type PlanningSourceStatus = {
   isError: boolean
   isLoading: boolean
 }
+
