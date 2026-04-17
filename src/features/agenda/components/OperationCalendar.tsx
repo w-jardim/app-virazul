@@ -228,12 +228,22 @@ const OperationCalendar: React.FC = () => {
                       type="button"
                       onClick={() => setSelectedDay(dateKey)}
                       className={[
-                          'min-h-[72px] p-1.5 text-left transition-colors',
-                          // visually indicate ordinary schedule days as a subtle gray background (suggestion only)
-                          ordinarySet.has(dateKey) && !isSelected ? 'bg-slate-50' : '',
-                          isSelected ? 'bg-sky-50 ring-1 ring-inset ring-sky-300' : 'hover:bg-slate-50',
-                        ].join(' ')}
+                        'relative min-h-[72px] p-1.5 text-left transition-colors',
+                        // visually indicate ordinary schedule days as a subtle gray background (suggestion only)
+                        ordinarySet.has(dateKey) && !isSelected ? 'bg-slate-50' : '',
+                        isSelected ? 'bg-sky-50 ring-1 ring-inset ring-sky-300' : 'hover:bg-slate-50',
+                      ].join(' ')}
                     >
+                      {/* ordinary day badge (visible even when selected) */}
+                      {ordinarySet.has(dateKey) ? (
+                        <span
+                          className={`absolute -top-1 left-1 inline-block h-2 w-2 rounded-full ${
+                            isSelected ? 'bg-white ring-1 ring-slate-200' : 'bg-slate-300'
+                          }`}
+                          aria-hidden
+                        />
+                      ) : null}
+
                       <span
                         className={[
                           'mb-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium',
