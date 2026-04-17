@@ -30,10 +30,10 @@ const FinancePage: React.FC = () => {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Financeiro</h1>
-          <p className="text-sm text-slate-600">Acompanhe recebimentos, pendências e valores do primeiro ao último serviço cadastrado.</p>
+          <p className="text-sm text-slate-600">Acompanhe recebimentos, pendÃªncias e valores do primeiro ao Ãºltimo serviÃ§o cadastrado.</p>
           {hasServiceRange ? (
             <p className="mt-1 text-xs text-slate-500">
-              Período considerado: {dateRangeQuery.data?.start_date} a {dateRangeQuery.data?.end_date}
+              PerÃ­odo considerado: {dateRangeQuery.data?.start_date} a {dateRangeQuery.data?.end_date}
             </p>
           ) : null}
         </div>
@@ -44,7 +44,7 @@ const FinancePage: React.FC = () => {
       ) : dateRangeQuery.isError || reportQuery.isError ? (
         <PageErrorState title="Falha ao carregar dados financeiros" description="Tente novamente em instantes." />
       ) : !hasServiceRange ? (
-        <PageEmptyState title="Sem serviços cadastrados" description="Cadastre serviços para visualizar o consolidado financeiro do período real." />
+        <PageEmptyState title="Sem serviÃ§os cadastrados" description="Cadastre serviÃ§os para visualizar o consolidado financeiro do perÃ­odo real." />
       ) : !reportQuery.data ? (
         <PageErrorState title="Falha ao carregar dados financeiros" description="Tente novamente em instantes." />
       ) : (

@@ -56,9 +56,9 @@ const PlanningPage: React.FC = () => {
     <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-semibold text-slate-900">Planejamento</h1>
-        <p className="text-sm text-slate-600">Meta mensal, proje??es, simula??o e planejamento operacional.</p>
+        <p className="text-sm text-slate-600">Meta mensal, projeções, simulação e planejamento operacional.</p>
         <p className="mt-1 text-xs text-slate-400">
-          Per?odo: {operational.period.start_date} a {operational.period.end_date}
+          Período: {operational.period.start_date} a {operational.period.end_date}
         </p>
       </header>
 
@@ -114,8 +114,8 @@ const PlanningPage: React.FC = () => {
             <PageLoadingState />
           ) : operational.isAllError ? (
             <PageErrorState
-              title="Falha ao carregar dados para simula??o"
-              description="N?o foi poss?vel acessar as fontes de dados necess?rias. Tente novamente."
+              title="Falha ao carregar dados para simulação"
+              description="Não foi possível acessar as fontes de dados necessárias. Tente novamente."
             />
           ) : (
             <div className="space-y-4">
@@ -124,7 +124,7 @@ const PlanningPage: React.FC = () => {
               )}
 
               <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 className="text-base font-semibold text-slate-900">Configurar simula??o</h3>
+                <h3 className="text-base font-semibold text-slate-900">Configurar simulação</h3>
 
                 <div className="grid gap-4 lg:grid-cols-2">
                   <div className="space-y-4">
@@ -146,7 +146,7 @@ const PlanningPage: React.FC = () => {
 
                     <div className="grid grid-cols-3 items-end gap-3">
                       <div>
-                        <label className="mb-1 block text-xs font-medium text-slate-600">M?s planejado</label>
+                        <label className="mb-1 block text-xs font-medium text-slate-600">Mês planejado</label>
                         <input
                           type="month"
                           value={operational.selectedMonth ?? ''}
@@ -156,7 +156,7 @@ const PlanningPage: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-xs font-medium text-slate-600">Salvar m?s</label>
+                        <label className="mb-1 block text-xs font-medium text-slate-600">Salvar mês</label>
                         <button
                           type="button"
                           disabled={!operational.selectedMonth || saveBusy || goalSaveBusy}
@@ -169,9 +169,9 @@ const PlanningPage: React.FC = () => {
                               const payload: any = { planning_preferences: { saved_planned_month: operational.selectedMonth } }
                               const updated = await authApi.updateProfile(payload)
                               setUser(updated)
-                              setSaveSuccess('M?s salvo como base')
+                              setSaveSuccess('Mês salvo como base')
                             } catch (err: any) {
-                              setSaveError(err?.response?.data?.errors?.[0]?.message || 'Erro ao salvar m?s')
+                              setSaveError(err?.response?.data?.errors?.[0]?.message || 'Erro ao salvar mês')
                             } finally {
                               setSaveBusy(false)
                             }
@@ -207,7 +207,7 @@ const PlanningPage: React.FC = () => {
               </section>
 
               {operational.hasInsufficientInput ? (
-                <PlanningInputHint message={operational.inputValidationMessage ?? 'Entrada insuficiente para simula??o.'} />
+                <PlanningInputHint message={operational.inputValidationMessage ?? 'Entrada insuficiente para simulação.'} />
               ) : operational.result ? (
                 <>
                   <SimulationResultCards result={operational.result} mode={operational.mode} />
