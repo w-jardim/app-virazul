@@ -76,7 +76,7 @@ function dotColor(item: AgendaServiceItem): string {
 
 // ── Day panel ─────────────────────────────────────────────────────────────────
 
-const DayPanel: React.FC<{ dateKey: string }> = ({ dateKey }) => {
+const DayPanel: React.FC<{ dateKey: string; isOrdinary?: boolean }> = ({ dateKey, isOrdinary }) => {
   const query = useAgendaDay(dateKey)
   const label = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(parseLocalDate(dateKey))
 
@@ -92,7 +92,12 @@ const DayPanel: React.FC<{ dateKey: string }> = ({ dateKey }) => {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm font-semibold capitalize text-slate-800">{label}</p>
+        <div>
+          <p className="text-sm font-semibold capitalize text-slate-800">{label}</p>
+          {isOrdinary ? (
+            <p className="text-xs text-slate-500">Dia ordinário (sua escala base)</p>
+          ) : null}
+        </div>
         <Link
           to={`/services/new?start_at=${encodeURIComponent(dateKey)}`}
           className="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700"
@@ -281,7 +286,7 @@ const OperationCalendar: React.FC = () => {
 
       {/* ── Day panel ── */}
       {selectedDay ? (
-        <DayPanel dateKey={selectedDay} />
+        <DayPanel dateKey={selectedDay} isOrdinary={ordinarySet.has(selectedDay)} />
       ) : (
         <div className="flex items-center justify-center rounded-2xl border border-dashed border-slate-200 p-8 text-sm text-slate-400">
           Clique em um dia para ver os serviços
