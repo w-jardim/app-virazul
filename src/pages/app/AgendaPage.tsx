@@ -13,6 +13,11 @@ import {
   useAgendaWeek
 } from '@/features/agenda/hooks/useAgendaData'
 import type { AgendaViewMode } from '@/features/agenda/types/agenda.types'
+import { useScheduleCalendar } from '@/features/ordinary-schedule/hooks/useScheduleData'
+import {
+  buildOrdinaryScheduleMap,
+  mergeAgendaMonthWithOrdinarySchedule,
+} from '@/features/ordinary-schedule/utils/ordinary-schedule-calendar'
 
 const AgendaPage: React.FC = () => {
   const [mode, setMode] = useState<AgendaViewMode>('day')
@@ -23,6 +28,24 @@ const AgendaPage: React.FC = () => {
   const dayQuery = useAgendaDay(day)
   const weekQuery = useAgendaWeek(weekStart)
   const monthQuery = useAgendaMonth(month)
+
+  // derive schedule month: for day/week use the month of the reference date, for month mode use month directly
+  const scheduleMonth = useMemo(() => {
+    if (mode === 'month') return month
+    const ref = mode === 'week' ? weekStart : day
+    return ref.slice(0, 7) // "YYYY-MM"
+  }, [mode, day, weekStart, month])
+
+  const scheduleQuery = useScheduleCalendar(scheduleMonth)
+  const ordinaryMap = useMemo(
+    () => buildOrdinaryScheduleMap(scheduleQuery.data?.work_days),
+    [scheduleQuery.data?.work_days],
+  )
+
+  const mergedMonthData = useMemo(
+    () => mergeAgendaMonthWithOrdinarySchedule(month, monthQuery.data, scheduleQuery.data?.work_days),
+    [month, monthQuery.data, scheduleQuery.data?.work_days],
+  )
 
   const currentQuery = useMemo(() => {
     if (mode === 'week') {
@@ -70,14 +93,17 @@ const AgendaPage: React.FC = () => {
         />
       ) : mode === 'day' && dayQuery.data ? (
         <AgendaDayBlock
+          date={day}
           dateLabel={new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(new Date(`${day}T12:00:00Z`))}
           confirmed={dayQuery.data.confirmed}
           reservations={dayQuery.data.reservations}
+          isOrdinary={Boolean(ordinaryMap[day])}
+          ordinaryEntry={ordinaryMap[day] ?? null}
         />
       ) : mode === 'week' && weekQuery.data ? (
-        <AgendaWeekView data={weekQuery.data} />
-      ) : mode === 'month' && monthQuery.data ? (
-        <AgendaMonthView data={monthQuery.data} onDaySelect={setDay} />
+        <AgendaWeekView data={weekQuery.data} ordinaryMap={ordinaryMap} />
+      ) : mode === 'month' ? (
+        <AgendaMonthView data={mergedMonthData} onDaySelect={setDay} ordinaryMap={ordinaryMap} />
       ) : (
         <AgendaState title="Sem dados de agenda para o periodo." />
       )}

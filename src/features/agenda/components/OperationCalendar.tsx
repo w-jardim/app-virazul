@@ -76,7 +76,9 @@ function dotColor(item: AgendaServiceItem): string {
 
 // ── Day panel ─────────────────────────────────────────────────────────────────
 
-const DayPanel: React.FC<{ dateKey: string; isOrdinary?: boolean }> = ({ dateKey, isOrdinary }) => {
+import type { OrdinaryScheduleEntry } from '@/features/ordinary-schedule/utils/ordinary-schedule-calendar'
+
+const DayPanel: React.FC<{ dateKey: string; isOrdinary?: boolean; ordinaryEntry?: OrdinaryScheduleEntry | null }> = ({ dateKey, isOrdinary, ordinaryEntry }) => {
   const query = useAgendaDay(dateKey)
   const label = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(parseLocalDate(dateKey))
 
@@ -84,10 +86,24 @@ const DayPanel: React.FC<{ dateKey: string; isOrdinary?: boolean }> = ({ dateKey
     ? [...(query.data.confirmed ?? []), ...(query.data.reservations ?? [])]
     : []
 
+  // if this is an ordinary schedule day, create a synthetic agenda item
+  const ordinarySynthetic = isOrdinary
+    ? {
+        id: `ordinary-${dateKey}`,
+        service_type_name: 'Escala ordinária',
+        service_type_key: 'ORDINARIA',
+        start_at: `${dateKey}T${ordinaryEntry?.start_time ?? '00:00:00'}`,
+        duration_hours: ordinaryEntry?.duration_hours ?? 8,
+        operational_status: 'ORDINARIO',
+      }
+    : null
+
   const formatTime = (iso: string) => {
     const d = new Date(iso)
     return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   }
+
+  const hasContent = all.length > 0 || ordinarySynthetic !== null
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -98,20 +114,34 @@ const DayPanel: React.FC<{ dateKey: string; isOrdinary?: boolean }> = ({ dateKey
             <p className="text-xs text-slate-500">Dia ordinário (sua escala base)</p>
           ) : null}
         </div>
-        <Link
-          to={`/services/new?start_at=${encodeURIComponent(dateKey)}`}
-          className="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700"
-        >
-          + Novo
-        </Link>
+        {!isOrdinary && (
+          <Link
+            to={`/services/new?start_at=${encodeURIComponent(dateKey)}`}
+            className="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700"
+          >
+            + Novo
+          </Link>
+        )}
       </div>
 
       {query.isLoading ? (
         <p className="text-xs text-slate-500">Carregando...</p>
-      ) : all.length === 0 ? (
+      ) : !hasContent ? (
         <p className="text-xs text-slate-400">Nenhum serviço neste dia.</p>
       ) : (
         <ul className="space-y-2">
+          {/* render ordinary synthetic item first when present */}
+          {ordinarySynthetic ? (
+            <li key={ordinarySynthetic.id} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
+              <div>
+                <p className="text-xs font-semibold text-slate-800">{ordinarySynthetic.service_type_name}</p>
+                <p className="text-xs text-slate-500">
+                  {formatTime(ordinarySynthetic.start_at)} · {ordinarySynthetic.duration_hours}h · {ordinarySynthetic.operational_status}
+                </p>
+              </div>
+            </li>
+          ) : null}
+
           {all.map((s) => (
             <li key={s.id} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
               <div className="flex items-start justify-between gap-2">
@@ -296,7 +326,7 @@ const OperationCalendar: React.FC = () => {
 
       {/* ── Day panel ── */}
       {selectedDay ? (
-        <DayPanel dateKey={selectedDay} isOrdinary={ordinarySet.has(selectedDay)} />
+        <DayPanel dateKey={selectedDay} isOrdinary={ordinarySet.has(selectedDay)} ordinaryEntry={ordinaryMap[selectedDay]} />
       ) : (
         <div className="flex items-center justify-center rounded-2xl border border-dashed border-slate-200 p-8 text-sm text-slate-400">
           Clique em um dia para ver os serviços

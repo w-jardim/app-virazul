@@ -1,8 +1,15 @@
 import AgendaDayBlock from './AgendaDayBlock'
 import AgendaState from './AgendaState'
 import type { AgendaMonthPayload } from '../types/agenda.types'
+import type { OrdinaryScheduleEntry } from '@/features/ordinary-schedule/utils/ordinary-schedule-calendar'
 
-const AgendaMonthView = ({ data, onDaySelect }: { data: AgendaMonthPayload; onDaySelect?: (date: string) => void }) => {
+type AgendaMonthViewProps = {
+  data: AgendaMonthPayload
+  onDaySelect?: (date: string) => void
+  ordinaryMap?: Record<string, OrdinaryScheduleEntry>
+}
+
+const AgendaMonthView = ({ data, onDaySelect, ordinaryMap }: AgendaMonthViewProps) => {
   if (data.days.length === 0) {
     return (
       <AgendaState
@@ -22,6 +29,8 @@ const AgendaMonthView = ({ data, onDaySelect }: { data: AgendaMonthPayload; onDa
           confirmed={day.confirmed}
           reservations={day.reservations}
           onDaySelect={onDaySelect}
+          isOrdinary={ordinaryMap ? Boolean(ordinaryMap[day.date]) : false}
+          ordinaryEntry={ordinaryMap?.[day.date] ?? null}
         />
       ))}
     </div>
