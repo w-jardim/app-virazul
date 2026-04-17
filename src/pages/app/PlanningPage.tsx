@@ -11,16 +11,12 @@ import {
   PlanningSuggestionsList,
 } from '@/features/planning/components/PlanningComponents'
 import {
-  PlanModeSelector,
-  ServiceTypePicker,
-  PlanTargetInput,
   SimulationResultCards,
   CalendarDayPicker,
   DurationPicker,
-  DistributionList,
   HistoricalSummary,
   PlanningWarningBanner,
-  PlanningInputHint,
+  PlanningBalanceCard,
 } from '@/features/planning/components/PlanningOperationalComponents'
 import { PageLoadingState, PageErrorState } from '@/components/shared/PageStates'
 
@@ -38,17 +34,12 @@ const PlanningPage: React.FC = () => {
   const [saveBusy, setSaveBusy] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null)
-  const [goalSaveBusy, setGoalSaveBusy] = useState(false)
-
   async function handleChangeGoal(newGoal: number) {
-    setGoalSaveBusy(true)
     try {
       await authApi.updateProfile({ monthly_hour_goal: newGoal })
       await queryClient?.invalidateQueries({ queryKey: ['planning', 'summary'] })
     } catch (err: any) {
       throw new Error(err?.response?.data?.errors?.[0]?.message || 'Erro ao salvar meta')
-    } finally {
-      setGoalSaveBusy(false)
     }
   }
 
@@ -123,102 +114,85 @@ const PlanningPage: React.FC = () => {
                 <PlanningWarningBanner sources={operational.failedSources ?? []} />
               )}
 
+              {/* 1. Saldo disponível */}
+              {operational.currentProgress && (
+                <PlanningBalanceCard
+                  goal={operational.currentProgress.goal}
+                  confirmedHours={operational.currentProgress.confirmed_hours}
+                  waitingHours={operational.currentProgress.waiting_hours}
+                  remainingHours={operational.currentProgress.remaining_hours}
+                />
+              )}
+
+              {/* 2. Monte seu plano */}
               <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 className="text-base font-semibold text-slate-900">Configurar simulação</h3>
-
-                <div className="grid gap-4 lg:grid-cols-2">
-                  <div className="space-y-4">
-                    <PlanModeSelector mode={operational.mode} onChangeMode={operational.setMode} />
-
-                    <PlanTargetInput
-                      mode={operational.mode}
-                      targetHours={operational.targetHours}
-                      targetServices={operational.targetServices}
-                      onChangeHours={operational.setTargetHours}
-                      onChangeServices={operational.setTargetServices}
-                    />
-
-                    <ServiceTypePicker
-                      available={operational.availableTypes}
-                      selected={operational.selectedTypes}
-                      onChangeSelected={operational.setSelectedTypes}
-                    />
-
-                    <div className="grid grid-cols-3 items-end gap-3">
-                      <div>
-                        <label className="mb-1 block text-xs font-medium text-slate-600">Mês planejado</label>
-                        <input
-                          type="month"
-                          value={operational.selectedMonth ?? ''}
-                          onChange={(e) => operational.setSelectedMonth(e.target.value || null)}
-                          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="mb-1 block text-xs font-medium text-slate-600">Salvar mês</label>
-                        <button
-                          type="button"
-                          disabled={!operational.selectedMonth || saveBusy || goalSaveBusy}
-                          onClick={async () => {
-                            if (!operational.selectedMonth) return
-                            setSaveBusy(true)
-                            setSaveError(null)
-                            setSaveSuccess(null)
-                            try {
-                              const payload: any = { planning_preferences: { saved_planned_month: operational.selectedMonth } }
-                              const updated = await authApi.updateProfile(payload)
-                              setUser(updated)
-                              setSaveSuccess('Mês salvo como base')
-                            } catch (err: any) {
-                              setSaveError(err?.response?.data?.errors?.[0]?.message || 'Erro ao salvar mês')
-                            } finally {
-                              setSaveBusy(false)
-                            }
-                          }}
-                          className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-                        >
-                          {saveBusy ? 'Salvando...' : 'Salvar como base'}
-                        </button>
-                      </div>
-
-                      <div>
-                        {saveError && <div className="text-xs text-rose-600">{saveError}</div>}
-                        {saveSuccess && <div className="text-xs text-emerald-700">{saveSuccess}</div>}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <DurationPicker
-                      selected={operational.selectedDurations ?? []}
-                      onChange={operational.setSelectedDurations}
-                    />
-                    <CalendarDayPicker
-                      month={operational.selectedMonth ?? null}
-                      selectedDates={operational.selectedDates ?? []}
-                      selectedDateHours={operational.selectedDateHours ?? {}}
-                      preferredDurations={operational.durationOptions ?? operational.selectedDurations ?? []}
-                      baseWorkDays={Object.keys(operational.ordinaryScheduleMap ?? {})}
-                      onChange={operational.setSelectedDates ?? (() => undefined)}
-                      onChangeDateHours={operational.setSelectedDateHours ?? (() => undefined)}
+                <div className="flex flex-wrap items-end gap-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">Mês planejado</label>
+                    <input
+                      type="month"
+                      value={operational.selectedMonth ?? ''}
+                      onChange={(e) => operational.setSelectedMonth(e.target.value || null)}
+                      className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
                     />
                   </div>
+                  <button
+                    type="button"
+                    disabled={!operational.selectedMonth || saveBusy}
+                    onClick={async () => {
+                      if (!operational.selectedMonth) return
+                      setSaveBusy(true)
+                      setSaveError(null)
+                      setSaveSuccess(null)
+                      try {
+                        const updated = await authApi.updateProfile({
+                          planning_preferences: {
+                            saved_planned_month: operational.selectedMonth,
+                            saved_selected_dates: operational.selectedDates,
+                            saved_selected_date_hours: operational.selectedDateHours,
+                          },
+                        } as any)
+                        setUser(updated)
+                        setSaveSuccess('Mês salvo como base')
+                      } catch (err: any) {
+                        setSaveError(err?.response?.data?.errors?.[0]?.message || 'Erro ao salvar mês')
+                      } finally {
+                        setSaveBusy(false)
+                      }
+                    }}
+                    className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                  >
+                    {saveBusy ? 'Salvando...' : 'Salvar como base'}
+                  </button>
+                  {saveError && <span className="text-xs text-rose-600">{saveError}</span>}
+                  {saveSuccess && <span className="text-xs text-emerald-700">{saveSuccess}</span>}
                 </div>
+
+                <DurationPicker
+                  selected={operational.selectedDurations ?? []}
+                  onChange={operational.setSelectedDurations}
+                />
+
+                <CalendarDayPicker
+                  month={operational.selectedMonth ?? null}
+                  selectedDates={operational.selectedDates ?? []}
+                  selectedDateHours={operational.selectedDateHours ?? {}}
+                  preferredDurations={operational.durationOptions ?? operational.selectedDurations ?? []}
+                  baseWorkDays={Object.keys(operational.ordinaryScheduleMap ?? {})}
+                  onChange={operational.setSelectedDates ?? (() => undefined)}
+                  onChangeDateHours={operational.setSelectedDateHours ?? (() => undefined)}
+                />
               </section>
 
-              {operational.hasInsufficientInput ? (
-                <PlanningInputHint message={operational.inputValidationMessage ?? 'Entrada insuficiente para simulação.'} />
-              ) : operational.result ? (
-                <>
-                  <SimulationResultCards result={operational.result} mode={operational.mode} />
-                  <DistributionList
-                    distribution={operational.result.distribution_by_type}
-                    serviceTypes={operational.availableTypes}
-                  />
-                </>
-              ) : null}
+              {/* 3. Projeção (somente quando dias selecionados) */}
+              {!operational.hasInsufficientInput && operational.selectedDates.length > 0 && operational.result && (
+                <SimulationResultCards
+                  result={operational.result}
+                  goal={operational.currentProgress?.goal}
+                />
+              )}
 
+              {/* 4. Histórico */}
               <HistoricalSummary data={operational.historical} hasHistoryData={operational.hasHistoryData} />
             </div>
           )}

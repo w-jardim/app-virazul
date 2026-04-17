@@ -9,7 +9,6 @@ import { formatCurrency } from '@/features/dashboard/hooks/dashboard.format'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { isAdminMaster } from '@/features/auth/utils/roles'
 
-
 const DashboardPage: React.FC = () => {
   const { data, queries, isInitialLoading, hasError, refetchAll } = useDashboardData()
   const user = useAuthStore((state) => state.user)
@@ -46,13 +45,9 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6" data-testid="dashboard-page">
-
-
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
-          <p className="text-sm text-slate-600">Visão consolidada da operação, financeiro e insights do usuário.</p>
-        </div>
+      <header>
+        <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
+        <p className="text-sm text-slate-600">Visão consolidada da operação, financeiro e prioridades do período.</p>
       </header>
 
       <section className="rounded-xl border border-slate-200 bg-white p-4">
@@ -75,19 +70,18 @@ const DashboardPage: React.FC = () => {
             <EmptyState title="Sem serviços para hoje" description="Quando houver escala ou serviços, eles aparecerão aqui." />
           ) : (
             <div className="space-y-3">
-              {data.agendaDay.confirmed.length > 0 ? (
+              {data.agendaDay.confirmed.length > 0 && (
                 <div>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Confirmados</p>
                   <ServiceList items={data.agendaDay.confirmed} badge="Confirmado" />
                 </div>
-              ) : null}
-
-              {data.agendaDay.reservations.length > 0 ? (
+              )}
+              {data.agendaDay.reservations.length > 0 && (
                 <div>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Reservas</p>
                   <ServiceList items={data.agendaDay.reservations} badge="Reserva" />
                 </div>
-              ) : null}
+              )}
             </div>
           )}
         </DashboardSection>
@@ -111,8 +105,7 @@ const DashboardPage: React.FC = () => {
             <LoadingState title="Carregando planejamento..." />
           ) : queries.planningQuery.isError ? (
             <ErrorState title="Falha ao carregar planejamento" description="Você pode continuar usando os demais blocos da dashboard." />
-          ) :
-            data.planning.goal === 0 &&
+          ) : data.planning.goal === 0 &&
             data.planning.confirmed_hours === 0 &&
             data.planning.waiting_hours === 0 &&
             data.planning.remaining_hours === 0 ? (
@@ -127,13 +120,12 @@ const DashboardPage: React.FC = () => {
           )}
         </DashboardSection>
 
-        <DashboardSection title="Financeiro" subtitle="Resumo financeiro consolidado do primeiro ao ultimo servico cadastrado.">
+        <DashboardSection title="Financeiro" subtitle="Resumo financeiro consolidado do período.">
           {queries.financeQuery.isLoading ? (
             <LoadingState title="Carregando financeiro..." />
           ) : queries.financeQuery.isError ? (
             <ErrorState title="Falha ao carregar financeiro" description="Você pode continuar usando os demais blocos da dashboard." />
-          ) :
-            data.finance.total_expected === 0 &&
+          ) : data.finance.total_expected === 0 &&
             data.finance.total_received === 0 &&
             data.finance.total_pending === 0 &&
             data.finance.total_overdue === 0 ? (
@@ -149,11 +141,11 @@ const DashboardPage: React.FC = () => {
         </DashboardSection>
       </section>
 
-      {isAdminMaster(user) ? (
-        <DashboardSection title="Visão ADMIN_MASTER" subtitle="Base pronta para indicadores administrativos futuros.">
+      {isAdminMaster(user) && (
+        <DashboardSection title="Visão ADMIN" subtitle="Base pronta para indicadores administrativos futuros.">
           <p className="text-sm text-slate-600">Perfil administrativo identificado. Bloco reservado para expansão da área admin.</p>
         </DashboardSection>
-      ) : null}
+      )}
     </div>
   )
 }

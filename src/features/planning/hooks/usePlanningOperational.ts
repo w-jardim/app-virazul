@@ -10,6 +10,12 @@ import { simulatePlan, buildHistoricalData, validatePlanningInput } from '../eng
 import { toSafePositive } from '../utils/safe-number'
 import { useScheduleCalendar } from '@/features/ordinary-schedule/hooks/useScheduleData'
 import { buildOrdinaryScheduleMap } from '@/features/ordinary-schedule/utils/ordinary-schedule-calendar'
+import { useAuthStore } from '@/features/auth/store/useAuthStore'
+
+function readSavedPrefs() {
+  const prefs = useAuthStore.getState().user?.planning_preferences as Record<string, unknown> | null | undefined
+  return prefs ?? {}
+}
 import type {
   PlanningInput,
   PlanningMode,
@@ -53,15 +59,27 @@ export function usePlanningOperational() {
     [],
   )
 
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(() => {
+    const prefs = readSavedPrefs()
+    const val = prefs.saved_planned_month
+    return typeof val === 'string' ? val : null
+  })
 
   const [mode, setMode] = useState<PlanningMode>('HOURS')
   const [targetHours, setTargetHoursState] = useState<number>(1)
   const [targetServices, setTargetServicesState] = useState<number>(1)
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([])
-  const [selectedDates, setSelectedDates] = useState<string[]>([])
-  const [selectedDateHours, setSelectedDateHoursState] = useState<Record<string, number>>({})
+  const [selectedDates, setSelectedDates] = useState<string[]>(() => {
+    const prefs = readSavedPrefs()
+    const val = prefs.saved_selected_dates
+    return Array.isArray(val) ? (val as string[]) : []
+  })
+  const [selectedDateHours, setSelectedDateHoursState] = useState<Record<string, number>>(() => {
+    const prefs = readSavedPrefs()
+    const val = prefs.saved_selected_date_hours
+    return val && typeof val === 'object' && !Array.isArray(val) ? (val as Record<string, number>) : {}
+  })
   const [selectedDurations, setSelectedDurations] = useState<number[]>([])
 
   const setTargetHours = (value: number) => setTargetHoursState(toSafePositive(value, 1))

@@ -529,109 +529,43 @@ export function PlanTargetInput({
   )
 }
 
-const feasibilityConfig: Record<Feasibility, { label: string; color: string; icon: string }> = {
-  HIGH: { label: 'Alta viabilidade', color: 'bg-emerald-100 text-emerald-800 border-emerald-300', icon: 'OK' },
-  MEDIUM: { label: 'Viabilidade moderada', color: 'bg-amber-100 text-amber-800 border-amber-300', icon: 'AV' },
-  LOW: { label: 'Baixa viabilidade', color: 'bg-rose-100 text-rose-800 border-rose-300', icon: 'AT' },
-}
-
-export function FeasibilityBadge({ feasibility }: { feasibility: Feasibility }) {
-  const cfg = feasibilityConfig[feasibility]
-  return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium ${cfg.color}`}>
-      <span>{cfg.icon}</span>
-      {cfg.label}
-    </span>
-  )
-}
-
 type SimResultProps = {
   result: PlanningResult
-  mode: PlanningMode
+  goal?: number
 }
 
-export function SimulationResultCards({ result, mode }: SimResultProps) {
-  const safeRequired = toSafeInt(toSafeNonNegative(result.required_services, 0), 0)
-  const safeHours = toSafeNonNegative(result.effective_hours, 0)
-  const safeIncome = toSafeNonNegative(result.estimated_income, 0)
-  const safeCap = toSafeNonNegative(result.cap_available_hours, 0)
-  const safeSelectedDateHours = toSafeNonNegative(result.selected_date_hours_total, 0)
-  const totalServices = result.strategy?.reduce((sum, item) => sum + item.count, 0) ?? safeRequired
-  const totalStrategyHours = result.strategy?.reduce((sum, item) => sum + item.hours, 0) ?? safeHours
+export function SimulationResultCards({ result, goal }: SimResultProps) {
+  const calendarHours = toSafeNonNegative(result.selected_date_hours_total ?? result.effective_hours, 0)
+  const totalServices = toSafeInt(toSafeNonNegative(result.required_services, 0), 0)
+  const income = toSafeNonNegative(result.estimated_income, 0)
+
+  const hoursStillNeeded = typeof goal === 'number' ? Math.max(0, goal - calendarHours) : null
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <h3 className="text-base font-semibold text-slate-900">Resultado da simulação</h3>
-          <p className="text-sm text-slate-500">Serviços e valor calculados a partir das escolhas de horas, tipos, datas e durações.</p>
-        </div>
-        <FeasibilityBadge feasibility={result.feasibility} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <MetricCard
-          label={mode === 'COUNT' ? 'Serviços planejados' : 'Serviços sugeridos'}
-          value={safeRequired}
-          tone="default"
-        />
-        <MetricCard label="Horas aproveitadas" value={toSafeHours(safeHours)} tone="default" />
-        <MetricCard label="Receita estimada" value={toSafeCurrency(safeIncome)} tone="success" />
-        <MetricCard
-          label="Dias selecionados"
-          value={toSafeInt(toSafeNonNegative(result.selected_dates_count ?? result.working_days_count ?? 0, 0), 0)}
-          tone="default"
-        />
-      </div>
-
-      <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div>
-            <h4 className="text-sm font-semibold text-slate-900">Estratégia dentro do limite</h4>
-            <p className="text-xs text-slate-500">Distribuição final respeitando o limite disponível no mês escolhido.</p>
-          </div>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
-            {safeCap}h disponíveis
-          </span>
-        </div>
-
-        {safeSelectedDateHours > 0 && (
-          <div className="mb-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">
-            Calendário configurado com <span className="font-semibold">{safeSelectedDateHours}h</span> somadas nos dias escolhidos.
-          </div>
-        )}
-
-        {result.cap_exceeded && (
-          <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
-            <span className="font-semibold">Meta ajustada:</span> o plano original tinha {result.estimated_hours}h, mas o cálculo final ficou em {result.effective_hours}h para respeitar o limite do mês.
-          </div>
-        )}
-
-        {result.strategy && result.strategy.length > 0 ? (
-          <div className="space-y-2">
-            {result.strategy.map((step) => (
-              <div key={step.duration_hours} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200">
-                <span className="text-sm text-slate-700">
-                  <strong>{step.count}</strong> serviço{step.count !== 1 ? 's' : ''} de <strong>{step.duration_hours}h</strong>
-                </span>
-                <span className="text-sm font-semibold text-slate-900">{step.hours}h</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-slate-500">Não foi possível montar uma combinação de durações com as escolhas atuais.</p>
-        )}
-
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3 text-sm">
-          <span className="font-semibold text-slate-700">{totalServices} serviço{totalServices !== 1 ? 's' : ''} — {totalStrategyHours}h</span>
-        </div>
-
-        {typeof result.working_days_count === 'number' && (
-          <p className="mt-2 text-xs text-slate-500">
-            {result.working_days_count} dia(s) considerados no cálculo — média de <strong>{result.avg_services_per_day}</strong> serviço(s) por dia.
+    <section className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+      <h3 className="mb-1 text-base font-semibold text-slate-900">Projeção do plano</h3>
+      {hoursStillNeeded !== null ? (
+        hoursStillNeeded <= 0 ? (
+          <p className="mb-4 text-sm text-emerald-700">
+            Meta de <strong>{toSafeHours(goal!)}</strong> coberta com este calendário.
           </p>
-        )}
+        ) : (
+          <p className="mb-4 text-sm text-slate-600">
+            Faltam <strong className="text-rose-600">{toSafeHours(hoursStillNeeded)}</strong> para fechar a meta de <strong>{toSafeHours(goal!)}</strong>.
+          </p>
+        )
+      ) : null}
+      <div className="grid grid-cols-3 gap-3">
+        <MetricCard label="Serviços" value={totalServices} />
+        <MetricCard label="Horas planejadas" value={toSafeHours(calendarHours)} />
+        <MetricCard label="Receita estimada" value={toSafeCurrency(income)} tone="success" />
       </div>
+      {result.cap_exceeded && (result.selected_date_hours_total ?? 0) > result.cap_available_hours && (
+        <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+          As horas no calendário ({result.selected_date_hours_total}h) ultrapassam o saldo disponível (
+          {result.cap_available_hours}h). O plano foi ajustado para <strong>{result.effective_hours}h</strong>.
+        </div>
+      )}
     </section>
   )
 }
@@ -678,19 +612,35 @@ export function DistributionList({ distribution, serviceTypes }: DistributionPro
 }
 
 export function HistoricalSummary({ data, hasHistoryData }: { data: HistoricalData; hasHistoryData?: boolean }) {
+  const avgServices = toSafeNonNegative(data.avg_services_per_month, 0)
+  const avgHours = toSafeNonNegative(data.avg_hours_per_month, 0)
+  const avgRatePerHour = toSafeNonNegative(data.avg_income_per_hour, 0)
+  const avgHoursPerService = toSafeNonNegative(data.avg_hours_per_service, 0)
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="mb-3 text-base font-semibold text-slate-900">Base histórica (últimos 3 meses)</h3>
+      <h3 className="mb-1 text-base font-semibold text-slate-900">Seu histórico recente</h3>
+
       {!hasHistoryData ? (
-        <p className="mb-3 text-sm text-slate-500">
-          Sem histórico suficiente no período. A simulação está usando médias seguras padrão.
+        <p className="mb-4 text-sm text-slate-500">
+          Você ainda não tem serviços registrados. A simulação usa estimativas padrão:{' '}
+          <strong>8h por serviço</strong> e <strong>R$&nbsp;25/h</strong> de referência.
+          Quanto mais você registrar, mais precisa fica a simulação.
         </p>
-      ) : null}
+      ) : (
+        <p className="mb-4 text-sm text-slate-600">
+          Nos últimos 3 meses você fez em média{' '}
+          <strong>{avgServices.toFixed(0)} serviços/mês</strong>, trabalhando{' '}
+          <strong>{avgHours.toFixed(0)}h</strong> e ganhando{' '}
+          <strong>{toSafeCurrency(avgRatePerHour)}/h</strong>. Esses valores são usados para estimar sua receita na simulação.
+        </p>
+      )}
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <MetricCard label="Média h/serviço" value={toSafeHours(data.avg_hours_per_service, 1)} />
-        <MetricCard label="Média R$/h" value={toSafeCurrency(data.avg_income_per_hour)} />
-        <MetricCard label="Serviços/mês" value={toSafeNonNegative(data.avg_services_per_month, 0).toFixed(1)} />
-        <MetricCard label="Horas/mês" value={toSafeHours(data.avg_hours_per_month, 1)} />
+        <MetricCard label="Serviços/mês" value={avgServices.toFixed(1)} />
+        <MetricCard label="Horas/mês" value={toSafeHours(avgHours, 1)} />
+        <MetricCard label="Horas por plantão" value={toSafeHours(avgHoursPerService, 1)} />
+        <MetricCard label="Ganho por hora" value={toSafeCurrency(avgRatePerHour)} tone="success" />
       </div>
     </section>
   )
@@ -717,6 +667,30 @@ export function PlanningInputHint({ message }: { message: string }) {
     <div className="rounded-xl border border-slate-200 bg-slate-50 p-4" role="status">
       <p className="text-sm text-slate-700">{message}</p>
     </div>
+  )
+}
+
+type BalanceCardProps = {
+  goal: number
+  confirmedHours: number
+  waitingHours: number
+  remainingHours: number
+}
+
+export function PlanningBalanceCard({ goal, confirmedHours, waitingHours, remainingHours }: BalanceCardProps) {
+  return (
+    <section className="rounded-2xl border border-sky-100 bg-sky-50 p-5">
+      <h3 className="mb-1 text-base font-semibold text-slate-900">Saldo disponível</h3>
+      <p className="mb-3 text-sm text-slate-600">
+        Você tem <strong>{toSafeHours(remainingHours)}</strong> disponíveis este mês.
+        Selecione os dias no calendário para ver a projeção de serviços e receita.
+      </p>
+      <div className="grid grid-cols-3 gap-3">
+        <MetricCard label="Meta mensal" value={toSafeHours(goal)} />
+        <MetricCard label="Confirmadas" value={toSafeHours(confirmedHours)} />
+        <MetricCard label="Disponíveis" value={toSafeHours(remainingHours)} tone="success" />
+      </div>
+    </section>
   )
 }
 

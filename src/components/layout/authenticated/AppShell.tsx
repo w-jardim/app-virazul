@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import SubscriptionBanner from '@/features/auth/components/SubscriptionBanner'
-import InsightToast from '@/features/insights/components/InsightToast'
+import NotificationBell from '@/features/alerts/components/NotificationBell'
 
 // ─── Icons ──────────────────────────────────────────────────────────────────
 
@@ -34,11 +34,6 @@ const IconOrdinarySchedule = () => (
 const IconReports = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-  </svg>
-)
-const IconConsolidated = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
   </svg>
 )
 const IconAlerts = () => (
@@ -82,14 +77,6 @@ const navGroups: NavGroup[] = [
       { to: '/planning',     label: 'Planejamento', icon: <IconPlanning /> },
       { to: '/ordinary-schedule', label: 'Escala Ordinaria', icon: <IconOrdinarySchedule /> },
       { to: '/reports',      label: 'Relatórios',   icon: <IconReports /> },
-      { to: '/consolidated', label: 'Consolidado',  icon: <IconConsolidated /> },
-    ],
-  },
-  {
-    label: 'Notificações',
-    items: [
-      { to: '/alerts',       label: 'Alertas',      icon: <IconAlerts /> },
-      { to: '/insights',     label: 'Insights',     icon: <IconInsights /> },
     ],
   },
 ]
@@ -326,6 +313,7 @@ const AppShell: React.FC = () => {
               </div>
 
               <div className="ml-auto flex items-center gap-3">
+                <NotificationBell />
                 <div className="hidden text-right sm:block">
                   <p className="text-sm font-medium leading-tight text-slate-800">{user?.name}</p>
                   <p className="text-xs leading-tight text-slate-500">{user?.email}</p>
@@ -342,7 +330,6 @@ const AppShell: React.FC = () => {
             <Outlet />
           </main>
 
-          <InsightToast />
         </div>
       </div>
     </div>
