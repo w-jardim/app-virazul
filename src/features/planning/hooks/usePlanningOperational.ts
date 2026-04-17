@@ -17,10 +17,10 @@ import type {
 } from '../types/planning-operational.types'
 
 function getInputValidationMessage(reason: 'INVALID_PERIOD' | 'NO_SERVICE_TYPES' | 'INVALID_TARGET' | null): string {
-  if (reason === 'NO_SERVICE_TYPES') return 'Selecione pelo menos um tipo de servi?o para simular.'
-  if (reason === 'INVALID_PERIOD') return 'O per?odo da simula??o ? inv?lido. Atualize e tente novamente.'
-  if (reason === 'INVALID_TARGET') return 'Informe uma meta maior que zero para executar a simula??o.'
-  return 'Entrada insuficiente para simula??o.'
+  if (reason === 'NO_SERVICE_TYPES') return 'Selecione pelo menos um tipo de serviço para simular.'
+  if (reason === 'INVALID_PERIOD') return 'O período da simulação é inválido. Atualize e tente novamente.'
+  if (reason === 'INVALID_TARGET') return 'Informe uma meta maior que zero para executar a simulação.'
+  return 'Entrada insuficiente para simulação.'
 }
 
 const EXCLUDED_SIMULATION_TYPE_TERMS = ['OUTROS', 'ORDINARIA', 'ORDINARY', 'COMPULSORIO', 'COMPULSORY']
@@ -83,7 +83,7 @@ export function usePlanningOperational() {
     () => [
       {
         name: 'service_types',
-        label: 'Tipos de servi?o',
+        label: 'Tipos de serviço',
         isError: serviceTypesQuery.isError,
         isLoading: serviceTypesQuery.isLoading,
       },
@@ -107,7 +107,7 @@ export function usePlanningOperational() {
       },
       {
         name: 'services_history',
-        label: 'Hist?rico de servi?os',
+        label: 'Histórico de serviços',
         isError: servicesQuery.isError,
         isLoading: servicesQuery.isLoading,
       },

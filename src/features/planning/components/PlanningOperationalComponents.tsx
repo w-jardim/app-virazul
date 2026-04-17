@@ -96,7 +96,7 @@ export function ServiceTypePicker({ available, selected, onChangeSelected }: Typ
 
   return (
     <div>
-      <p className="mb-2 text-sm font-medium text-slate-700">Tipos de servi?o</p>
+      <p className="mb-2 text-sm font-medium text-slate-700">Tipos de serviço</p>
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -125,7 +125,7 @@ export function ServiceTypePicker({ available, selected, onChangeSelected }: Typ
         ))}
       </div>
       {allSelected && (
-        <p className="mt-1 text-xs text-slate-400">Todos os tipos inclu?dos na simula??o.</p>
+        <p className="mt-1 text-xs text-slate-400">Todos os tipos incluídos na simulação.</p>
       )}
     </div>
   )
@@ -156,7 +156,7 @@ export function CalendarDayPicker({
   if (!month || !/^\d{4}-\d{2}$/.test(month)) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
-        <p className="text-sm font-medium text-slate-700">Escolha o m?s para liberar o calend?rio</p>
+        <p className="text-sm font-medium text-slate-700">Escolha o mês para liberar o calendário</p>
         <p className="mt-1 text-xs text-slate-500">Depois disso, clique nos dias e defina quantas horas quer trabalhar em cada um.</p>
       </div>
     )
@@ -168,11 +168,11 @@ export function CalendarDayPicker({
   const totalDays = new Date(year, monthNumber, 0).getDate()
   const firstWeekday = new Date(year, monthNumber - 1, 1).getDay()
   const selectedSet = new Set(selectedDates)
-  const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'S?b']
+  const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
   const monthDates = Array.from({ length: totalDays }, (_, index) => formatCalendarDate(year, monthNumber, index + 1))
   const defaultHours = getDefaultDayHours(durationOptions)
 
-  function syncDateHours(nextDates: string[]) {
+    function syncDateHours(nextDates: string[]) {
     if (!onChangeDateHours) return
     const nextHours: Record<string, number> = {}
 
@@ -184,7 +184,7 @@ export function CalendarDayPicker({
     onChangeDateHours(nextHours)
   }
 
-  function toggle(date: string) {
+    function toggle(date: string) {
     if (selectedSet.has(date)) {
       const nextDates = selectedDates.filter((value) => value !== date)
       onChange(nextDates)
@@ -224,8 +224,8 @@ export function CalendarDayPicker({
     <div>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-slate-700">Dias escolhidos no calend?rio</p>
-          <p className="text-xs text-slate-500">Selecione os dias do m?s e escolha a carga de cada dia com base nas dura??es preferidas.</p>
+          <p className="text-sm font-medium text-slate-700">Dias escolhidos no calendário</p>
+          <p className="text-xs text-slate-500">Selecione os dias do mês e escolha a carga de cada dia com base nas durações preferidas.</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -281,7 +281,7 @@ export function CalendarDayPicker({
 
       <div className="mt-3 flex items-center justify-between gap-3 text-xs text-slate-500">
         <span>{selectedDates.length} dia(s) selecionado(s).</span>
-        <span>{totalConfiguredHours}h configuradas no calend?rio.</span>
+        <span>{totalConfiguredHours}h configuradas no calendário.</span>
       </div>
 
       {selectedDates.length > 0 && (
@@ -289,10 +289,10 @@ export function CalendarDayPicker({
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-medium text-slate-700">Horas por dia</p>
-              <p className="text-xs text-slate-500">Cada dia usa apenas as dura??es que voc? deixou ativas.</p>
+              <p className="text-xs text-slate-500">Cada dia usa apenas as durações que você deixou ativas.</p>
             </div>
             <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
-              {durationOptions.map((duration) => `${duration}h`).join(' ? ')}
+              {durationOptions.map((duration) => `${duration}h`).join(' • ')}
             </span>
           </div>
 
@@ -337,7 +337,7 @@ type WeekdayPickerProps = {
 }
 
 export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
-  const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'S?b']
+  const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
   function toggle(d: number) {
     if (selected.includes(d)) onChange(selected.filter((x) => x !== d))
@@ -393,7 +393,7 @@ export function DurationPicker({ selected, onChange }: DurationPickerProps) {
 
   return (
     <div>
-      <p className="mb-2 text-sm font-medium text-slate-700">Dura??es preferidas</p>
+      <p className="mb-2 text-sm font-medium text-slate-700">Durações preferidas</p>
       <div className="flex gap-2">
         <button
           type="button"
@@ -418,9 +418,9 @@ export function DurationPicker({ selected, onChange }: DurationPickerProps) {
         ))}
       </div>
       {allSelected ? (
-        <p className="mt-1 text-xs text-slate-400">Sem prefer?ncia: todas as dura??es ser?o consideradas.</p>
+        <p className="mt-1 text-xs text-slate-400">Sem preferência: todas as durações serão consideradas.</p>
       ) : (
-        <p className="mt-1 text-xs text-slate-400">Essas dura??es tamb?m ser?o usadas para escolher as horas de cada dia no calend?rio.</p>
+        <p className="mt-1 text-xs text-slate-400">Essas durações também serão usadas para escolher as horas de cada dia no calendário.</p>
       )}
     </div>
   )
@@ -492,7 +492,7 @@ export function PlanTargetInput({
         </label>
       ) : (
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Meta de servi?os</span>
+          <span className="text-sm font-medium text-slate-700">Meta de serviços</span>
           <input
             type="number"
             min={0}
@@ -547,15 +547,15 @@ export function SimulationResultCards({ result, mode }: SimResultProps) {
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold text-slate-900">Resultado da simula??o</h3>
-          <p className="text-sm text-slate-500">Servi?os e valor calculados a partir das escolhas de horas, tipos, datas e dura??es.</p>
+          <h3 className="text-base font-semibold text-slate-900">Resultado da simulação</h3>
+          <p className="text-sm text-slate-500">Serviços e valor calculados a partir das escolhas de horas, tipos, datas e durações.</p>
         </div>
         <FeasibilityBadge feasibility={result.feasibility} />
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricCard
-          label={mode === 'COUNT' ? 'Servi?os planejados' : 'Servi?os sugeridos'}
+          label={mode === 'COUNT' ? 'Serviços planejados' : 'Serviços sugeridos'}
           value={safeRequired}
           tone="default"
         />
@@ -571,23 +571,23 @@ export function SimulationResultCards({ result, mode }: SimResultProps) {
       <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <h4 className="text-sm font-semibold text-slate-900">Estrat?gia dentro do limite</h4>
-            <p className="text-xs text-slate-500">Distribui??o final respeitando o limite dispon?vel no m?s escolhido.</p>
+            <h4 className="text-sm font-semibold text-slate-900">Estratégia dentro do limite</h4>
+            <p className="text-xs text-slate-500">Distribuição final respeitando o limite disponível no mês escolhido.</p>
           </div>
-          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
-            {safeCap}h dispon?veis
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+            {safeCap}h disponíveis
           </span>
         </div>
 
         {safeSelectedDateHours > 0 && (
           <div className="mb-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">
-            Calend?rio configurado com <span className="font-semibold">{safeSelectedDateHours}h</span> somadas nos dias escolhidos.
+            Calendário configurado com <span className="font-semibold">{safeSelectedDateHours}h</span> somadas nos dias escolhidos.
           </div>
         )}
 
         {result.cap_exceeded && (
           <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
-            <span className="font-semibold">Meta ajustada:</span> o plano original tinha {result.estimated_hours}h, mas o c?lculo final ficou em {result.effective_hours}h para respeitar o limite do m?s.
+            <span className="font-semibold">Meta ajustada:</span> o plano original tinha {result.estimated_hours}h, mas o cálculo final ficou em {result.effective_hours}h para respeitar o limite do mês.
           </div>
         )}
 
@@ -596,23 +596,23 @@ export function SimulationResultCards({ result, mode }: SimResultProps) {
             {result.strategy.map((step) => (
               <div key={step.duration_hours} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200">
                 <span className="text-sm text-slate-700">
-                  <strong>{step.count}</strong> servi?o{step.count !== 1 ? 's' : ''} de <strong>{step.duration_hours}h</strong>
+                  <strong>{step.count}</strong> serviço{step.count !== 1 ? 's' : ''} de <strong>{step.duration_hours}h</strong>
                 </span>
                 <span className="text-sm font-semibold text-slate-900">{step.hours}h</span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">N?o foi poss?vel montar uma combina??o de dura??es com as escolhas atuais.</p>
+          <p className="text-sm text-slate-500">Não foi possível montar uma combinação de durações com as escolhas atuais.</p>
         )}
 
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3 text-sm">
-          <span className="font-semibold text-slate-700">{totalServices} servi?o{totalServices !== 1 ? 's' : ''} ? {totalStrategyHours}h</span>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3 text-sm">
+          <span className="font-semibold text-slate-700">{totalServices} serviço{totalServices !== 1 ? 's' : ''} — {totalStrategyHours}h</span>
         </div>
 
         {typeof result.working_days_count === 'number' && (
           <p className="mt-2 text-xs text-slate-500">
-            {result.working_days_count} dia(s) considerados no c?lculo ? m?dia de <strong>{result.avg_services_per_day}</strong> servi?o(s) por dia.
+            {result.working_days_count} dia(s) considerados no cálculo — média de <strong>{result.avg_services_per_day}</strong> serviço(s) por dia.
           </p>
         )}
       </div>
@@ -637,7 +637,7 @@ export function DistributionList({ distribution, serviceTypes }: DistributionPro
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="mb-3 text-base font-semibold text-slate-900">Distribui??o por tipo</h3>
+      <h3 className="mb-3 text-base font-semibold text-slate-900">Distribuição por tipo</h3>
       <div className="space-y-2.5">
         {entries.map(([key, count]) => {
           const pct = total > 0 ? Math.max(0, Math.min(100, (count / total) * 100)) : 0
@@ -645,7 +645,7 @@ export function DistributionList({ distribution, serviceTypes }: DistributionPro
             <div key={key}>
               <div className="mb-1 flex justify-between text-sm">
                 <span className="text-slate-700">{typeNameMap[key] ?? key}</span>
-                <span className="font-medium text-slate-500">{toSafeCount(count)} servi?o(s)</span>
+                <span className="font-medium text-slate-500">{toSafeCount(count)} serviço(s)</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
                 <div
@@ -664,17 +664,17 @@ export function DistributionList({ distribution, serviceTypes }: DistributionPro
 export function HistoricalSummary({ data, hasHistoryData }: { data: HistoricalData; hasHistoryData?: boolean }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="mb-3 text-base font-semibold text-slate-900">Base hist?rica (?ltimos 3 meses)</h3>
+      <h3 className="mb-3 text-base font-semibold text-slate-900">Base histórica (últimos 3 meses)</h3>
       {!hasHistoryData ? (
         <p className="mb-3 text-sm text-slate-500">
-          Sem hist?rico suficiente no per?odo. A simula??o est? usando m?dias seguras padr?o.
+          Sem histórico suficiente no período. A simulação está usando médias seguras padrão.
         </p>
       ) : null}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <MetricCard label="M?dia h/servi?o" value={toSafeHours(data.avg_hours_per_service, 1)} />
-        <MetricCard label="M?dia R$/h" value={toSafeCurrency(data.avg_income_per_hour)} />
-        <MetricCard label="Servi?os/m?s" value={toSafeNonNegative(data.avg_services_per_month, 0).toFixed(1)} />
-        <MetricCard label="Horas/m?s" value={toSafeHours(data.avg_hours_per_month, 1)} />
+        <MetricCard label="Média h/serviço" value={toSafeHours(data.avg_hours_per_service, 1)} />
+        <MetricCard label="Média R$/h" value={toSafeCurrency(data.avg_income_per_hour)} />
+        <MetricCard label="Serviços/mês" value={toSafeNonNegative(data.avg_services_per_month, 0).toFixed(1)} />
+        <MetricCard label="Horas/mês" value={toSafeHours(data.avg_hours_per_month, 1)} />
       </div>
     </section>
   )
@@ -687,10 +687,10 @@ export function PlanningWarningBanner({ sources }: { sources: PlanningSourceStat
   return (
     <div className="rounded-xl border border-amber-300 bg-amber-50 p-4" role="alert">
       <p className="text-sm font-medium text-amber-900">
-        Algumas fontes de dados n?o puderam ser carregadas: {failed.map((s) => s.label).join(', ')}.
+        Algumas fontes de dados não puderam ser carregadas: {failed.map((s) => s.label).join(', ')}.
       </p>
       <p className="mt-1 text-xs text-amber-700">
-        A simula??o pode estar incompleta e usar? m?dias seguras quando faltar hist?rico.
+        A simulação pode estar incompleta e usará médias seguras quando faltar histórico.
       </p>
     </div>
   )
@@ -713,14 +713,14 @@ export function StrategyPanel({ result }: { result: PlanningResult }) {
   return (
     <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-slate-900">Estrat?gia dentro do limite</h3>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-          {result.cap_available_hours}h dispon?veis
-        </span>
+        <h3 className="text-base font-semibold text-slate-900">Estratégia dentro do limite</h3>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+            {result.cap_available_hours}h disponíveis
+          </span>
       </div>
       <div className="flex items-center justify-between border-t border-slate-200 pt-3">
         <span className="text-sm font-semibold text-slate-700">
-          {totalServices} servi?o{totalServices !== 1 ? 's' : ''} ? {totalHours}h
+          {totalServices} serviço{totalServices !== 1 ? 's' : ''} — {totalHours}h
         </span>
         <span className="text-sm font-semibold text-emerald-700">{toSafeCurrency(result.estimated_income)}</span>
       </div>

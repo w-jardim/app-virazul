@@ -25,6 +25,7 @@ import ServiceDetailPage from '@/pages/app/ServiceDetailPage'
 import ProfilePage from '@/pages/app/ProfilePage'
 import AlertsPage from '@/pages/app/AlertsPage'
 import InsightsPage from '@/pages/app/InsightsPage'
+import OrdinarySchedulePage from '@/pages/app/OrdinarySchedulePage'
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage'
 import AdminUsersPage from '@/pages/admin/AdminUsersPage'
 import AdminSubscriptionsPage from '@/pages/admin/AdminSubscriptionsPage'
@@ -62,6 +63,7 @@ const Router: React.FC = () => {
             <Route path="/finance" element={<FinancePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/ordinary-schedule" element={<OrdinarySchedulePage />} />
             <Route path="/alerts" element={<AlertsPage />} />
             <Route path="/insights" element={<InsightsPage />} />
           </Route>

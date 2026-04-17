@@ -1,4 +1,4 @@
-﻿import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -117,8 +117,8 @@ describe('Auth and App Shell integration', () => {
       await user.click(screen.getByRole('button', { name: 'Entrar' }))
     })
 
-    expect(await screen.findByText('Informe um e-mail válido.')).toBeInTheDocument()
-    expect(await screen.findByText('A senha deve ter pelo menos 6 caracteres.')).toBeInTheDocument()
+    expect(await screen.findByText(/Informe um e-mail v.lido\./i)).toBeInTheDocument()
+    expect(await screen.findByText(/A senha deve ter pelo menos 6 caracteres\./i)).toBeInTheDocument()
   })
 
   it('redirects protected route when unauthenticated', () => {
@@ -183,8 +183,9 @@ describe('Auth and App Shell integration', () => {
 
     expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
     expect(await screen.findByText('Policial Teste')).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Alertas' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Insights' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Alertas' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Insights' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Escala Ordinaria' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Administracao' })).not.toBeInTheDocument()
   })
 
