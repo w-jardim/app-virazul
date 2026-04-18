@@ -37,7 +37,6 @@ type ServiceDetailCardProps = {
 }
 
 const ServiceDetailCard = ({ service }: ServiceDetailCardProps) => {
-  // Deduplica: se criado_em === atualizado_em, exibe apenas "Registrado em"
   const sameDate = service.created_at && service.updated_at && service.created_at === service.updated_at
 
   const historyItems = [
@@ -49,13 +48,12 @@ const ServiceDetailCard = ({ service }: ServiceDetailCardProps) => {
     { label: 'Pagamento em', value: formatDateTime(service.payment_at) },
   ].filter((item) => item.value !== '--')
 
+  const title = service.service_type_name || service.service_type_key || 'Serviço operacional'
+
   return (
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <header>
-        <h2 className="text-xl font-semibold text-slate-900">
-          {service.service_type_name || service.service_type_key || `Serviço #${service.id}`}
-        </h2>
-        <p className="mt-0.5 text-sm text-slate-400">Serviço #{service.id}</p>
+        <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2">
