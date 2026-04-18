@@ -78,55 +78,51 @@ const AdminPaymentsPage: React.FC = () => {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        {isLoading && (
+        {isLoading ? (
           <div className="px-4 py-12 text-center text-sm text-slate-400">Carregando...</div>
-        )}
+        ) : null}
 
-        {isError && (
+        {isError ? (
           <div className="px-4 py-6 text-center text-sm text-red-500">
             Erro ao carregar os dados de pagamentos.
           </div>
-        )}
+        ) : null}
 
-        {!isLoading && !isError && (
-          <table className="w-full text-sm">
-            <thead className="border-b border-slate-100 bg-slate-50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-slate-500">Usuario</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500 hidden md:table-cell">Plano</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500">Status</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500">Vencimento</th>
-                <th className="px-4 py-3 text-right font-medium text-slate-500">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredUsers.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                    Nenhum registro de pagamento encontrado para esse filtro.
-                  </td>
-                </tr>
-              )}
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-slate-800">{user.name}</p>
-                    <p className="text-xs text-slate-500">{user.email}</p>
-                  </td>
-                  <td className="px-4 py-3 hidden md:table-cell">
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
-                      {user.subscription}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
+        {!isLoading && !isError ? (
+          <>
+            <div className="space-y-3 p-4 md:hidden">
+              {filteredUsers.length === 0 ? (
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-10 text-center text-slate-400">
+                  Nenhum registro de pagamento encontrado para esse filtro.
+                </div>
+              ) : filteredUsers.map((user) => (
+                <article key={user.id} className="rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-slate-800 break-words">{user.name}</p>
+                      <p className="text-sm text-slate-500 break-all">{user.email}</p>
+                    </div>
                     <span className={`rounded-full px-2 py-1 text-xs font-semibold ${paymentColors[user.payment_status]}`}>
                       {paymentLabels[user.payment_status]}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">
-                    {user.payment_due_date ? new Date(user.payment_due_date).toLocaleDateString('pt-BR') : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right space-x-2">
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-xs text-slate-500">Plano</p>
+                      <span className="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                        {user.subscription}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">Vencimento</p>
+                      <p className="text-slate-700">
+                        {user.payment_due_date ? new Date(user.payment_due_date).toLocaleDateString('pt-BR') : '—'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
                     {(['paid', 'pending', 'overdue'] as PaymentStatus[]).map((status) => (
                       <PaymentStatusButton
                         key={status}
@@ -136,12 +132,66 @@ const AdminPaymentsPage: React.FC = () => {
                         onClick={() => handleStatusChange(user, status)}
                       />
                     ))}
-                  </td>
-                </tr>
+                  </div>
+                </article>
               ))}
-            </tbody>
-          </table>
-        )}
+            </div>
+
+            <div className="hidden md:block">
+              <table className="w-full text-sm">
+                <thead className="border-b border-slate-100 bg-slate-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Usuario</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500 hidden md:table-cell">Plano</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Status</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Vencimento</th>
+                    <th className="px-4 py-3 text-right font-medium text-slate-500">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
+                        Nenhum registro de pagamento encontrado para esse filtro.
+                      </td>
+                    </tr>
+                  ) : filteredUsers.map((user) => (
+                    <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-slate-800">{user.name}</p>
+                        <p className="text-xs text-slate-500">{user.email}</p>
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell">
+                        <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                          {user.subscription}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${paymentColors[user.payment_status]}`}>
+                          {paymentLabels[user.payment_status]}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">
+                        {user.payment_due_date ? new Date(user.payment_due_date).toLocaleDateString('pt-BR') : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-right space-x-2">
+                        {(['paid', 'pending', 'overdue'] as PaymentStatus[]).map((status) => (
+                          <PaymentStatusButton
+                            key={status}
+                            status={status}
+                            current={user.payment_status}
+                            disabled={changePaymentStatus.isPending}
+                            onClick={() => handleStatusChange(user, status)}
+                          />
+                        ))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   )
