@@ -54,7 +54,7 @@ const ServiceDetailPage: React.FC = () => {
 
   return (
     <div className="space-y-4" data-testid="service-detail-page">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Detalhe do serviço</h1>
           <p className="text-sm text-slate-600">Consulte dados e atualize campos do serviço.</p>
@@ -80,7 +80,7 @@ const ServiceDetailPage: React.FC = () => {
             <ServiceDetailCard service={service} />
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-base font-semibold text-slate-900">Atualizar serviço</h3>
                 <button
                   type="button"
@@ -120,7 +120,7 @@ const ServiceDetailPage: React.FC = () => {
                   <p className="mt-1 text-xs text-rose-700">
                     Esta ação não pode ser desfeita pela interface. O serviço deixará de aparecer na operação.
                   </p>
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                     <button
                       type="button"
                       onClick={handleDelete}
