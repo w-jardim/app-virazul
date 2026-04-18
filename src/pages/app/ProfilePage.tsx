@@ -7,6 +7,8 @@ const inputClass =
   'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-300'
 const selectClass =
   'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-300 bg-white'
+const readOnlyClass =
+  'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500'
 
 function Toggle({
   checked,
@@ -43,18 +45,14 @@ function Feedback({ error, success }: { error: string | null; success: string | 
   return null
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
-
 const ProfilePage: React.FC = () => {
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
 
   const savedPrefs = (user?.planning_preferences ?? {}) as Record<string, unknown>
 
-  // ── Account form ───────────────────────────────────────────────────────────
   const [form, setForm] = useState({
     name: user?.name ?? '',
-    email: user?.email ?? '',
     monthly_hour_goal: String(user?.monthly_hour_goal ?? 120),
     rank_group: user?.rank_group ?? '',
     password: '',
@@ -85,7 +83,6 @@ const ProfilePage: React.FC = () => {
       setFormBusy(true)
       const payload: any = {
         name: form.name,
-        email: form.email,
         rank_group: form.rank_group || null,
         monthly_hour_goal: Math.floor(goal),
       }
@@ -104,10 +101,7 @@ const ProfilePage: React.FC = () => {
     }
   }
 
-  // ── Preferences ────────────────────────────────────────────────────────────
-  const [minRest, setMinRest] = useState<boolean>(
-    savedPrefs.min_rest_enabled !== false,
-  )
+  const [minRest, setMinRest] = useState<boolean>(savedPrefs.min_rest_enabled !== false)
   const [prefBusy, setPrefBusy] = useState(false)
   const [prefError, setPrefError] = useState<string | null>(null)
   const [prefSuccess, setPrefSuccess] = useState<string | null>(null)
@@ -129,7 +123,6 @@ const ProfilePage: React.FC = () => {
     }
   }
 
-  // ── Initials ───────────────────────────────────────────────────────────────
   const initials = user?.name
     ? user.name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase()
     : '?'
@@ -141,7 +134,6 @@ const ProfilePage: React.FC = () => {
         <p className="text-sm text-slate-600">Gerencie seus dados, graduação e preferências do sistema.</p>
       </header>
 
-      {/* ── Dados da conta ── */}
       <section className="max-w-lg rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="mb-5 flex items-center gap-4">
           <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-sky-100 text-xl font-bold text-sky-700 select-none">
@@ -150,9 +142,7 @@ const ProfilePage: React.FC = () => {
           <div>
             <p className="font-semibold text-slate-900">{user?.name}</p>
             <p className="text-sm text-slate-500">{user?.email}</p>
-            {user?.rank_group && (
-              <p className="mt-0.5 text-xs text-slate-400">{user.rank_group}</p>
-            )}
+            {user?.rank_group && <p className="mt-0.5 text-xs text-slate-400">{user.rank_group}</p>}
           </div>
         </div>
 
@@ -164,7 +154,7 @@ const ProfilePage: React.FC = () => {
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600">E-mail</label>
-              <input type="email" className={inputClass} value={form.email} onChange={setField('email')} />
+              <input type="email" className={readOnlyClass} value={user?.email ?? ''} readOnly disabled />
             </div>
           </div>
 
@@ -175,11 +165,15 @@ const ProfilePage: React.FC = () => {
                 <option value="">Selecione a graduação</option>
                 {RANK_GROUPS.map((rg) => (
                   <option key={rg} value={rg}>
-                    {rg === 'OFICIAIS_SUPERIORES' ? 'Oficiais Superiores'
-                      : rg === 'CAPITAO_TENENTE' ? 'Capitão e Tenente'
-                      : rg === 'SUBTENENTE_SARGENTO' ? 'Subtenente e Sargento'
-                      : rg === 'CABO_SOLDADO' ? 'Cabo e Soldado'
-                      : rg}
+                    {rg === 'OFICIAIS_SUPERIORES'
+                      ? 'Oficiais Superiores'
+                      : rg === 'CAPITAO_TENENTE'
+                        ? 'Capitão e Tenente'
+                        : rg === 'SUBTENENTE_SARGENTO'
+                          ? 'Subtenente e Sargento'
+                          : rg === 'CABO_SOLDADO'
+                            ? 'Cabo e Soldado'
+                            : rg}
                   </option>
                 ))}
               </select>
@@ -226,7 +220,6 @@ const ProfilePage: React.FC = () => {
         </form>
       </section>
 
-      {/* ── Preferências ── */}
       <section className="max-w-lg rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-800">Preferências do sistema</h2>
 
