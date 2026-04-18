@@ -174,7 +174,13 @@ const ProfilePage: React.FC = () => {
               <select className={selectClass} value={form.rank_group} onChange={setField('rank_group')}>
                 <option value="">Selecione a graduação</option>
                 {RANK_GROUPS.map((rg) => (
-                  <option key={rg} value={rg}>{rg}</option>
+                  <option key={rg} value={rg}>
+                    {rg === 'OFICIAIS_SUPERIORES' ? 'Oficiais Superiores'
+                      : rg === 'CAPITAO_TENENTE' ? 'Capitão e Tenente'
+                      : rg === 'SUBTENENTE_SARGENTO' ? 'Subtenente e Sargento'
+                      : rg === 'CABO_SOLDADO' ? 'Cabo e Soldado'
+                      : rg}
+                  </option>
                 ))}
               </select>
             </div>
