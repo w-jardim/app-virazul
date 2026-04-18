@@ -8,8 +8,6 @@ import { RANK_GROUPS } from '@/features/pricing/types/pricing.types'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import type { CreateServiceInput, ServiceItem, ServiceScope, ServiceType, UpdateServiceInput } from '../types/services.types'
 
-/* ───────────────────── helpers de escopo ───────────────────── */
-
 const SCOPE_BY_KEY: Record<string, ServiceScope> = {
   ordinary_shift: 'ORDINARY',
   ras_voluntary: 'RAS_VOLUNTARY',
@@ -46,8 +44,6 @@ function safeMoney(value: unknown): number {
   return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0
 }
 
-/* ───────────────────── labels legíveis ───────────────────── */
-
 const SCOPE_LABELS: Record<ServiceScope, string> = {
   ORDINARY: 'Escala Ordinária',
   RAS_VOLUNTARY: 'RAS Voluntário',
@@ -68,8 +64,6 @@ const STATUS_LABELS: Record<string, string> = {
   TITULAR: 'Titular',
   RESERVA: 'Reserva',
 }
-
-/* ───────────────────── schema zod ───────────────────── */
 
 const schema = z.object({
   service_type_id: z.coerce.number().int().positive({ message: 'Selecione um tipo de serviço.' }),
@@ -113,8 +107,6 @@ function formatBRL(value: number): string {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
 }
 
-/* ───────────────────── componente ───────────────────── */
-
 const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }: ServiceFormProps) => {
   const isEditing = Boolean(initialData)
   const authUser = useAuthStore((s) => s.user)
@@ -133,20 +125,18 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
       amount_meal: initialData?.amount_meal || 0,
       amount_transport: initialData?.amount_transport || 0,
       amount_additional: initialData?.amount_additional || 0,
-        edit_values: false,
+      edit_values: false,
       payment_due_date: initialData?.payment_due_date ? String(initialData.payment_due_date).slice(0, 10) : '',
       force: false,
     },
   })
 
-  /* ── sincronizar rank_group com o perfil do usuário ── */
   useEffect(() => {
     if (!initialData && authUser?.rank_group) {
       form.setValue('rank_group', authUser.rank_group, { shouldDirty: false })
     }
   }, [authUser?.rank_group, form, initialData])
 
-  /* ── watch para reatividade ── */
   const watchedTypeId = useWatch({ control: form.control, name: 'service_type_id' })
   const watchedDuration = useWatch({ control: form.control, name: 'duration_hours' })
   const watchedRankGroup = useWatch({ control: form.control, name: 'rank_group' })
@@ -162,7 +152,6 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
   const allowsReservation = scopeAllowsReservation(scope)
   const allowsAdditional = scopeAllowsAdditional(scope)
 
-  /* ── busca preview da tabela de valores ── */
   const { preview, isFetching: pricingLoading } = useServiceFinancialPreview(
     form,
     serviceTypes,
@@ -179,7 +168,6 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
     }
   }, [watchedEditValues, preview, form])
 
-  /* ── corrigir status se escopo mudar e RESERVA não for mais permitido ── */
   const currentStatus = useWatch({ control: form.control, name: 'operational_status' })
 
   useEffect(() => {
@@ -188,7 +176,6 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
     }
   }, [allowsReservation, currentStatus, form])
 
-  /* ── zerar financeiro quando for Escala Ordinária ── */
   useEffect(() => {
     if (!isExtra) {
       form.setValue('amount_base', 0, { shouldDirty: false })
@@ -198,21 +185,18 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
     }
   }, [isExtra, form])
 
-  /* ── zerar alimentação quando escopo não tem refeição ── */
   useEffect(() => {
     if (isExtra && !hasMeal) {
       form.setValue('amount_meal', 0, { shouldDirty: false })
     }
   }, [isExtra, hasMeal, form])
 
-  /* ── zerar adicional quando escopo não permite ── */
   useEffect(() => {
     if (!allowsAdditional) {
       form.setValue('amount_additional', 0, { shouldDirty: false })
     }
   }, [allowsAdditional, form])
 
-  /* ── resumo financeiro calculado ── */
   const financialSummary = useMemo(() => {
     const base = safeMoney(watchedBase)
     const transport = safeMoney(watchedTransport)
@@ -222,21 +206,16 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
     return { base, transport, meal, additional, total }
   }, [watchedBase, watchedTransport, watchedMeal, watchedAdditional, hasMeal, allowsAdditional])
 
-  /* ── categorizar tipos de serviço ── */
   const sortedTypes = useMemo(() => {
-    const ordinary: ServiceType[] = []
     const extras: ServiceType[] = []
     for (const st of serviceTypes) {
-      if (SCOPE_BY_KEY[st.key] === 'ORDINARY') {
-        ordinary.push(st)
-      } else {
+      if (SCOPE_BY_KEY[st.key] !== 'ORDINARY') {
         extras.push(st)
       }
     }
     return { extras }
   }, [serviceTypes])
 
-  /* ── submissão ── */
   const handleSubmit = form.handleSubmit((values) => {
     const payload: CreateServiceInput | UpdateServiceInput = {
       service_type_id: values.service_type_id,
@@ -269,10 +248,9 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
 
   return (
     <form className="space-y-4" data-testid="service-form" onSubmit={handleSubmit}>
-      {/* ═══════ BLOCO A — Tipo + Status ═══════ */}
       <fieldset className="space-y-2">
         <legend className="text-sm font-semibold text-slate-800">Tipo do registro</legend>
-        <div className={`grid gap-3 ${!isEditing ? 'sm:grid-cols-2' : ''}`}>
+        <div className={`grid gap-3 ${!isEditing ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
           <label className={labelClass}>
             Categoria
             <select {...form.register('service_type_id')} className={fieldClass} data-testid="select-service-type">
@@ -291,15 +269,9 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
           {!isEditing ? (
             <label className={labelClass}>
               Status operacional
-              <select
-                {...form.register('operational_status')}
-                className={fieldClass}
-                data-testid="select-operational-status"
-              >
+              <select {...form.register('operational_status')} className={fieldClass} data-testid="select-operational-status">
                 <option value="TITULAR">{STATUS_LABELS.TITULAR}</option>
-                {allowsReservation ? (
-                  <option value="RESERVA">{STATUS_LABELS.RESERVA}</option>
-                ) : null}
+                {allowsReservation ? <option value="RESERVA">{STATUS_LABELS.RESERVA}</option> : null}
               </select>
               {!allowsReservation && isExtra ? (
                 <span className="mt-1 block text-xs text-amber-600" data-testid="no-reservation-hint">
@@ -311,25 +283,18 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
         </div>
 
         {scope ? (
-          <div className="flex items-center gap-2" data-testid="scope-badge">
-            <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-              scope === 'ORDINARY'
-                ? 'bg-slate-100 text-slate-600'
-                : 'bg-sky-50 text-sky-700'
-            }`}>
+          <div className="flex flex-wrap items-center gap-2" data-testid="scope-badge">
+            <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${scope === 'ORDINARY' ? 'bg-slate-100 text-slate-600' : 'bg-sky-50 text-sky-700'}`}>
               {SCOPE_LABELS[scope]}
             </span>
-            {scope === 'ORDINARY' ? (
-              <span className="text-xs text-slate-500">Calendário base — não gera valores financeiros extras</span>
-            ) : null}
+            {scope === 'ORDINARY' ? <span className="text-xs text-slate-500">Calendário base — não gera valores financeiros extras</span> : null}
           </div>
         ) : null}
       </fieldset>
 
-      {/* ═══════ BLOCO B — Dados operacionais ═══════ */}
       <fieldset className="space-y-2">
         <legend className="text-sm font-semibold text-slate-800">Dados operacionais</legend>
-        <div className={`grid gap-3 ${isExtra ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
+        <div className={`grid gap-3 ${isExtra ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'}`}>
           <label className={labelClass}>
             Data/hora
             <input type="datetime-local" {...form.register('start_at')} className={fieldClass} />
@@ -355,17 +320,16 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
 
         <label className={`block ${labelClass}`}>
           Observações
-          <textarea rows={2} {...form.register('notes')} className={fieldClass} />
+          <textarea rows={3} {...form.register('notes')} className={fieldClass} />
         </label>
       </fieldset>
 
-      {/* ═══════ BLOCO C — Dados financeiros (só extras) ═══════ */}
       {isExtra ? (
-        <fieldset className="space-y-2" data-testid="block-financial">
+        <fieldset className="space-y-3" data-testid="block-financial">
           <legend className="text-sm font-semibold text-slate-800">Valores financeiros</legend>
 
-          <div className="flex flex-wrap items-end gap-3">
-            <label className={`flex-1 min-w-[180px] ${labelClass}`}>
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+            <label className={labelClass}>
               Graduação
               <select {...form.register('rank_group')} className={fieldClass} data-testid="select-rank-group">
                 <option value="">Selecione a graduação</option>
@@ -376,23 +340,16 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
               {errors.rank_group ? <span className="mt-1 block text-xs text-rose-700">{errors.rank_group.message}</span> : null}
             </label>
 
-            <label className={`inline-flex items-center gap-2 pb-2 ${labelClass}`}>
+            <label className={`inline-flex items-center gap-2 ${labelClass}`}>
               <input type="checkbox" {...form.register('edit_values')} data-testid="toggle-edit-values" />
               Editar valores manualmente
             </label>
           </div>
 
-          {pricingLoading ? (
-            <p className="text-xs text-sky-600" data-testid="pricing-loading">Consultando tabela de valores...</p>
-          ) : null}
+          {pricingLoading ? <p className="text-xs text-sky-600" data-testid="pricing-loading">Consultando tabela de valores...</p> : null}
+          {preview && !pricingLoading ? <p className="text-xs text-slate-500" data-testid="pricing-source">Valores da tabela de preços vigente</p> : null}
 
-          {preview && !pricingLoading ? (
-            <p className="text-xs text-slate-500" data-testid="pricing-source">
-              Valores da tabela de preços vigente
-            </p>
-          ) : null}
-
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <label className={labelClass}>
               Valor base (R$)
               {preview && !watchedEditValues ? (
@@ -404,6 +361,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
                 <input type="number" step="0.01" {...form.register('amount_base')} className={`${fieldClass} bg-slate-50`} />
               )}
             </label>
+
             <label className={labelClass}>
               Transporte (R$)
               {preview && !watchedEditValues ? (
@@ -415,6 +373,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
                 <input type="number" step="0.01" {...form.register('amount_transport')} className={`${fieldClass} bg-slate-50`} />
               )}
             </label>
+
             {hasMeal ? (
               <label className={labelClass}>
                 Alimentação (R$)
@@ -428,10 +387,11 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
                 )}
               </label>
             ) : (
-              <div className="flex items-end" data-testid="meal-not-applicable">
-                <span className="mb-2 text-xs text-slate-400">Alimentação não se aplica ao {scope ? SCOPE_LABELS[scope] : 'RAS'}</span>
+              <div className="flex items-end">
+                <span className="mb-2 text-xs text-slate-400" data-testid="meal-not-applicable">Alimentação não se aplica ao {scope ? SCOPE_LABELS[scope] : 'RAS'}</span>
               </div>
             )}
+
             {allowsAdditional ? (
               <label className={labelClass}>
                 Adicional (R$)
@@ -442,10 +402,9 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
         </fieldset>
       ) : null}
 
-      {/* ═══════ BLOCO D — Resumo financeiro (só extras) ═══════ */}
       {isExtra ? (
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3" data-testid="financial-summary">
-          <dl className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
+          <dl className="grid grid-cols-2 gap-3 text-sm lg:flex lg:flex-wrap lg:items-center lg:gap-x-6 lg:gap-y-1">
             <div>
               <dt className="text-xs text-slate-500">Base</dt>
               <dd className="font-medium tabular-nums" data-testid="summary-base">{formatBRL(financialSummary.base)}</dd>
@@ -466,7 +425,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
                 <dd className="font-medium tabular-nums">{formatBRL(financialSummary.additional)}</dd>
               </div>
             ) : null}
-            <div className="ml-auto">
+            <div className="col-span-2 lg:ml-auto">
               <dt className="text-xs font-semibold text-slate-700">Total</dt>
               <dd className="text-base font-bold tabular-nums text-sky-700" data-testid="summary-total">{formatBRL(financialSummary.total)}</dd>
             </div>
@@ -474,8 +433,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
         </div>
       ) : null}
 
-      {/* ── force + submit ── */}
-      <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+      <div className="flex flex-col gap-3 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
         <label className="inline-flex items-center gap-2 text-xs text-slate-500">
           <input type="checkbox" {...form.register('force')} />
           Permitir mesmo com conflito de horário
@@ -484,7 +442,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
         <button
           type="submit"
           disabled={busy}
-          className="rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50 sm:w-auto"
         >
           {busy ? 'Salvando…' : submitLabel}
         </button>
