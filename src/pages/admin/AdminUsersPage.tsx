@@ -8,9 +8,6 @@ import {
 } from '@/features/admin/hooks/useAdmin'
 import type { AdminUser, CreateUserPayload, UserStatus, SubscriptionPlan, PaymentStatus } from '@/features/admin/types/admin.types'
 
-// ------------------------------------------------------------------
-// Labels / helpers
-// ------------------------------------------------------------------
 const statusLabel: Record<UserStatus, string> = {
   active: 'Ativo',
   inactive: 'Inativo',
@@ -35,9 +32,6 @@ const planColor: Record<SubscriptionPlan, string> = {
   premium: 'bg-emerald-100 text-emerald-700'
 }
 
-// ------------------------------------------------------------------
-// Form state types
-// ------------------------------------------------------------------
 type FormState = {
   name: string
   email: string
@@ -62,14 +56,7 @@ const defaultForm: FormState = {
   role: 'POLICE'
 }
 
-// ------------------------------------------------------------------
-// Sub-components
-// ------------------------------------------------------------------
-const Field: React.FC<{
-  label: string
-  children: React.ReactNode
-  required?: boolean
-}> = ({ label, children, required }) => (
+const Field: React.FC<{ label: string; children: React.ReactNode; required?: boolean }> = ({ label, children, required }) => (
   <div>
     <label className="mb-1 block text-xs font-medium text-slate-600">
       {label}
@@ -79,15 +66,9 @@ const Field: React.FC<{
   </div>
 )
 
-const inputClass =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300'
+const inputClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300'
+const selectClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300 bg-white'
 
-const selectClass =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300 bg-white'
-
-// ------------------------------------------------------------------
-// User modal (create / edit)
-// ------------------------------------------------------------------
 type UserModalProps = {
   editing: AdminUser | null
   onClose: () => void
@@ -159,32 +140,19 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
         }
         await createUser.mutateAsync(payload)
       }
-    } catch (err) {
+    } catch {
       setError('Erro ao salvar. Verifique os dados e tente novamente.')
     } finally {
-      // Ensure the modal is closed when the mutation settles to avoid leaving
-      // a blocking overlay in the UI if something prevents the usual close
-      // path from running (stale closures, unexpected errors, etc.).
       onClose()
     }
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-          <h2 className="text-base font-semibold text-slate-800">
-            {editing ? 'Editar usuario' : 'Novo usuario'}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-            aria-label="Fechar"
-          >
+          <h2 className="text-base font-semibold text-slate-800">{editing ? 'Editar usuario' : 'Novo usuario'}</h2>
+          <button type="button" onClick={onClose} className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600" aria-label="Fechar">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
@@ -192,11 +160,7 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
-          {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+          {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">{error}</div> : null}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Nome" required>
@@ -247,9 +211,7 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field label="Status de pagamento">
-              <select className={selectClass} value={form.payment_status} onChange={set('payment_status')}
-                disabled={form.subscription === 'free' || form.role === 'ADMIN_MASTER'}
-              >
+              <select className={selectClass} value={form.payment_status} onChange={set('payment_status')} disabled={form.subscription === 'free' || form.role === 'ADMIN_MASTER'}>
                 <option value="pending">Pendente</option>
                 <option value="paid">Pago</option>
                 <option value="overdue">Atrasado</option>
@@ -265,21 +227,8 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
           </div>
 
           <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isPending}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-            >
-              {isPending ? 'Salvando...' : editing ? 'Salvar alteracoes' : 'Criar usuario'}
-            </button>
+            <button type="button" onClick={onClose} disabled={isPending} className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50">Cancelar</button>
+            <button type="submit" disabled={isPending} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">{isPending ? 'Salvando...' : editing ? 'Salvar alteracoes' : 'Criar usuario'}</button>
           </div>
         </form>
       </div>
@@ -287,9 +236,27 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
   )
 }
 
-// ------------------------------------------------------------------
-// Main page
-// ------------------------------------------------------------------
+function formatDueDate(u: AdminUser) {
+  return u.subscription === 'free' || u.role === 'ADMIN_MASTER'
+    ? '—'
+    : u.subscription === 'trial'
+      ? new Date(new Date(u.created_at).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')
+      : u.subscription === 'premium'
+        ? new Date(u.created_at).toLocaleDateString('pt-BR')
+        : '—'
+}
+
+function paymentBadge(u: AdminUser) {
+  if (u.subscription === 'free' || u.role === 'ADMIN_MASTER') {
+    return <span className="text-slate-300">—</span>
+  }
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${u.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : u.payment_status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-600'}`}>
+      {u.payment_status === 'paid' ? 'Pago' : u.payment_status === 'pending' ? 'Pendente' : 'Atrasado'}
+    </span>
+  )
+}
+
 const AdminUsersPage: React.FC = () => {
   const { data: users = [], isLoading, isError } = useAdminUsers()
   const deleteUser = useDeleteUser()
@@ -299,11 +266,7 @@ const AdminUsersPage: React.FC = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
 
-  const filtered = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = users.filter((u) => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()))
 
   const openCreate = () => {
     setEditing(null)
@@ -325,17 +288,12 @@ const AdminUsersPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Usuarios</h1>
           <p className="mt-1 text-sm text-slate-500">Gerencie contas, status e perfis de acesso</p>
         </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 self-start"
-        >
+        <button type="button" onClick={openCreate} className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 self-start">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
@@ -343,149 +301,126 @@ const AdminUsersPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Filtro */}
       <div className="relative max-w-xs">
         <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
         </svg>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por nome ou e-mail..."
-          className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300"
-        />
+        <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nome ou e-mail..." className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300" />
       </div>
 
-      {/* Tabela */}
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        {isLoading && (
-          <div className="px-4 py-12 text-center text-sm text-slate-400">Carregando...</div>
-        )}
-        {isError && (
-          <div className="px-4 py-6 text-center text-sm text-red-500">
-            Erro ao carregar usuarios. Verifique a conexao.
-          </div>
-        )}
-        {!isLoading && !isError && (
-          <table className="w-full text-sm">
-            <thead className="border-b border-slate-100 bg-slate-50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-slate-500">Nome</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500 hidden sm:table-cell">E-mail</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500 hidden md:table-cell">Cargo</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500">Status</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500">Plano</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500">Pagamento</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500">Vencimento</th>
-                <th className="px-4 py-3 text-right font-medium text-slate-500">Acoes</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
-                    {search ? 'Nenhum resultado encontrado.' : 'Nenhum usuario cadastrado ainda.'}
-                  </td>
-                </tr>
-              )}
-              {filtered.map((u) => (
-                <tr key={u.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-slate-800">{u.name}</div>
-                    <div className="text-xs text-slate-500 sm:hidden">{u.email}</div>
-                  </td>
-                  <td className="px-4 py-3 text-slate-500 hidden sm:table-cell">{u.email}</td>
-                  <td className="px-4 py-3 text-slate-500 hidden md:table-cell">
-                    {u.rank_group ?? <span className="text-slate-300">—</span>}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[u.status]}`}>
-                      {statusLabel[u.status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>
-                      {planLabel[u.subscription]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {u.subscription === 'free' || u.role === 'ADMIN_MASTER' ? (
-                      <span className="text-slate-300">—</span>
-                    ) : (
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        u.payment_status === 'paid'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : u.payment_status === 'pending'
-                          ? 'bg-amber-100 text-amber-700'
-                          : 'bg-red-100 text-red-600'
-                      }`}>
-                        {u.payment_status === 'paid' ? 'Pago' : u.payment_status === 'pending' ? 'Pendente' : 'Atrasado'}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">
-                    {u.subscription === 'free' || u.role === 'ADMIN_MASTER'
-                      ? '—'
-                      : u.subscription === 'trial'
-                      ? new Date(new Date(u.created_at).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')
-                      : u.subscription === 'premium'
-                      ? new Date(u.created_at).toLocaleDateString('pt-BR')
-                      : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right">
+        {isLoading ? <div className="px-4 py-12 text-center text-sm text-slate-400">Carregando...</div> : null}
+        {isError ? <div className="px-4 py-6 text-center text-sm text-red-500">Erro ao carregar usuarios. Verifique a conexao.</div> : null}
+
+        {!isLoading && !isError ? (
+          <>
+            <div className="space-y-3 p-4 md:hidden">
+              {filtered.length === 0 ? (
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-10 text-center text-slate-400">
+                  {search ? 'Nenhum resultado encontrado.' : 'Nenhum usuario cadastrado ainda.'}
+                </div>
+              ) : filtered.map((u) => (
+                <article key={u.id} className="rounded-xl border border-slate-200 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-slate-800 break-words">{u.name}</p>
+                      <p className="text-sm text-slate-500 break-all">{u.email}</p>
+                    </div>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[u.status]}`}>{statusLabel[u.status]}</span>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-xs text-slate-500">Cargo</p>
+                      <p className="text-slate-700">{u.rank_group ?? '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">Plano</p>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>{planLabel[u.subscription]}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">Pagamento</p>
+                      <div className="mt-1">{paymentBadge(u)}</div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">Vencimento</p>
+                      <p className="text-slate-700">{formatDueDate(u)}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-3">
                     {confirmDeleteId === u.id ? (
-                      <span className="inline-flex items-center gap-2">
-                        <span className="text-xs text-slate-500">Confirmar?</span>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(u.id)}
-                          disabled={deleteUser.isPending}
-                          className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
-                        >
-                          Sim
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setConfirmDeleteId(null)}
-                          className="text-xs text-slate-500 hover:underline"
-                        >
-                          Nao
-                        </button>
-                      </span>
+                      <>
+                        <span className="text-xs text-slate-500">Confirmar exclusão?</span>
+                        <button type="button" onClick={() => handleDelete(u.id)} disabled={deleteUser.isPending} className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50">Sim</button>
+                        <button type="button" onClick={() => setConfirmDeleteId(null)} className="text-xs text-slate-500 hover:underline">Não</button>
+                      </>
                     ) : (
-                      <span className="inline-flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(u)}
-                          className="text-xs font-medium text-indigo-600 hover:underline"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setConfirmDeleteId(u.id)}
-                          className="text-xs font-medium text-red-500 hover:underline"
-                        >
-                          Excluir
-                        </button>
-                      </span>
+                      <>
+                        <button type="button" onClick={() => openEdit(u)} className="text-xs font-medium text-indigo-600 hover:underline">Editar</button>
+                        <button type="button" onClick={() => setConfirmDeleteId(u.id)} className="text-xs font-medium text-red-500 hover:underline">Excluir</button>
+                      </>
                     )}
-                  </td>
-                </tr>
+                  </div>
+                </article>
               ))}
-            </tbody>
-          </table>
-        )}
+            </div>
+
+            <div className="hidden md:block">
+              <table className="w-full text-sm">
+                <thead className="border-b border-slate-100 bg-slate-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Nome</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500 hidden sm:table-cell">E-mail</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500 hidden md:table-cell">Cargo</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Status</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Plano</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Pagamento</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Vencimento</th>
+                    <th className="px-4 py-3 text-right font-medium text-slate-500">Acoes</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-4 py-10 text-center text-slate-400">{search ? 'Nenhum resultado encontrado.' : 'Nenhum usuario cadastrado ainda.'}</td>
+                    </tr>
+                  ) : filtered.map((u) => (
+                    <tr key={u.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-slate-800">{u.name}</div>
+                        <div className="text-xs text-slate-500 sm:hidden">{u.email}</div>
+                      </td>
+                      <td className="px-4 py-3 text-slate-500 hidden sm:table-cell">{u.email}</td>
+                      <td className="px-4 py-3 text-slate-500 hidden md:table-cell">{u.rank_group ?? <span className="text-slate-300">—</span>}</td>
+                      <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[u.status]}`}>{statusLabel[u.status]}</span></td>
+                      <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>{planLabel[u.subscription]}</span></td>
+                      <td className="px-4 py-3">{paymentBadge(u)}</td>
+                      <td className="px-4 py-3 text-slate-500">{formatDueDate(u)}</td>
+                      <td className="px-4 py-3 text-right">
+                        {confirmDeleteId === u.id ? (
+                          <span className="inline-flex items-center gap-2">
+                            <span className="text-xs text-slate-500">Confirmar?</span>
+                            <button type="button" onClick={() => handleDelete(u.id)} disabled={deleteUser.isPending} className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50">Sim</button>
+                            <button type="button" onClick={() => setConfirmDeleteId(null)} className="text-xs text-slate-500 hover:underline">Nao</button>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-3">
+                            <button type="button" onClick={() => openEdit(u)} className="text-xs font-medium text-indigo-600 hover:underline">Editar</button>
+                            <button type="button" onClick={() => setConfirmDeleteId(u.id)} className="text-xs font-medium text-red-500 hover:underline">Excluir</button>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : null}
       </div>
 
-      {/* Modal */}
-      {modalOpen && (
-        <UserModal
-          editing={editing}
-          onClose={() => { setModalOpen(false); setEditing(null) }}
-        />
-      )}
+      {modalOpen ? <UserModal editing={editing} onClose={() => { setModalOpen(false); setEditing(null) }} /> : null}
     </div>
   )
 }
