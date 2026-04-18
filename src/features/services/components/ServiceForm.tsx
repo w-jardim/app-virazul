@@ -139,6 +139,13 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
     },
   })
 
+  /* ── sincronizar rank_group com o perfil do usuário ── */
+  useEffect(() => {
+    if (!initialData && authUser?.rank_group) {
+      form.setValue('rank_group', authUser.rank_group, { shouldDirty: false })
+    }
+  }, [authUser?.rank_group, form, initialData])
+
   /* ── watch para reatividade ── */
   const watchedTypeId = useWatch({ control: form.control, name: 'service_type_id' })
   const watchedDuration = useWatch({ control: form.control, name: 'duration_hours' })
