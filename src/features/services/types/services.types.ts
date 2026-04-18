@@ -41,6 +41,7 @@ export type ServiceItem = {
   service_type_id: number
   service_type_key?: string
   service_type_name?: string
+  rank_group?: string | null
   start_at: string
   duration_hours: number
   operational_status: string
@@ -77,6 +78,7 @@ export type CreateServiceInput = {
   duration_hours: number
   operational_status: string
   financial_status: string
+  rank_group?: string
   notes?: string | null
   amount_base?: number
   amount_paid?: number

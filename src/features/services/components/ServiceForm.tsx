@@ -245,6 +245,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
     }
 
     if (isExtra) {
+      payload.rank_group = values.rank_group
       payload.amount_base = safeMoney(values.amount_base)
       payload.amount_meal = hasMeal ? safeMoney(values.amount_meal) : 0
       payload.amount_transport = safeMoney(values.amount_transport)
