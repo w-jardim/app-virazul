@@ -37,6 +37,7 @@ import ProfilePage from '@/pages/app/ProfilePage'
 import AlertsPage from '@/pages/app/AlertsPage'
 import InsightsPage from '@/pages/app/InsightsPage'
 import OrdinarySchedulePage from '@/pages/app/OrdinarySchedulePage'
+import BillingPage from '@/pages/app/BillingPage'
 
 // Admin pages
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage'
@@ -44,19 +45,14 @@ import AdminUsersPage from '@/pages/admin/AdminUsersPage'
 import AdminSubscriptionsPage from '@/pages/admin/AdminSubscriptionsPage'
 import AdminPaymentsPage from '@/pages/admin/AdminPaymentsPage'
 
-// ─── Redirect após login ──────────────────────────────────────────────────────
-
 const RootRedirect: React.FC = () => {
   const user = useAuthStore((state) => state.user)
   if (isAdminMaster(user)) return <Navigate to="/admin" replace />
   return <Navigate to="/dashboard" replace />
 }
 
-// ─── Router ───────────────────────────────────────────────────────────────────
-
 const Router: React.FC = () => (
   <Routes>
-    {/* ── Páginas públicas com navbar + footer ── */}
     <Route element={<PublicLayout />}>
       <Route path="/" element={<Home />} />
       <Route path="/privacidade" element={<Privacidade />} />
@@ -64,42 +60,39 @@ const Router: React.FC = () => (
       <Route path="/contato" element={<Contato />} />
     </Route>
 
-    {/* ── Auth (login / cadastro — sem navbar pública) ── */}
     <Route element={<PublicOnlyRoute />}>
-      <Route path="/login"    element={<LoginPage />} />
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
     </Route>
 
-    {/* ── Área autenticada ── */}
     <Route element={<ProtectedRoute />}>
       <Route path="/app" element={<RootRedirect />} />
 
-      {/* Usuários comuns */}
       <Route element={<UserOnlyRoute />}>
         <Route element={<AppShell />}>
-          <Route path="/dashboard"        element={<DashboardPage />} />
-          <Route path="/operation"        element={<OperationPage />} />
-          <Route path="/agenda"           element={<AgendaPage />} />
-          <Route path="/services"         element={<ServicesPage />} />
-          <Route path="/services/new"     element={<ServiceCreatePage />} />
-          <Route path="/services/:id"     element={<ServiceDetailPage />} />
-          <Route path="/planning"         element={<PlanningPage />} />
-          <Route path="/finance"          element={<FinancePage />} />
-          <Route path="/profile"          element={<ProfilePage />} />
-          <Route path="/reports"          element={<ReportsPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/operation" element={<OperationPage />} />
+          <Route path="/agenda" element={<AgendaPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/new" element={<ServiceCreatePage />} />
+          <Route path="/services/:id" element={<ServiceDetailPage />} />
+          <Route path="/planning" element={<PlanningPage />} />
+          <Route path="/finance" element={<FinancePage />} />
+          <Route path="/billing" element={<BillingPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route path="/ordinary-schedule" element={<OrdinarySchedulePage />} />
-          <Route path="/alerts"           element={<AlertsPage />} />
-          <Route path="/insights"         element={<InsightsPage />} />
+          <Route path="/alerts" element={<AlertsPage />} />
+          <Route path="/insights" element={<InsightsPage />} />
         </Route>
       </Route>
 
-      {/* Administradores */}
       <Route element={<AdminOnlyRoute />}>
         <Route element={<AdminShell />}>
-          <Route path="/admin"                  element={<AdminDashboardPage />} />
-          <Route path="/admin/users"            element={<AdminUsersPage />} />
-          <Route path="/admin/subscriptions"    element={<AdminSubscriptionsPage />} />
-          <Route path="/admin/payments"         element={<AdminPaymentsPage />} />
+          <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/subscriptions" element={<AdminSubscriptionsPage />} />
+          <Route path="/admin/payments" element={<AdminPaymentsPage />} />
         </Route>
       </Route>
     </Route>
