@@ -149,4 +149,11 @@ const ServiceDetailPage: React.FC = () => {
                 </button>
               )}
             </section>
-          </di
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default ServiceDetailPage
