@@ -1,7 +1,492 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
+
+// ─── Icons ───────────────────────────────────────────────────────────────────
+
+const IconShield = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+  </svg>
+)
+const IconCalendar = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+  </svg>
+)
+const IconCurrencyDollar = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+)
+const IconChartBar = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+  </svg>
+)
+const IconBell = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+  </svg>
+)
+const IconClipboard = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+  </svg>
+)
+const IconUsers = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+  </svg>
+)
+const IconCheck = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+  </svg>
+)
+const IconArrowRight = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+  </svg>
+)
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const features = [
+  {
+    icon: <IconClipboard />,
+    title: 'Gestão de Operações',
+    desc: 'Registre e acompanhe cada serviço em tempo real. Controle entradas, saídas e ocorrências com histórico completo e auditável.',
+  },
+  {
+    icon: <IconCalendar />,
+    title: 'Escala Ordinária',
+    desc: 'Monte e visualize a escala de serviço da equipe de forma simples. Reduza conflitos e garanta cobertura em todos os turnos.',
+  },
+  {
+    icon: <IconCurrencyDollar />,
+    title: 'Controle Financeiro',
+    desc: 'Acompanhe receitas de serviços extras, plantões e bonificações. Tenha visibilidade total dos seus ganhos em um único lugar.',
+  },
+  {
+    icon: <IconChartBar />,
+    title: 'Planejamento e Metas',
+    desc: 'Projete metas de horas, serviços e receita. Planeje o mês com antecedência e tome decisões baseadas em dados.',
+  },
+  {
+    icon: <IconBell />,
+    title: 'Alertas Inteligentes',
+    desc: 'Receba notificações sobre vencimentos, escalas próximas e limites de jornada. Fique sempre um passo à frente.',
+  },
+  {
+    icon: <IconChartBar />,
+    title: 'Relatórios Detalhados',
+    desc: 'Exporte relatórios mensais de produtividade, financeiro e operações. Dados estruturados para qualquer necessidade.',
+  },
+]
+
+const audiences = [
+  { label: 'Polícia Militar', abbr: 'PM' },
+  { label: 'Polícia Civil',   abbr: 'PC' },
+  { label: 'Guarda Municipal', abbr: 'GM' },
+  { label: 'Agente Penitenciário', abbr: 'AP' },
+]
+
+const plans = [
+  {
+    name: 'Básico',
+    price: 'Grátis',
+    period: '',
+    description: 'Para começar a organizar sua rotina.',
+    features: ['Dashboard operacional', 'Registro de serviços (até 30/mês)', 'Escala simples', 'Suporte via e-mail'],
+    cta: 'Começar grátis',
+    highlight: false,
+  },
+  {
+    name: 'Profissional',
+    price: 'R$ 19',
+    period: '/mês',
+    description: 'Para quem leva a gestão a sério.',
+    features: ['Tudo do Básico', 'Serviços ilimitados', 'Controle financeiro completo', 'Relatórios exportáveis', 'Alertas e notificações', 'Suporte prioritário'],
+    cta: 'Assinar agora',
+    highlight: true,
+  },
+  {
+    name: 'Equipe',
+    price: 'R$ 49',
+    period: '/mês',
+    description: 'Gestão para grupos e viaturas.',
+    features: ['Tudo do Profissional', 'Até 10 usuários', 'Painel de equipe', 'Escala coletiva', 'Relatórios consolidados'],
+    cta: 'Falar com vendas',
+    highlight: false,
+  },
+]
+
+// ─── Navbar ───────────────────────────────────────────────────────────────────
+
+const Navbar: React.FC = () => {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-blue-950/95 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
+        {/* Logo */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500 text-xs font-bold text-white">
+            VA
+          </div>
+          <span className="text-[15px] font-semibold text-white tracking-tight">ViraAzul</span>
+        </div>
+
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-6 md:flex">
+          <a href="#funcionalidades" className="text-sm text-blue-200 transition hover:text-white">Funcionalidades</a>
+          <a href="#publico" className="text-sm text-blue-200 transition hover:text-white">Para quem é</a>
+          <a href="#planos" className="text-sm text-blue-200 transition hover:text-white">Planos</a>
+        </nav>
+
+        {/* CTA */}
+        <div className="hidden items-center gap-3 md:flex">
+          <Link to="/login" className="text-sm font-medium text-blue-200 transition hover:text-white">
+            Entrar
+          </Link>
+          <Link
+            to="/register"
+            className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-400"
+          >
+            Começar grátis
+          </Link>
+        </div>
+
+        {/* Mobile menu toggle */}
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="rounded-md p-2 text-blue-300 transition hover:bg-white/5 md:hidden"
+          aria-label="Menu"
+        >
+          {open ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile dropdown */}
+      {open && (
+        <div className="border-t border-white/10 bg-blue-950 px-5 py-4 md:hidden">
+          <nav className="flex flex-col gap-3">
+            <a href="#funcionalidades" onClick={() => setOpen(false)} className="text-sm text-blue-200 transition hover:text-white">Funcionalidades</a>
+            <a href="#publico" onClick={() => setOpen(false)} className="text-sm text-blue-200 transition hover:text-white">Para quem é</a>
+            <a href="#planos" onClick={() => setOpen(false)} className="text-sm text-blue-200 transition hover:text-white">Planos</a>
+            <hr className="border-white/10" />
+            <Link to="/login" className="text-sm font-medium text-blue-200 transition hover:text-white">Entrar</Link>
+            <Link
+              to="/register"
+              className="rounded-lg bg-blue-500 px-4 py-2.5 text-center text-sm font-semibold text-white"
+            >
+              Começar grátis
+            </Link>
+          </nav>
+        </div>
+      )}
+    </header>
+  )
+}
+
+// ─── Home ─────────────────────────────────────────────────────────────────────
 
 const Home: React.FC = () => {
-  return null
+  return (
+    <div className="min-h-screen bg-white text-slate-900">
+      <Navbar />
+
+      {/* ── HERO ── */}
+      <section className="relative overflow-hidden bg-blue-950 pt-28 pb-20 md:pt-36 md:pb-28">
+        {/* Background decoration */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-blue-700/20 blur-3xl" />
+          <div className="absolute bottom-0 -left-20 h-[300px] w-[300px] rounded-full bg-blue-800/30 blur-3xl" />
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }}
+          />
+        </div>
+
+        <div className="relative mx-auto max-w-4xl px-5 text-center">
+          {/* Badge */}
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-700/50 bg-blue-900/60 px-4 py-1.5 text-xs font-medium text-blue-300">
+            <IconShield />
+            Feito para profissionais de segurança pública
+          </div>
+
+          <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl">
+            Sua operação,{' '}
+            <span className="text-blue-400">organizada</span>{' '}
+            e no controle
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-blue-200/80">
+            O ViraAzul é a plataforma de gestão operacional e financeira criada especialmente para
+            policiais militares, civis, guardas municipais e agentes penitenciários que acumulam serviços extras.
+          </p>
+
+          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link
+              to="/register"
+              className="flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-400"
+            >
+              Começar gratuitamente
+              <IconArrowRight />
+            </Link>
+            <Link
+              to="/login"
+              className="rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            >
+              Já tenho conta
+            </Link>
+          </div>
+
+          {/* Social proof */}
+          <p className="mt-6 text-xs text-blue-400/60">
+            Sem cartão de crédito &nbsp;·&nbsp; Configuração em minutos &nbsp;·&nbsp; Cancele quando quiser
+          </p>
+        </div>
+      </section>
+
+      {/* ── PARA QUEM É ── */}
+      <section id="publico" className="border-b border-slate-100 bg-slate-50 py-14">
+        <div className="mx-auto max-w-5xl px-5">
+          <p className="mb-8 text-center text-sm font-semibold uppercase tracking-widest text-slate-400">
+            Desenvolvido para
+          </p>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {audiences.map((a) => (
+              <div
+                key={a.abbr}
+                className="flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-900 text-base font-bold text-white">
+                  {a.abbr}
+                </div>
+                <span className="text-[13px] font-medium text-slate-700">{a.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FUNCIONALIDADES ── */}
+      <section id="funcionalidades" className="py-20">
+        <div className="mx-auto max-w-5xl px-5">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+              Tudo que você precisa em um só lugar
+            </h2>
+            <p className="mt-3 text-base text-slate-500">
+              Da escala ao financeiro, do plantão ao relatório — controle completo da sua rotina operacional.
+            </p>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:-translate-y-0.5 duration-200"
+              >
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                  {f.icon}
+                </div>
+                <h3 className="mb-2 text-[15px] font-semibold text-slate-900">{f.title}</h3>
+                <p className="text-[13px] leading-relaxed text-slate-500">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── DESTAQUE ── */}
+      <section className="bg-blue-950 py-20">
+        <div className="mx-auto max-w-5xl px-5">
+          <div className="grid items-center gap-12 md:grid-cols-2">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight text-white">
+                Chega de planilha.<br />
+                Sua escala merece mais.
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-blue-200/70">
+                Policiais e agentes perdem horas toda semana tentando organizar serviços em planilhas, WhatsApp e cadernos. O ViraAzul centraliza tudo e te dá visão clara do que importa.
+              </p>
+              <ul className="mt-6 space-y-3">
+                {[
+                  'Dashboard com resumo do dia e do mês',
+                  'Controle de horas e jornada máxima',
+                  'Histórico de todos os serviços registrados',
+                  'Projeção financeira para o próximo mês',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm text-blue-100">
+                    <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 text-white">
+                      <IconCheck />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/register"
+                className="mt-8 inline-flex items-center gap-2 rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-400"
+              >
+                Experimentar grátis
+                <IconArrowRight />
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { value: '100%', label: 'Focado em seg. pública' },
+                { value: '0 papel', label: 'Tudo digital e organizado' },
+                { value: '24/7', label: 'Acesso de qualquer dispositivo' },
+                { value: '< 5min', label: 'Para registrar um serviço' },
+              ].map((s) => (
+                <div key={s.label} className="rounded-xl border border-white/10 bg-white/5 p-5">
+                  <p className="text-2xl font-bold text-blue-400">{s.value}</p>
+                  <p className="mt-1 text-xs text-blue-200/60">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PLANOS ── */}
+      <section id="planos" className="bg-slate-50 py-20">
+        <div className="mx-auto max-w-5xl px-5">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900">Planos simples e transparentes</h2>
+            <p className="mt-3 text-base text-slate-500">Escolha o plano ideal para o seu perfil.</p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-3">
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className={[
+                  'relative flex flex-col rounded-2xl p-6',
+                  plan.highlight
+                    ? 'bg-blue-950 text-white shadow-xl ring-2 ring-blue-500'
+                    : 'border border-slate-200 bg-white shadow-sm',
+                ].join(' ')}
+              >
+                {plan.highlight && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-500 px-3 py-1 text-xs font-semibold text-white">
+                    Mais popular
+                  </span>
+                )}
+
+                <div>
+                  <p className={['text-sm font-semibold', plan.highlight ? 'text-blue-300' : 'text-slate-500'].join(' ')}>
+                    {plan.name}
+                  </p>
+                  <div className="mt-2 flex items-end gap-1">
+                    <span className={['text-3xl font-bold', plan.highlight ? 'text-white' : 'text-slate-900'].join(' ')}>
+                      {plan.price}
+                    </span>
+                    {plan.period && (
+                      <span className={['mb-0.5 text-sm', plan.highlight ? 'text-blue-300' : 'text-slate-400'].join(' ')}>
+                        {plan.period}
+                      </span>
+                    )}
+                  </div>
+                  <p className={['mt-1 text-[13px]', plan.highlight ? 'text-blue-200/70' : 'text-slate-500'].join(' ')}>
+                    {plan.description}
+                  </p>
+                </div>
+
+                <ul className="mt-5 flex-1 space-y-2.5">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-[13px]">
+                      <span className={['mt-0.5 flex-shrink-0', plan.highlight ? 'text-blue-400' : 'text-blue-600'].join(' ')}>
+                        <IconCheck />
+                      </span>
+                      <span className={plan.highlight ? 'text-blue-100' : 'text-slate-600'}>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  to="/register"
+                  className={[
+                    'mt-8 block rounded-lg py-2.5 text-center text-sm font-semibold transition',
+                    plan.highlight
+                      ? 'bg-blue-500 text-white hover:bg-blue-400'
+                      : 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50',
+                  ].join(' ')}
+                >
+                  {plan.cta}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA FINAL ── */}
+      <section className="bg-blue-950 py-20">
+        <div className="mx-auto max-w-2xl px-5 text-center">
+          <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/20 text-blue-400">
+            <IconShield />
+          </div>
+          <h2 className="text-3xl font-bold tracking-tight text-white">
+            Comece a organizar sua carreira hoje
+          </h2>
+          <p className="mt-4 text-base text-blue-200/70">
+            Junte-se a profissionais de segurança pública que já controlam sua rotina com o ViraAzul.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link
+              to="/register"
+              className="flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-400"
+            >
+              Criar conta gratuita
+              <IconArrowRight />
+            </Link>
+            <Link
+              to="/login"
+              className="rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            >
+              Já tenho conta
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-slate-200 bg-white py-8">
+        <div className="mx-auto max-w-5xl px-5">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-900 text-xs font-bold text-white">
+                VA
+              </div>
+              <span className="text-sm font-semibold text-slate-800">ViraAzul</span>
+            </div>
+            <p className="text-[12px] text-slate-400">
+              © {new Date().getFullYear()} ViraAzul. Todos os direitos reservados.
+            </p>
+            <nav className="flex gap-5">
+              <a href="#" className="text-[12px] text-slate-400 transition hover:text-slate-600">Privacidade</a>
+              <a href="#" className="text-[12px] text-slate-400 transition hover:text-slate-600">Termos</a>
+              <a href="#" className="text-[12px] text-slate-400 transition hover:text-slate-600">Contato</a>
+            </nav>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
 }
 
 export default Home

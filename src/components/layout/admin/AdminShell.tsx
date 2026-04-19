@@ -53,7 +53,7 @@ function AdminNavLink({ item, onClick }: { item: NavItem; onClick?: () => void }
       title={item.label}
       className={({ isActive }) =>
         [
-          'group relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150',
+          'group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-150',
           isActive
             ? 'bg-white/10 text-white'
             : 'text-slate-400 hover:bg-white/5 hover:text-slate-200',
@@ -65,7 +65,7 @@ function AdminNavLink({ item, onClick }: { item: NavItem; onClick?: () => void }
           {isActive && (
             <span className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-r-full bg-indigo-400" />
           )}
-          <span className={isActive ? 'text-indigo-400' : ''}>{item.icon}</span>
+          <span className={isActive ? 'text-blue-400' : ''}>{item.icon}</span>
           <span className="truncate">{item.label}</span>
         </>
       )}
@@ -112,7 +112,7 @@ const AdminShell: React.FC = () => {
             {/* Logo mobile */}
             <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-500 text-xs font-bold text-white">
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-700 text-xs font-bold text-white">
                   VA
                 </div>
                 <div>
@@ -145,7 +145,7 @@ const AdminShell: React.FC = () => {
               <button
                 type="button"
                 onClick={onLogout}
-                className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium text-red-400 transition hover:bg-white/5"
+                className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-white/5"
               >
                 <IconLogout />
                 <span>Sair</span>
@@ -155,11 +155,11 @@ const AdminShell: React.FC = () => {
             {/* User mobile */}
             <div className="border-t border-white/5 px-4 py-3">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500/20 text-xs font-semibold text-indigo-400 select-none">
+                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-700/20 text-xs font-semibold text-blue-400 select-none">
                   {initials}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-[13px] font-medium text-slate-200">{user?.name}</p>
+                  <p className="truncate text-sm font-medium text-slate-200">{user?.name}</p>
                   <p className="truncate text-[11px] text-slate-500">{user?.email}</p>
                 </div>
               </div>
@@ -174,7 +174,7 @@ const AdminShell: React.FC = () => {
         <aside className="hidden lg:flex w-56 flex-col flex-shrink-0 bg-slate-950">
           {/* Logo */}
           <div className="flex items-center gap-2.5 border-b border-white/5 px-4 py-3">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-indigo-500 text-xs font-bold text-white">
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-blue-700 text-xs font-bold text-white">
               VA
             </div>
             <div className="overflow-hidden">
@@ -200,7 +200,7 @@ const AdminShell: React.FC = () => {
             <button
               type="button"
               onClick={onLogout}
-              className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium text-red-400 transition hover:bg-white/5"
+              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-white/5"
             >
               <IconLogout />
               <span>Sair</span>
@@ -210,11 +210,11 @@ const AdminShell: React.FC = () => {
           {/* User */}
           <div className="border-t border-white/5 px-4 py-3">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500/20 text-xs font-semibold text-indigo-400 select-none">
+              <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-700/20 text-xs font-semibold text-blue-400 select-none">
                 {initials}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-[13px] font-medium text-slate-300">{user?.name}</p>
+                <p className="truncate text-sm font-medium text-slate-300">{user?.name}</p>
                 <p className="truncate text-[11px] text-slate-600">{user?.email}</p>
               </div>
             </div>
@@ -242,14 +242,14 @@ const AdminShell: React.FC = () => {
               </div>
 
               <div className="ml-auto flex items-center gap-3">
-                <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-600 ring-1 ring-indigo-100">
+                <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-500 ring-1 ring-blue-900/30">
                   Administrador
                 </span>
                 <div className="hidden text-right sm:block">
-                  <p className="text-[13px] font-medium leading-tight text-slate-800">{user?.name}</p>
+                  <p className="text-sm font-medium leading-tight text-slate-800">{user?.name}</p>
                   <p className="text-[11px] leading-tight text-slate-500">{user?.email}</p>
                 </div>
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-semibold text-indigo-600 select-none ring-2 ring-indigo-100">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-700/10 text-xs font-semibold text-blue-500 select-none ring-2 ring-blue-900/30">
                   {initials}
                 </div>
               </div>

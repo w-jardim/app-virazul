@@ -5,6 +5,7 @@ import { isAdminMaster } from '@/features/auth/utils/roles'
 import LoginPage from '@/pages/Login'
 import RegisterPage from '@/pages/Register'
 import NotFound from '@/pages/NotFound'
+import Home from '@/pages/Home'
 import ProtectedRoute from '@/features/auth/guards/ProtectedRoute'
 import PublicOnlyRoute from '@/features/auth/guards/PublicOnlyRoute'
 import AdminOnlyRoute from '@/features/auth/guards/AdminOnlyRoute'
@@ -38,13 +39,16 @@ const RootRedirect: React.FC = () => {
 const Router: React.FC = () => {
   return (
     <Routes>
+      {/* Landing page — pública para não autenticados */}
+      <Route path="/" element={<Home />} />
+
       <Route element={<PublicOnlyRoute />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<RootRedirect />} />
+        <Route path="/app" element={<RootRedirect />} />
 
         {/* Rotas exclusivas de usuarios comuns (POLICE) */}
         <Route element={<UserOnlyRoute />}>
