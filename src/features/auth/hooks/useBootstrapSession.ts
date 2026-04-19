@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { authApi } from '../api/auth.api'
 import { useAuthStore } from '../store/useAuthStore'
 
@@ -44,5 +44,20 @@ export const useBootstrapSession = () => {
       active = false
     }
   }, [token, setUser, clearSession, finishBootstrap, startBootstrap])
-}
 
+  useEffect(() => {
+    if (!token) return
+
+    const refreshUser = async () => {
+      try {
+        const user = await authApi.me()
+        setUser(user)
+      } catch {
+        clearSession()
+      }
+    }
+
+    window.addEventListener('focus', refreshUser)
+    return () => window.removeEventListener('focus', refreshUser)
+  }, [token, setUser, clearSession])
+}
