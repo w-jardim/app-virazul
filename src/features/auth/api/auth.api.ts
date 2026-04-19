@@ -23,7 +23,7 @@ export const authApi = {
     return response.data.data
   },
 
-  async register(payload: { name: string; email: string; password: string; password_confirm?: string }): Promise<LoginResponse> {
+  async register(payload: { name: string; email: string; password: string; password_confirm?: string; rank_group?: string | null }): Promise<LoginResponse> {
     const response = await api.post<AuthApiResponse<LoginResponse>>('/api/v1/auth/register', payload)
     return response.data.data
   },
