@@ -4,7 +4,8 @@ import type {
   AuthUser,
   GoogleLoginInput,
   LoginInput,
-  LoginResponse
+  LoginResponse,
+  RegisterInput
 } from '../types/auth.types'
 
 export const authApi = {
@@ -23,7 +24,7 @@ export const authApi = {
     return response.data.data
   },
 
-  async register(payload: { name: string; email: string; password: string; password_confirm?: string; rank_group?: string | null }): Promise<LoginResponse> {
+  async register(payload: RegisterInput): Promise<LoginResponse> {
     const response = await api.post<AuthApiResponse<LoginResponse>>('/api/v1/auth/register', payload)
     return response.data.data
   },
