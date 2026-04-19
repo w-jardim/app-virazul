@@ -117,7 +117,7 @@ export function OperationalStatusChart({ report }: { report: OperationalReport }
             <p className="text-xs text-slate-500">Convertidas</p>
           </div>
           <div>
-            <p className="font-semibold text-sky-700">{report.reservation_metrics.conversion_rate}%</p>
+            <p className="font-semibold text-blue-800">{report.reservation_metrics.conversion_rate}%</p>
             <p className="text-xs text-slate-500">Taxa de conversão</p>
           </div>
         </div>
@@ -236,7 +236,7 @@ export function ServiceTypeBreakdown({
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full rounded-full bg-sky-500 transition-all duration-500"
+                className="h-full rounded-full bg-blue-600 transition-all duration-500"
                 style={{ width: `${pct(value, max)}%` }}
               />
             </div>

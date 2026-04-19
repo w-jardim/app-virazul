@@ -11,7 +11,7 @@ const SEVERITY_STYLES: Record<InsightSeverity, { border: string; bg: string; acc
   critical: { border: 'border-rose-300', bg: 'bg-rose-50', accent: 'text-rose-700' },
   warning:  { border: 'border-amber-300', bg: 'bg-amber-50', accent: 'text-amber-700' },
   positive: { border: 'border-emerald-300', bg: 'bg-emerald-50', accent: 'text-emerald-700' },
-  info:     { border: 'border-sky-300', bg: 'bg-sky-50', accent: 'text-sky-700' },
+  info:     { border: 'border-blue-300', bg: 'bg-blue-50', accent: 'text-blue-800' },
 }
 
 const InsightToast: React.FC = () => {

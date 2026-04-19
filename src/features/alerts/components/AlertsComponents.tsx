@@ -17,7 +17,7 @@ function formatDate(iso: string) {
 // ── type badge ────────────────────────────────────────────────────────────────
 
 const TYPE_META: Record<string, { label: string; classes: string }> = {
-  DAY: { label: 'Do dia', classes: 'bg-sky-100 text-sky-700' },
+  DAY: { label: 'Do dia', classes: 'bg-blue-100 text-blue-800' },
   OPERATIONAL: { label: 'Operacional', classes: 'bg-amber-100 text-amber-700' },
   FINANCIAL: { label: 'Financeiro', classes: 'bg-rose-100 text-rose-700' },
 }
@@ -144,7 +144,7 @@ export const AlertFilterTabs = ({ active, onChange, counts }: FilterTabsProps) =
         onClick={() => onChange(key)}
         className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition ${
           active === key
-            ? 'border-sky-600 text-sky-700'
+            ? 'border-blue-700 text-blue-800'
             : 'border-transparent text-slate-500 hover:text-slate-700'
         }`}
       >
@@ -179,7 +179,7 @@ export const AlertTypeFilterSelect = ({ value, onChange }: TypeFilterSelectProps
   <select
     value={value}
     onChange={(e) => onChange(e.target.value as TypeFilter)}
-    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
+    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
   >
     {TYPE_FILTERS.map(({ key, label }) => (
       <option key={key} value={key}>{label}</option>

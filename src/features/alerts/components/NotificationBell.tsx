@@ -36,7 +36,7 @@ function saveConfig(cfg: NotifConfig) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const ALERT_META: Record<string, { label: string; color: string; bg: string }> = {
-  DAY:         { label: 'Serviço',     color: 'text-sky-700',   bg: 'bg-sky-100'   },
+  DAY:         { label: 'Serviço',     color: 'text-blue-800',   bg: 'bg-blue-100'   },
   OPERATIONAL: { label: 'Operacional', color: 'text-amber-700', bg: 'bg-amber-100' },
   FINANCIAL:   { label: 'Financeiro',  color: 'text-rose-700',  bg: 'bg-rose-100'  },
 }
@@ -80,7 +80,7 @@ function relativeTime(iso: string): string {
 const SEVERITY_STYLE: Record<string, { dot: string; titleColor: string; bg: string }> = {
   critical: { dot: 'bg-rose-500',    titleColor: 'text-rose-700',    bg: 'bg-rose-50'    },
   warning:  { dot: 'bg-amber-500',   titleColor: 'text-amber-700',   bg: 'bg-amber-50'   },
-  info:     { dot: 'bg-sky-400',     titleColor: 'text-sky-700',     bg: 'bg-sky-50'     },
+  info:     { dot: 'bg-blue-400',     titleColor: 'text-blue-800',     bg: 'bg-blue-50'     },
   positive: { dot: 'bg-emerald-500', titleColor: 'text-emerald-700', bg: 'bg-emerald-50' },
 }
 
@@ -207,7 +207,7 @@ export default function NotificationBell() {
               type="button"
               onClick={() => setShowConfig((v) => !v)}
               title="Configurar notificações"
-              className={`rounded-lg p-1.5 transition ${showConfig ? 'bg-sky-50 text-sky-600' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
+              className={`rounded-lg p-1.5 transition ${showConfig ? 'bg-blue-50 text-blue-700' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
             >
               <GearIcon />
             </button>
@@ -228,7 +228,7 @@ export default function NotificationBell() {
                     </div>
                     <div
                       onClick={() => updateConfig(key, !config[key])}
-                      className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${config[key] ? 'bg-sky-600' : 'bg-slate-300'}`}
+                      className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${config[key] ? 'bg-blue-700' : 'bg-slate-300'}`}
                     >
                       <span
                         className={`inline-block h-4 w-4 translate-y-0.5 rounded-full bg-white shadow transition-transform duration-200 ${config[key] ? 'translate-x-4' : 'translate-x-0.5'}`}
@@ -346,7 +346,7 @@ export default function NotificationBell() {
             <Link
               to="/alerts"
               onClick={() => setOpen(false)}
-              className="text-xs font-medium text-sky-600 hover:text-sky-700"
+              className="text-xs font-medium text-blue-700 hover:text-blue-800"
             >
               Ver histórico completo de alertas →
             </Link>

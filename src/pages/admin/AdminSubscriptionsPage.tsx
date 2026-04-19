@@ -26,7 +26,7 @@ const planButtonClass = (current: SubscriptionPlan, target: SubscriptionPlan) =>
   [
     'rounded-lg px-3 py-1.5 text-xs font-medium border transition-colors',
     current === target
-      ? 'bg-indigo-600 border-indigo-600 text-white cursor-default'
+      ? 'bg-blue-700 border-blue-700 text-white cursor-default'
       : 'border-slate-300 text-slate-600 hover:bg-slate-50 hover:border-slate-400'
   ].join(' ')
 
@@ -66,7 +66,7 @@ const AdminSubscriptionsPage: React.FC = () => {
           onClick={() => setFilterPlan('all')}
           className={[
             'rounded-xl border p-4 text-left transition-all',
-            filterPlan === 'all' ? 'border-indigo-300 bg-indigo-50 ring-1 ring-indigo-300' : 'border-slate-200 bg-white hover:bg-slate-50'
+            filterPlan === 'all' ? 'border-blue-300 bg-blue-50 ring-1 ring-blue-300' : 'border-slate-200 bg-white hover:bg-slate-50'
           ].join(' ')}
         >
           <p className="text-xs font-medium text-slate-500">Todos</p>
@@ -79,7 +79,7 @@ const AdminSubscriptionsPage: React.FC = () => {
             onClick={() => setFilterPlan(plan)}
             className={[
               'rounded-xl border p-4 text-left transition-all',
-              filterPlan === plan ? 'border-indigo-300 bg-indigo-50 ring-1 ring-indigo-300' : 'border-slate-200 bg-white hover:bg-slate-50'
+              filterPlan === plan ? 'border-blue-300 bg-blue-50 ring-1 ring-blue-300' : 'border-slate-200 bg-white hover:bg-slate-50'
             ].join(' ')}
           >
             <p className="text-xs font-medium text-slate-500">{planLabel[plan]}</p>
@@ -144,41 +144,4 @@ const AdminSubscriptionsPage: React.FC = () => {
                     </tr>
                   ) : filtered.map((u) => (
                     <tr key={u.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-slate-800">{u.name}</div>
-                        <div className="text-xs text-slate-500">{u.email}</div>
-                      </td>
-                      <td className="px-4 py-3 hidden sm:table-cell">
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[u.status]}`}>{u.status}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>{planLabel[u.subscription]}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1.5">
-                          {plans.map((plan) => (
-                            <button
-                              key={plan}
-                              type="button"
-                              disabled={changingId === u.id || u.subscription === plan}
-                              onClick={() => handleChange(u.id, plan)}
-                              className={planButtonClass(u.subscription, plan)}
-                            >
-                              {changingId === u.id && u.subscription !== plan ? '...' : planLabel[plan]}
-                            </button>
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        ) : null}
-      </div>
-    </div>
-  )
-}
-
-export default AdminSubscriptionsPage
+                      <td className="px-4 py-3

@@ -50,8 +50,18 @@ const SubscriptionBanner: React.FC = () => {
   if (canMutate && plan === 'trial' && expiresAt) {
     const days = Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     return (
-      <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-        <strong>Periodo de teste</strong> — Restam {days} dia{days !== 1 ? 's' : ''} de acesso completo.
+      <div className="mb-5 flex items-center justify-between gap-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+        <span>
+          <strong>Trial gratuito</strong> — Restam <strong>{days} dia{days !== 1 ? 's' : ''}</strong> de acesso completo.
+        </span>
+        <a
+          href="https://wa.me/5500000000000?text=Quero ativar o Premium do ViraAzul"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="whitespace-nowrap rounded-lg bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-600"
+        >
+          Ativar Premium — R$ 9,90/mês
+        </a>
       </div>
     )
   }
@@ -60,12 +70,12 @@ const SubscriptionBanner: React.FC = () => {
   if (!canMutate && plan === 'trial') {
     return (
       <>
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center justify-between">
-          <span><strong>Acesso restrito</strong> — Periodo de teste expirado. Somente leitura.</span>
+        <div className="mb-5 flex items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <span><strong>Trial expirado</strong> — Acesso somente leitura. Ative o Premium para continuar.</span>
           <button
             type="button"
             onClick={() => setShowPopup(true)}
-            className="ml-4 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition whitespace-nowrap"
+            className="whitespace-nowrap rounded-lg bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-600"
           >
             Ativar Premium
           </button>
@@ -78,7 +88,7 @@ const SubscriptionBanner: React.FC = () => {
   // Expired premium: blocking banner
   if (!canMutate && reason) {
     return (
-      <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
         <strong>Acesso restrito</strong> — {reason}
       </div>
     )

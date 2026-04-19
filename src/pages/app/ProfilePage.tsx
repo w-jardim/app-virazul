@@ -4,9 +4,9 @@ import { authApi } from '@/features/auth/api/auth.api'
 import { RANK_GROUPS } from '@/features/pricing/types/pricing.types'
 
 const inputClass =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-300'
+  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300'
 const selectClass =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-300 bg-white'
+  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 bg-white'
 const readOnlyClass =
   'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500'
 
@@ -26,8 +26,8 @@ function Toggle({
       aria-checked={checked}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 disabled:opacity-50 ${
-        checked ? 'bg-sky-600' : 'bg-slate-300'
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:opacity-50 ${
+        checked ? 'bg-blue-700' : 'bg-slate-300'
       }`}
     >
       <span
@@ -136,7 +136,7 @@ const ProfilePage: React.FC = () => {
 
       <section className="max-w-lg rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="mb-5 flex items-center gap-4">
-          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-sky-100 text-xl font-bold text-sky-700 select-none">
+          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xl font-bold text-blue-800 select-none">
             {initials}
           </div>
           <div>
@@ -211,7 +211,7 @@ const ProfilePage: React.FC = () => {
               <button
                 type="submit"
                 disabled={formBusy}
-                className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700 disabled:opacity-50"
+                className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50"
               >
                 {formBusy ? 'Salvando...' : 'Salvar alterações'}
               </button>
@@ -249,3 +249,4 @@ const ProfilePage: React.FC = () => {
 }
 
 export default ProfilePage
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    

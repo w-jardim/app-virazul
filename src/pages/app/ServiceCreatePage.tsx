@@ -20,7 +20,7 @@ type ImportRow = ParsedRasEntry & {
 }
 
 const cellClass = 'px-3 py-2 text-sm text-slate-700'
-const inputSmClass = 'w-full rounded border border-slate-300 px-2 py-1 text-xs focus:border-sky-400 focus:ring-1 focus:ring-sky-400'
+const inputSmClass = 'w-full rounded border border-slate-300 px-2 py-1 text-xs focus:border-blue-400 focus:ring-1 focus:ring-blue-400'
 
 const ServiceCreatePage: React.FC = () => {
   const navigate = useNavigate()
@@ -110,7 +110,7 @@ const ServiceCreatePage: React.FC = () => {
 
   const tabClass = (t: Tab) =>
     `px-4 py-2 text-sm font-medium transition border-b-2 -mb-px ${
-      tab === t ? 'border-sky-600 text-sky-700' : 'border-transparent text-slate-500 hover:text-slate-700'
+      tab === t ? 'border-blue-700 text-blue-800' : 'border-transparent text-slate-500 hover:text-slate-700'
     }`
 
   return (
@@ -120,7 +120,7 @@ const ServiceCreatePage: React.FC = () => {
           <h1 className="text-2xl font-semibold text-slate-900">Novo registro</h1>
           <p className="text-sm text-slate-600">Cadastre manualmente ou importe do sistema de RAS.</p>
         </div>
-        <Link to="/operation" className="text-sm font-medium text-sky-700 hover:text-sky-800">
+        <Link to="/operation" className="text-sm font-medium text-blue-800 hover:text-blue-900">
           Voltar para listagem
         </Link>
       </header>
@@ -170,14 +170,14 @@ const ServiceCreatePage: React.FC = () => {
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
                 placeholder={"Convênio: BPVE - RAS\nEvento: RAS VOL BPVE OPM\nData/Hora: 04/04/2026 05:00:00\n..."}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono text-slate-700 placeholder-slate-400 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
               />
               <div className="mt-3 flex justify-end">
                 <button
                   type="button"
                   onClick={handleParse}
                   disabled={!rawText.trim()}
-                  className="rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50"
+                  className="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:opacity-50"
                 >
                   Processar texto
                 </button>
@@ -192,7 +192,7 @@ const ServiceCreatePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setRows([])}
-                  className="text-sm font-medium text-sky-700 hover:text-sky-800"
+                  className="text-sm font-medium text-blue-800 hover:text-blue-900"
                 >
                   Colar novo texto
                 </button>
@@ -232,7 +232,7 @@ const ServiceCreatePage: React.FC = () => {
                           <td className={cellClass}>{formatDate(row.start_at)}</td>
                           <td className={cellClass}>
                             <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                              row.service_type_key === 'ras_compulsory' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800'
+                              row.service_type_key === 'ras_compulsory' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-900'
                             }`}>{typeLabel}</span>
                           </td>
                           <td className={cellClass}>{row.convenio}</td>
@@ -251,7 +251,7 @@ const ServiceCreatePage: React.FC = () => {
                             {row._saved ? (
                               <span className="inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">Importado</span>
                             ) : row._saving ? (
-                              <span className="text-xs text-sky-600">Salvando...</span>
+                              <span className="text-xs text-blue-700">Salvando...</span>
                             ) : row._error ? (
                               <span className="text-xs text-rose-600" title={row._error}>Erro</span>
                             ) : (
@@ -271,7 +271,7 @@ const ServiceCreatePage: React.FC = () => {
                   type="button"
                   onClick={handleImport}
                   disabled={importing || selectedCount === 0}
-                  className="rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50"
+                  className="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:opacity-50"
                 >
                   {importing ? 'Importando...' : `Importar ${selectedCount} serviço(s)`}
                 </button>

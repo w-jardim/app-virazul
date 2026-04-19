@@ -66,7 +66,7 @@ const DOW_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
 function dotColor(item: AgendaServiceItem): string {
   const op = item.operational_status
-  if (op === 'TITULAR') return 'bg-sky-500'
+  if (op === 'TITULAR') return 'bg-blue-600'
   if (op === 'RESERVA') return 'bg-amber-400'
   if (op === 'REALIZADO') return 'bg-emerald-500'
   if (op === 'FALTOU') return 'bg-rose-500'
@@ -117,7 +117,7 @@ const DayPanel: React.FC<{ dateKey: string; isOrdinary?: boolean; ordinaryEntry?
         {!isOrdinary && (
           <Link
             to={`/services/new?start_at=${encodeURIComponent(dateKey)}`}
-            className="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700"
+            className="rounded-lg bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-800"
           >
             + Novo
           </Link>
@@ -155,7 +155,7 @@ const DayPanel: React.FC<{ dateKey: string; isOrdinary?: boolean; ordinaryEntry?
                 </div>
                 <Link
                   to={`/services/${s.id}`}
-                  className="text-xs font-medium text-sky-600 hover:underline shrink-0"
+                  className="text-xs font-medium text-blue-700 hover:underline shrink-0"
                 >
                   Ver
                 </Link>
@@ -261,7 +261,7 @@ const OperationCalendar: React.FC = () => {
                         'relative min-h-[72px] p-1.5 text-left transition-colors',
                         // visually indicate ordinary schedule days as a subtle gray background (suggestion only)
                         ordinarySet.has(dateKey) && !isSelected ? 'bg-slate-50' : '',
-                        isSelected ? 'bg-sky-50 ring-1 ring-inset ring-sky-300' : 'hover:bg-slate-50',
+                        isSelected ? 'bg-blue-50 ring-1 ring-inset ring-blue-300' : 'hover:bg-slate-50',
                       ].join(' ')}
                     >
                       {/* ordinary day badge (visible even when selected) */}
@@ -277,7 +277,7 @@ const OperationCalendar: React.FC = () => {
                       <span
                         className={[
                           'mb-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium',
-                          isToday ? 'bg-sky-600 text-white' : 'text-slate-700',
+                          isToday ? 'bg-blue-700 text-white' : 'text-slate-700',
                         ].join(' ')}
                       >
                         {dayNum}
@@ -308,7 +308,7 @@ const OperationCalendar: React.FC = () => {
         <div className="border-t border-slate-100 px-4 py-2 flex flex-col gap-2">
           <div className="flex items-center gap-4 flex-wrap">
           {[
-            { label: 'Titular', cls: 'bg-sky-500' },
+            { label: 'Titular', cls: 'bg-blue-600' },
             { label: 'Reserva', cls: 'bg-amber-400' },
             { label: 'Realizado', cls: 'bg-emerald-500' },
             { label: 'Faltou', cls: 'bg-rose-500' },

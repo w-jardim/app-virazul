@@ -8,14 +8,14 @@ const SEVERITY_STYLES: Record<InsightSeverity, { border: string; bg: string; ico
   critical: { border: 'border-rose-300', bg: 'bg-rose-50', icon: 'text-rose-600', text: 'text-rose-900' },
   warning:  { border: 'border-amber-300', bg: 'bg-amber-50', icon: 'text-amber-600', text: 'text-amber-900' },
   positive: { border: 'border-emerald-300', bg: 'bg-emerald-50', icon: 'text-emerald-600', text: 'text-emerald-900' },
-  info:     { border: 'border-sky-300', bg: 'bg-sky-50', icon: 'text-sky-600', text: 'text-sky-900' },
+  info:     { border: 'border-blue-300', bg: 'bg-blue-50', icon: 'text-blue-700', text: 'text-blue-900' },
 }
 
 const CATEGORY_META: Record<InsightCategory, { label: string; emoji: string; color: string }> = {
   alert:          { label: 'Alertas', emoji: '🔴', color: 'text-rose-700' },
   opportunity:    { label: 'Oportunidades', emoji: '🟢', color: 'text-emerald-700' },
   recommendation: { label: 'Recomendações', emoji: '🟡', color: 'text-amber-700' },
-  trend:          { label: 'Tendências', emoji: '🔵', color: 'text-sky-700' },
+  trend:          { label: 'Tendências', emoji: '🔵', color: 'text-blue-800' },
 }
 
 // ── Icons ─────────────────────────────────────────────────────────────────────

@@ -8,7 +8,7 @@ import type { CreateServiceInput } from '@/features/services/types/services.type
 
 const labelClass = 'text-xs font-medium text-slate-600'
 const cellClass = 'px-3 py-2 text-sm text-slate-700'
-const inputSmClass = 'w-full rounded border border-slate-300 px-2 py-1 text-xs focus:border-sky-400 focus:ring-1 focus:ring-sky-400'
+const inputSmClass = 'w-full rounded border border-slate-300 px-2 py-1 text-xs focus:border-blue-400 focus:ring-1 focus:ring-blue-400'
 
 type ImportRow = ParsedRasEntry & {
   _selected: boolean
@@ -133,7 +133,7 @@ const ServiceImportPage: React.FC = () => {
             <h1 className="text-2xl font-semibold text-slate-900">Importar serviços</h1>
             <p className="text-sm text-slate-600">Cole o resumo copiado do sistema de RAS.</p>
           </div>
-          <Link to="/operation" className="text-sm font-medium text-sky-700 hover:text-sky-800">
+          <Link to="/operation" className="text-sm font-medium text-blue-800 hover:text-blue-900">
             Voltar
           </Link>
         </header>
@@ -150,7 +150,7 @@ const ServiceImportPage: React.FC = () => {
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
               placeholder={"Convênio: BPVE - RAS\nEvento: RAS VOL BPVE OPM\nData/Hora: 04/04/2026 05:00:00\n..."}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono text-slate-700 placeholder-slate-400 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
             />
           </label>
 
@@ -159,7 +159,7 @@ const ServiceImportPage: React.FC = () => {
               type="button"
               onClick={handleParse}
               disabled={!rawText.trim()}
-              className="rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50"
+              className="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:opacity-50"
             >
               Processar texto
             </button>
@@ -187,7 +187,7 @@ const ServiceImportPage: React.FC = () => {
           >
             Novo texto
           </button>
-          <Link to="/operation" className="text-sm font-medium text-sky-700 hover:text-sky-800">
+          <Link to="/operation" className="text-sm font-medium text-blue-800 hover:text-blue-900">
             Voltar
           </Link>
         </div>
@@ -238,7 +238,7 @@ const ServiceImportPage: React.FC = () => {
                     <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
                       row.service_type_key === 'ras_compulsory'
                         ? 'bg-amber-100 text-amber-800'
-                        : 'bg-sky-100 text-sky-800'
+                        : 'bg-blue-100 text-blue-900'
                     }`}>
                       {typeLabel}
                     </span>
@@ -267,7 +267,7 @@ const ServiceImportPage: React.FC = () => {
                         Importado
                       </span>
                     ) : row._saving ? (
-                      <span className="text-xs text-sky-600">Salvando...</span>
+                      <span className="text-xs text-blue-700">Salvando...</span>
                     ) : row._error ? (
                       <span className="text-xs text-rose-600" title={row._error}>Erro</span>
                     ) : (
@@ -289,7 +289,7 @@ const ServiceImportPage: React.FC = () => {
           type="button"
           onClick={handleImport}
           disabled={importing || selectedCount === 0}
-          className="rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50"
+          className="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:opacity-50"
         >
           {importing ? 'Importando...' : `Importar ${selectedCount} serviço(s)`}
         </button>

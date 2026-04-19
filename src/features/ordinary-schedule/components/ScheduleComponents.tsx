@@ -22,12 +22,12 @@ export const WeekdayRow = ({ weekday, entry, onToggle, onChange }: WeekdayRowPro
   const active = Boolean(entry)
 
   return (
-    <div className={`flex items-center gap-3 rounded-lg border px-3 py-2 transition ${active ? 'border-sky-200 bg-sky-50' : 'border-slate-100 bg-white'}`}>
+    <div className={`flex items-center gap-3 rounded-lg border px-3 py-2 transition ${active ? 'border-blue-200 bg-blue-50' : 'border-slate-100 bg-white'}`}>
       <button
         type="button"
         onClick={() => onToggle(weekday)}
         className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
-          active ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+          active ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
         }`}
       >
         {WEEKDAY_LABELS[weekday]}
@@ -41,7 +41,7 @@ export const WeekdayRow = ({ weekday, entry, onToggle, onChange }: WeekdayRowPro
               type="time"
               value={entry!.start_time}
               onChange={(e) => onChange(weekday, 'start_time', e.target.value)}
-              className="rounded border border-slate-200 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-sky-400"
+              className="rounded border border-slate-200 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
             />
           </div>
           <div className="flex items-center gap-1">
@@ -49,7 +49,7 @@ export const WeekdayRow = ({ weekday, entry, onToggle, onChange }: WeekdayRowPro
             <select
               value={entry!.duration_hours}
               onChange={(e) => onChange(weekday, 'duration_hours', Number(e.target.value))}
-              className="rounded border border-slate-200 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-sky-400"
+              className="rounded border border-slate-200 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
             >
               {DURATION_OPTIONS.map((h) => (
                 <option key={h} value={h}>{h}h</option>
@@ -124,16 +124,16 @@ export const MonthCalendar = ({ year, month, workDays }: MonthCalendarProps) => 
             <div
               key={day}
               className={`flex flex-col items-center justify-center py-1.5 ${
-                isWork ? 'bg-sky-50' : 'bg-white'
+                isWork ? 'bg-blue-50' : 'bg-white'
               }`}
             >
               <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
-                isWork ? 'bg-sky-600 text-white' : 'text-slate-600'
+                isWork ? 'bg-blue-700 text-white' : 'text-slate-600'
               }`}>
                 {day}
               </span>
               {wd ? (
-                <span className="mt-0.5 text-[10px] leading-tight text-sky-600">
+                <span className="mt-0.5 text-[10px] leading-tight text-blue-700">
                   {wd.start_time} · {wd.duration_hours}h
                 </span>
               ) : (
@@ -146,7 +146,7 @@ export const MonthCalendar = ({ year, month, workDays }: MonthCalendarProps) => 
 
       <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded-full bg-sky-600" /> Plantão ({workDays.length} dias)
+          <span className="inline-block h-3 w-3 rounded-full bg-blue-700" /> Plantão ({workDays.length} dias)
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block h-3 w-3 rounded-full bg-slate-200" /> Folga ({new Date(year, month, 0).getDate() - workDays.length} dias)

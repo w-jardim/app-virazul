@@ -66,8 +66,8 @@ const Field: React.FC<{ label: string; children: React.ReactNode; required?: boo
   </div>
 )
 
-const inputClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300'
-const selectClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300 bg-white'
+const inputClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300'
+const selectClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 bg-white'
 
 type UserModalProps = {
   editing: AdminUser | null
@@ -228,7 +228,7 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
 
           <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
             <button type="button" onClick={onClose} disabled={isPending} className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50">Cancelar</button>
-            <button type="submit" disabled={isPending} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">{isPending ? 'Salvando...' : editing ? 'Salvar alteracoes' : 'Criar usuario'}</button>
+            <button type="submit" disabled={isPending} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50">{isPending ? 'Salvando...' : editing ? 'Salvar alteracoes' : 'Criar usuario'}</button>
           </div>
         </form>
       </div>
@@ -293,7 +293,7 @@ const AdminUsersPage: React.FC = () => {
           <h1 className="text-xl font-bold text-slate-800">Usuarios</h1>
           <p className="mt-1 text-sm text-slate-500">Gerencie contas, status e perfis de acesso</p>
         </div>
-        <button type="button" onClick={openCreate} className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 self-start">
+        <button type="button" onClick={openCreate} className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 self-start">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
@@ -305,7 +305,7 @@ const AdminUsersPage: React.FC = () => {
         <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
         </svg>
-        <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nome ou e-mail..." className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300" />
+        <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nome ou e-mail..." className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300" />
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -357,7 +357,7 @@ const AdminUsersPage: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        <button type="button" onClick={() => openEdit(u)} className="text-xs font-medium text-indigo-600 hover:underline">Editar</button>
+                        <button type="button" onClick={() => openEdit(u)} className="text-xs font-medium text-blue-700 hover:underline">Editar</button>
                         <button type="button" onClick={() => setConfirmDeleteId(u.id)} className="text-xs font-medium text-red-500 hover:underline">Excluir</button>
                       </>
                     )}
@@ -406,23 +406,7 @@ const AdminUsersPage: React.FC = () => {
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-3">
-                            <button type="button" onClick={() => openEdit(u)} className="text-xs font-medium text-indigo-600 hover:underline">Editar</button>
+                            <button type="button" onClick={() => openEdit(u)} className="text-xs font-medium text-blue-700 hover:underline">Editar</button>
                             <button type="button" onClick={() => setConfirmDeleteId(u.id)} className="text-xs font-medium text-red-500 hover:underline">Excluir</button>
                           </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        ) : null}
-      </div>
-
-      {modalOpen ? <UserModal editing={editing} onClose={() => { setModalOpen(false); setEditing(null) }} /> : null}
-    </div>
-  )
-}
-
-export default AdminUsersPage
+                      

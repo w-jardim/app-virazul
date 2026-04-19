@@ -243,7 +243,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
   })
 
   const errors = form.formState.errors
-  const fieldClass = 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-400 focus:ring-1 focus:ring-sky-400'
+  const fieldClass = 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400'
   const labelClass = 'text-xs font-medium text-slate-600'
 
   return (
@@ -284,7 +284,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
 
         {scope ? (
           <div className="flex flex-wrap items-center gap-2" data-testid="scope-badge">
-            <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${scope === 'ORDINARY' ? 'bg-slate-100 text-slate-600' : 'bg-sky-50 text-sky-700'}`}>
+            <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${scope === 'ORDINARY' ? 'bg-slate-100 text-slate-600' : 'bg-blue-50 text-blue-800'}`}>
               {SCOPE_LABELS[scope]}
             </span>
             {scope === 'ORDINARY' ? <span className="text-xs text-slate-500">Calendário base — não gera valores financeiros extras</span> : null}
@@ -346,7 +346,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
             </label>
           </div>
 
-          {pricingLoading ? <p className="text-xs text-sky-600" data-testid="pricing-loading">Consultando tabela de valores...</p> : null}
+          {pricingLoading ? <p className="text-xs text-blue-700" data-testid="pricing-loading">Consultando tabela de valores...</p> : null}
           {preview && !pricingLoading ? <p className="text-xs text-slate-500" data-testid="pricing-source">Valores da tabela de preços vigente</p> : null}
 
           <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -427,7 +427,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
             ) : null}
             <div className="col-span-2 lg:ml-auto">
               <dt className="text-xs font-semibold text-slate-700">Total</dt>
-              <dd className="text-base font-bold tabular-nums text-sky-700" data-testid="summary-total">{formatBRL(financialSummary.total)}</dd>
+              <dd className="text-base font-bold tabular-nums text-blue-800" data-testid="summary-total">{formatBRL(financialSummary.total)}</dd>
             </div>
           </dl>
         </div>
@@ -442,7 +442,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50 sm:w-auto"
+          className="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:opacity-50 sm:w-auto"
         >
           {busy ? 'Salvando…' : submitLabel}
         </button>
@@ -452,3 +452,4 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
 }
 
 export default ServiceForm
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   

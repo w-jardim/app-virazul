@@ -11,7 +11,7 @@ const OperationPage: React.FC = () => {
   const tabClass = (t: OperationTab) =>
     `px-4 py-2 text-sm font-medium transition border-b-2 -mb-px ${
       tab === t
-        ? 'border-sky-600 text-sky-700'
+        ? 'border-blue-700 text-blue-800'
         : 'border-transparent text-slate-500 hover:text-slate-700'
     }`
 

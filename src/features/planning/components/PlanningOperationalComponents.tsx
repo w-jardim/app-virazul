@@ -56,7 +56,7 @@ export function PlanModeSelector({ mode, onChangeMode }: ModeSelectorProps) {
         onClick={() => onChangeMode('HOURS')}
         className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
           mode === 'HOURS'
-            ? 'bg-sky-600 text-white shadow-sm'
+            ? 'bg-blue-700 text-white shadow-sm'
             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
         }`}
       >
@@ -67,7 +67,7 @@ export function PlanModeSelector({ mode, onChangeMode }: ModeSelectorProps) {
         onClick={() => onChangeMode('COUNT')}
         className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
           mode === 'COUNT'
-            ? 'bg-sky-600 text-white shadow-sm'
+            ? 'bg-blue-700 text-white shadow-sm'
             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
         }`}
       >
@@ -103,7 +103,7 @@ export function ServiceTypePicker({ available, selected, onChangeSelected }: Typ
           onClick={() => onChangeSelected([])}
           className={`rounded-full px-3 py-1 text-xs font-medium transition ${
             allSelected
-              ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300'
+              ? 'bg-blue-100 text-blue-900 ring-1 ring-blue-300'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
@@ -116,7 +116,7 @@ export function ServiceTypePicker({ available, selected, onChangeSelected }: Typ
             onClick={() => toggle(t.key)}
             className={`rounded-full px-3 py-1 text-xs font-medium transition ${
               selected.includes(t.key)
-                ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300'
+                ? 'bg-blue-100 text-blue-900 ring-1 ring-blue-300'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -270,8 +270,8 @@ export function CalendarDayPicker({
               onClick={() => toggle(date)}
               className={`relative flex h-14 flex-col items-center justify-center rounded-lg border text-sm font-medium transition ${
                 active
-                  ? 'border-sky-500 bg-sky-600 text-white shadow-sm'
-                  : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:bg-sky-50'
+                  ? 'border-blue-600 bg-blue-700 text-white shadow-sm'
+                  : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50'
               }`}
               title={date}
             >
@@ -329,7 +329,7 @@ export function CalendarDayPicker({
                         onClick={() => updateHours(date, duration)}
                         className={`rounded-full px-3 py-1 text-xs font-medium transition ${
                           currentHours === duration
-                            ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300'
+                            ? 'bg-blue-100 text-blue-900 ring-1 ring-blue-300'
                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
                       >
@@ -370,7 +370,7 @@ export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
           type="button"
           onClick={() => onChange([])}
           className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-            allSelected ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            allSelected ? 'bg-blue-100 text-blue-900 ring-1 ring-blue-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
           Todos
@@ -381,7 +381,7 @@ export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
             type="button"
             onClick={() => toggle(i)}
             className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-              selected.includes(i) ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              selected.includes(i) ? 'bg-blue-100 text-blue-900 ring-1 ring-blue-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             {lab}
@@ -415,7 +415,7 @@ export function DurationPicker({ selected, onChange }: DurationPickerProps) {
           type="button"
           onClick={() => onChange([])}
           className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-            allSelected ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            allSelected ? 'bg-blue-100 text-blue-900 ring-1 ring-blue-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
           Todos
@@ -426,7 +426,7 @@ export function DurationPicker({ selected, onChange }: DurationPickerProps) {
             type="button"
             onClick={() => toggle(d)}
             className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-              selected.includes(d) ? 'bg-sky-100 text-sky-800 ring-1 ring-sky-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              selected.includes(d) ? 'bg-blue-100 text-blue-900 ring-1 ring-blue-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             {d}h
@@ -503,7 +503,7 @@ export function PlanTargetInput({
                 ;(e.target as HTMLInputElement).blur()
               }
             }}
-            className="mt-1 block w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+            className="mt-1 block w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
           />
         </label>
       ) : (
@@ -521,7 +521,7 @@ export function PlanTargetInput({
                 ;(e.target as HTMLInputElement).blur()
               }
             }}
-            className="mt-1 block w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+            className="mt-1 block w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
           />
         </label>
       )}
@@ -599,7 +599,7 @@ export function DistributionList({ distribution, serviceTypes }: DistributionPro
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
                 <div
-                  className="h-full rounded-full bg-sky-400 transition-all duration-500"
+                  className="h-full rounded-full bg-blue-400 transition-all duration-500"
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -679,7 +679,7 @@ type BalanceCardProps = {
 
 export function PlanningBalanceCard({ goal, confirmedHours, waitingHours, remainingHours }: BalanceCardProps) {
   return (
-    <section className="rounded-2xl border border-sky-100 bg-sky-50 p-5">
+    <section className="rounded-2xl border border-blue-100 bg-blue-50 p-5">
       <h3 className="mb-1 text-base font-semibold text-slate-900">Saldo disponível</h3>
       <p className="mb-3 text-sm text-slate-600">
         Você tem <strong>{toSafeHours(remainingHours)}</strong> disponíveis este mês.

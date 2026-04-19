@@ -14,7 +14,7 @@ type AgendaToolbarProps = {
 const tabClass = (active: boolean) =>
   [
     'rounded-lg px-3 py-2 text-sm font-medium transition',
-    active ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+    active ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
   ].join(' ')
 
 const AgendaToolbar = ({

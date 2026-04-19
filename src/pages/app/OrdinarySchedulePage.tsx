@@ -203,7 +203,7 @@ const OrdinarySchedulePage: React.FC = () => {
                 onClick={() => setSelectedType(t)}
                 className={`flex-1 rounded-lg py-1.5 text-xs font-medium transition ${
                   selectedType === t
-                    ? 'bg-white text-sky-700 shadow-sm'
+                    ? 'bg-white text-blue-800 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
@@ -238,12 +238,12 @@ const OrdinarySchedulePage: React.FC = () => {
                   type="date"
                   value={biweekly.reference_date}
                   onChange={(e) => setBiweekly({ ...biweekly, reference_date: e.target.value })}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               </div>
 
               <div className="space-y-3">
-                <p className="text-xs font-semibold text-sky-700 uppercase tracking-wide">Semana A</p>
+                <p className="text-xs font-semibold text-blue-800 uppercase tracking-wide">Semana A</p>
                 <WeekdayEditor
                   entries={biweekly.week_a}
                   onChange={(week_a) => setBiweekly({ ...biweekly, week_a })}
@@ -251,7 +251,7 @@ const OrdinarySchedulePage: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wide">Semana B</p>
+                <p className="text-xs font-semibold text-blue-800 uppercase tracking-wide">Semana B</p>
                 <WeekdayEditor
                   entries={biweekly.week_b}
                   onChange={(week_b) => setBiweekly({ ...biweekly, week_b })}
@@ -273,7 +273,7 @@ const OrdinarySchedulePage: React.FC = () => {
                   <select
                     value={interval.work_hours}
                     onChange={(e) => setInterval({ ...interval, work_hours: Number(e.target.value) })}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
                     {DURATION_OPTIONS.map((h) => (
                       <option key={h} value={h}>{h}h</option>
@@ -289,7 +289,7 @@ const OrdinarySchedulePage: React.FC = () => {
                     max={168}
                     value={interval.off_hours}
                     onChange={(e) => setInterval({ ...interval, off_hours: Number(e.target.value) })}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
               </div>
@@ -301,7 +301,7 @@ const OrdinarySchedulePage: React.FC = () => {
                     type="date"
                     value={interval.reference_date}
                     onChange={(e) => setInterval({ ...interval, reference_date: e.target.value })}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
 
@@ -311,7 +311,7 @@ const OrdinarySchedulePage: React.FC = () => {
                     type="time"
                     value={interval.start_time}
                     onChange={(e) => setInterval({ ...interval, start_time: e.target.value })}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
               </div>
@@ -330,7 +330,7 @@ const OrdinarySchedulePage: React.FC = () => {
               type="button"
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="rounded-lg bg-sky-600 px-5 py-2 text-sm font-medium text-white hover:bg-sky-700 disabled:opacity-50"
+              className="rounded-lg bg-blue-700 px-5 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50"
             >
               {saveMutation.isPending ? 'Salvando...' : 'Salvar escala'}
             </button>

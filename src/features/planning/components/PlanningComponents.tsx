@@ -71,7 +71,7 @@ export function PlanningHoursProgress({ summary, onChangeGoal }: { summary: Plan
                     setBusy(false)
                   }
                 }}
-                className="rounded px-2 py-1 bg-sky-600 text-white text-xs"
+                className="rounded px-2 py-1 bg-blue-700 text-white text-xs"
               >
                 Salvar
               </button>
@@ -126,7 +126,7 @@ export function PlanningHoursProgress({ summary, onChangeGoal }: { summary: Plan
               title={`Confirmadas: ${toSafeHours(confirmedHours)}`}
             />
             <div
-              className="h-full bg-sky-300 transition-all duration-500"
+              className="h-full bg-blue-300 transition-all duration-500"
               style={{ width: `${Math.max(0, Math.min(100, waitingPct))}%` }}
               title={`Em espera: ${toSafeHours(waitingHours)}`}
             />

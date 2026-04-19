@@ -34,7 +34,7 @@ const AgendaServiceList = ({ title, badgeLabel, items }: AgendaServiceListProps)
             </div>
             <Link
               to={`/services/${item.id}`}
-              className="mt-2 inline-flex text-xs font-medium text-sky-700 hover:text-sky-800"
+              className="mt-2 inline-flex text-xs font-medium text-blue-800 hover:text-blue-900"
             >
               Abrir detalhes
             </Link>
