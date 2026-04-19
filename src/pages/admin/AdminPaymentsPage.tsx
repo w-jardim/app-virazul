@@ -143,4 +143,60 @@ const AdminPaymentsPage: React.FC = () => {
                   <tr>
                     <th className="px-4 py-3 text-left font-medium text-slate-500">Usuario</th>
                     <th className="px-4 py-3 text-left font-medium text-slate-500 hidden md:table-cell">Plano</th>
-       
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Vencimento</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Status atual</th>
+                    <th className="px-4 py-3 text-left font-medium text-slate-500">Atualizar status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
+                        Nenhum registro de pagamento encontrado para esse filtro.
+                      </td>
+                    </tr>
+                  ) : filteredUsers.map((user) => (
+                    <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-slate-800">{user.name}</div>
+                        <div className="text-xs text-slate-500">{user.email}</div>
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell">
+                        <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                          {user.subscription}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {user.payment_due_date ? new Date(user.payment_due_date).toLocaleDateString('pt-BR') : '—'}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${paymentColors[user.payment_status]}`}>
+                          {paymentLabels[user.payment_status]}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-2">
+                          {(['paid', 'pending', 'overdue'] as PaymentStatus[]).map((status) => (
+                            <PaymentStatusButton
+                              key={status}
+                              status={status}
+                              current={user.payment_status}
+                              disabled={changePaymentStatus.isPending}
+                              onClick={() => handleStatusChange(user, status)}
+                            />
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+export default AdminPaymentsPage

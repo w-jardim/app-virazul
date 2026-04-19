@@ -123,4 +123,26 @@ const ServicesFilters = ({ value, serviceTypes, onChange, onClear }: ServicesFil
   )
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-s
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between sm:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileOpen((prev) => !prev)}
+          className="flex items-center gap-2 text-sm font-medium text-slate-700"
+        >
+          Filtros
+          {activeCount > 0 && (
+            <span className="rounded-full bg-blue-700 px-2 py-0.5 text-xs font-semibold text-white">
+              {activeCount}
+            </span>
+          )}
+        </button>
+      </div>
+      <div className={mobileOpen ? 'block' : 'hidden sm:block'}>
+        {filtersContent}
+      </div>
+    </section>
+  )
+}
+
+export default ServicesFilters

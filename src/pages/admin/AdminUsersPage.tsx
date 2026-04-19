@@ -409,4 +409,20 @@ const AdminUsersPage: React.FC = () => {
                             <button type="button" onClick={() => openEdit(u)} className="text-xs font-medium text-blue-700 hover:underline">Editar</button>
                             <button type="button" onClick={() => setConfirmDeleteId(u.id)} className="text-xs font-medium text-red-500 hover:underline">Excluir</button>
                           </span>
-                      
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : null}
+      </div>
+
+      {modalOpen && <UserModal editing={editing} onClose={() => setModalOpen(false)} />}
+    </div>
+  )
+}
+
+export default AdminUsersPage

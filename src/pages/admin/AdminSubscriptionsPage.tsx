@@ -144,4 +144,41 @@ const AdminSubscriptionsPage: React.FC = () => {
                     </tr>
                   ) : filtered.map((u) => (
                     <tr key={u.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-slate-800">{u.name}</div>
+                        <div className="text-xs text-slate-500">{u.email}</div>
+                      </td>
+                      <td className="px-4 py-3 hidden sm:table-cell">
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[u.status]}`}>{u.status}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>{planLabel[u.subscription]}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1.5">
+                          {plans.map((plan) => (
+                            <button
+                              key={plan}
+                              type="button"
+                              disabled={changingId === u.id || u.subscription === plan}
+                              onClick={() => handleChange(u.id, plan)}
+                              className={planButtonClass(u.subscription, plan)}
+                            >
+                              {changingId === u.id && u.subscription !== plan ? '...' : planLabel[plan]}
+                            </button>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+export default AdminSubscriptionsPage
