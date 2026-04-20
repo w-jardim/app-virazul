@@ -85,7 +85,6 @@ export type CreateServiceInput = {
   amount_meal?: number
   amount_transport?: number
   amount_additional?: number
-  payment_due_date?: string | null
   force?: boolean
 }
 

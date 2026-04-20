@@ -4,11 +4,13 @@ import ServiceState from '@/features/services/components/ServiceStates'
 import ServicesFilters from '@/features/services/components/ServicesFilters'
 import ServicesTable from '@/features/services/components/ServicesTable'
 import {
+  useConfirmPendingPaymentsService,
   getApiErrorMessage,
   useConfirmPaymentService,
   usePromoteReservationService,
   useServiceTypes,
   useServicesList,
+  useTransitionAnyService,
 } from '@/features/services/hooks/useServicesData'
 
 type FiltersState = {
@@ -24,7 +26,9 @@ const ServicesPage: React.FC = () => {
   const serviceTypesQuery = useServiceTypes()
   const servicesQuery = useServicesList(filters)
   const confirmPaymentMutation = useConfirmPaymentService()
+  const confirmPendingPaymentsMutation = useConfirmPendingPaymentsService()
   const promoteReservationMutation = usePromoteReservationService()
+  const transitionMutation = useTransitionAnyService()
   const [actionError, setActionError] = useState<string | null>(null)
 
   const serviceTypes = useMemo(() => serviceTypesQuery.data || [], [serviceTypesQuery.data])
@@ -48,6 +52,61 @@ const ServicesPage: React.FC = () => {
     }
   }
 
+  const handleMarkPresence = async (serviceId: number) => {
+    setActionError(null)
+    try {
+      await transitionMutation.mutateAsync({
+        id: serviceId,
+        payload: {
+          transition_type: 'MARCAR_PRESENCA',
+          target_operational_status: 'REALIZADO'
+        }
+      })
+    } catch (error) {
+      setActionError(getApiErrorMessage(error))
+    }
+  }
+
+  const handleMarkAbsence = async (serviceId: number) => {
+    setActionError(null)
+    try {
+      await transitionMutation.mutateAsync({
+        id: serviceId,
+        payload: {
+          transition_type: 'MARCAR_FALTA',
+          target_operational_status: 'FALTOU'
+        }
+      })
+    } catch (error) {
+      setActionError(getApiErrorMessage(error))
+    }
+  }
+
+  const pendingCount = useMemo(
+    () =>
+      services.filter(
+        (item) =>
+          item.financial_status === 'PENDENTE' &&
+          ['TITULAR', 'CONVERTIDO_TITULAR', 'REALIZADO'].includes(item.operational_status)
+      ).length,
+    [services]
+  )
+
+  const handleConfirmAllPending = async () => {
+    if (pendingCount === 0) {
+      return
+    }
+
+    setActionError(null)
+    try {
+      await confirmPendingPaymentsMutation.mutateAsync({
+        service_type_id: filters.serviceTypeId
+      })
+    } catch (error) {
+      setActionError(getApiErrorMessage(error))
+    }
+  }
+
   return (
     <div className="space-y-4" data-testid="services-page">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -61,6 +120,16 @@ const ServicesPage: React.FC = () => {
         >
           Novo serviço
         </Link>
+        <button
+          type="button"
+          onClick={handleConfirmAllPending}
+          disabled={pendingCount === 0 || confirmPendingPaymentsMutation.isPending}
+          className="inline-flex items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {confirmPendingPaymentsMutation.isPending
+            ? 'Processando...'
+            : `Pagar todos pendentes (${pendingCount})`}
+        </button>
       </header>
 
       <ServicesFilters
@@ -100,7 +169,14 @@ const ServicesPage: React.FC = () => {
           items={services}
           onConfirmPayment={handleConfirmPayment}
           onPromoteReservation={handlePromoteReservation}
-          busy={confirmPaymentMutation.isPending || promoteReservationMutation.isPending}
+          onMarkPresence={handleMarkPresence}
+          onMarkAbsence={handleMarkAbsence}
+          busy={
+            confirmPaymentMutation.isPending ||
+            confirmPendingPaymentsMutation.isPending ||
+            promoteReservationMutation.isPending ||
+            transitionMutation.isPending
+          }
         />
       )}
     </div>

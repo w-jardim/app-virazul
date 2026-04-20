@@ -25,6 +25,12 @@ const IconWallet = () => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M16 11h2a1 1 0 010 2h-2" />
   </svg>
 )
+const IconAnalytics = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M7 13v4M12 9v8M17 5v12" />
+  </svg>
+)
 const IconLogout = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -40,6 +46,7 @@ const navItems: NavItem[] = [
   { to: '/admin/users',         label: 'Usuários',     icon: <IconUsers />,      end: false },
   { to: '/admin/subscriptions', label: 'Assinaturas',  icon: <IconCreditCard />, end: false },
   { to: '/admin/payments',      label: 'Pagamentos',   icon: <IconWallet />,     end: false },
+  { to: '/admin/analytics',     label: 'Analytics',    icon: <IconAnalytics />,  end: false },
 ]
 
 // ─── NavItemLink ──────────────────────────────────────────────────────────────

@@ -5,6 +5,8 @@ type ServicesTableProps = {
   items: ServiceItem[]
   onConfirmPayment?: (serviceId: number) => void | Promise<void>
   onPromoteReservation?: (serviceId: number) => void | Promise<void>
+  onMarkPresence?: (serviceId: number) => void | Promise<void>
+  onMarkAbsence?: (serviceId: number) => void | Promise<void>
   busy?: boolean
 }
 
@@ -12,13 +14,6 @@ function formatDateTime(value: string) {
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return '--'
   return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(parsed)
-}
-
-function formatDate(value?: string | null) {
-  if (!value) return '--'
-  const parsed = new Date(value)
-  if (Number.isNaN(parsed.getTime())) return '--'
-  return new Intl.DateTimeFormat('pt-BR').format(parsed)
 }
 
 function formatMoney(value: number) {
@@ -40,14 +35,8 @@ function operationalLabel(value: string) {
 
 function financialLabel(value: string) {
   const labels: Record<string, string> = {
-    PREVISTO: 'Previsto',
-    PAGO: 'Pago',
-    PARCIAL: 'Parcial pago',
-    PAGO_PARCIAL: 'Pago parcial',
     PENDENTE: 'Pendente',
-    NAO_PAGO: 'Nao pago',
-    CANCELADO: 'Cancelado',
-    ISENTO: 'Isento',
+    RECEBIDO: 'Recebido',
   }
   return labels[value] ?? value
 }
@@ -71,7 +60,26 @@ const PaymentStatusButton: React.FC<{
         : 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
     ].join(' ')}
   >
-    Pago
+    Marcar recebido
+  </button>
+)
+
+const AttendanceButton: React.FC<{
+  label: string
+  disabled?: boolean
+  className: string
+  onClick: () => void
+}> = ({ label, disabled, className, onClick }) => (
+  <button
+    type="button"
+    disabled={disabled}
+    onClick={onClick}
+    className={[
+      'rounded-md border px-3 py-1.5 text-xs font-semibold transition disabled:opacity-50',
+      className,
+    ].join(' ')}
+  >
+    {label}
   </button>
 )
 
@@ -89,7 +97,14 @@ const PromoteButton: React.FC<{
   </button>
 )
 
-const ServicesTable = ({ items, onConfirmPayment, onPromoteReservation, busy }: ServicesTableProps) => {
+const ServicesTable = ({
+  items,
+  onConfirmPayment,
+  onPromoteReservation,
+  onMarkPresence,
+  onMarkAbsence,
+  busy,
+}: ServicesTableProps) => {
   return (
     <div className="space-y-3">
       <div className="space-y-3 md:hidden">
@@ -114,19 +129,31 @@ const ServicesTable = ({ items, onConfirmPayment, onPromoteReservation, busy }: 
               <span className={`${pillClass} bg-amber-50 text-amber-700`}>{financialLabel(item.financial_status)}</span>
             </div>
 
-            <div className="mt-3 text-xs text-slate-500">
-              <span>Vencimento: </span>
-              <span className="font-medium text-slate-700">{formatDate(item.payment_due_date)}</span>
-            </div>
-
             <div className="mt-4 flex flex-wrap gap-2">
-              {item.financial_status !== 'PAGO' ? (
+              {item.financial_status !== 'RECEBIDO' && ['TITULAR', 'CONVERTIDO_TITULAR', 'REALIZADO'].includes(item.operational_status) ? (
                 <PaymentStatusButton
-                  status="PAGO"
+                  status="RECEBIDO"
                   current={item.financial_status}
                   disabled={busy}
                   onClick={() => onConfirmPayment?.(item.id)}
                 />
+              ) : null}
+
+              {['TITULAR', 'CONVERTIDO_TITULAR'].includes(item.operational_status) ? (
+                <>
+                  <AttendanceButton
+                    label="Presença"
+                    className="border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+                    disabled={busy}
+                    onClick={() => onMarkPresence?.(item.id)}
+                  />
+                  <AttendanceButton
+                    label="Falta"
+                    className="border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                    disabled={busy}
+                    onClick={() => onMarkAbsence?.(item.id)}
+                  />
+                </>
               ) : null}
 
               {item.operational_status === 'RESERVA' ? (
@@ -165,7 +192,6 @@ const ServicesTable = ({ items, onConfirmPayment, onPromoteReservation, busy }: 
                 </td>
                 <td className="px-4 py-3 text-slate-600">
                   <div>{formatDateTime(item.start_at)}</div>
-                  <div className="text-xs text-slate-500">Venc.: {formatDate(item.payment_due_date)}</div>
                 </td>
                 <td className="px-4 py-3">
                   <span className={`${pillClass} bg-slate-100 text-slate-700`}>{operationalLabel(item.operational_status)}</span>
@@ -176,13 +202,29 @@ const ServicesTable = ({ items, onConfirmPayment, onPromoteReservation, busy }: 
                 <td className="px-4 py-3 font-medium text-slate-800">{formatMoney(item.amount_total || 0)}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-2">
-                    {item.financial_status !== 'PAGO' ? (
+                    {item.financial_status !== 'RECEBIDO' && ['TITULAR', 'CONVERTIDO_TITULAR', 'REALIZADO'].includes(item.operational_status) ? (
                       <PaymentStatusButton
-                        status="PAGO"
+                        status="RECEBIDO"
                         current={item.financial_status}
                         disabled={busy}
                         onClick={() => onConfirmPayment?.(item.id)}
                       />
+                    ) : null}
+                    {['TITULAR', 'CONVERTIDO_TITULAR'].includes(item.operational_status) ? (
+                      <>
+                        <AttendanceButton
+                          label="Presença"
+                          className="border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+                          disabled={busy}
+                          onClick={() => onMarkPresence?.(item.id)}
+                        />
+                        <AttendanceButton
+                          label="Falta"
+                          className="border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                          disabled={busy}
+                          onClick={() => onMarkAbsence?.(item.id)}
+                        />
+                      </>
                     ) : null}
                     {item.operational_status === 'RESERVA' ? (
                       <PromoteButton disabled={busy} onClick={() => onPromoteReservation?.(item.id)} />

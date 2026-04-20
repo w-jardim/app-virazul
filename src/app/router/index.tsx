@@ -31,6 +31,7 @@ import OperationPage from '@/pages/app/OperationPage'
 import PlanningPage from '@/pages/app/PlanningPage'
 import FinancePage from '@/pages/app/FinancePage'
 import ReportsPage from '@/pages/app/ReportsPage'
+import AnalyticsPage from '@/pages/app/AnalyticsPage'
 import ServiceCreatePage from '@/pages/app/ServiceCreatePage'
 import ServiceDetailPage from '@/pages/app/ServiceDetailPage'
 import ProfilePage from '@/pages/app/ProfilePage'
@@ -93,6 +94,7 @@ const Router: React.FC = () => (
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/subscriptions" element={<AdminSubscriptionsPage />} />
           <Route path="/admin/payments" element={<AdminPaymentsPage />} />
+          <Route path="/admin/analytics" element={<AnalyticsPage />} />
         </Route>
       </Route>
     </Route>

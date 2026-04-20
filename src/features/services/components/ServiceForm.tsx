@@ -81,7 +81,6 @@ const schema = z.object({
   amount_transport: z.coerce.number().min(0).default(0),
   amount_additional: z.coerce.number().min(0).default(0),
   edit_values: z.boolean().optional(),
-  payment_due_date: z.string().optional(),
   force: z.boolean().optional(),
 })
 
@@ -119,14 +118,13 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
       start_at: toLocalInputDateTime(initialData?.start_at),
       duration_hours: initialData?.duration_hours || 12,
       operational_status: initialData?.operational_status || 'TITULAR',
-      financial_status: (initialData?.financial_status || 'PREVISTO') as FormValues['financial_status'],
+      financial_status: (initialData?.financial_status || 'PENDENTE') as FormValues['financial_status'],
       notes: initialData?.notes || '',
       amount_base: initialData?.amount_base || 0,
       amount_meal: initialData?.amount_meal || 0,
       amount_transport: initialData?.amount_transport || 0,
       amount_additional: initialData?.amount_additional || 0,
       edit_values: false,
-      payment_due_date: initialData?.payment_due_date ? String(initialData.payment_due_date).slice(0, 10) : '',
       force: false,
     },
   })
@@ -236,7 +234,6 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
       payload.amount_meal = hasMeal ? safeMoney(values.amount_meal) : 0
       payload.amount_transport = safeMoney(values.amount_transport)
       payload.amount_additional = allowsAdditional ? safeMoney(values.amount_additional) : 0
-      payload.payment_due_date = values.payment_due_date || null
     }
 
     onSubmit(payload)
@@ -294,7 +291,7 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
 
       <fieldset className="space-y-2">
         <legend className="text-sm font-semibold text-slate-800">Dados operacionais</legend>
-        <div className={`grid gap-3 ${isExtra ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'}`}>
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
           <label className={labelClass}>
             Data/hora
             <input type="datetime-local" {...form.register('start_at')} className={fieldClass} />
@@ -310,12 +307,6 @@ const ServiceForm = ({ serviceTypes, initialData, submitLabel, busy, onSubmit }:
             </select>
           </label>
 
-          {isExtra ? (
-            <label className={labelClass}>
-              Vencimento
-              <input type="date" {...form.register('payment_due_date')} className={fieldClass} />
-            </label>
-          ) : null}
         </div>
 
         <label className={`block ${labelClass}`}>

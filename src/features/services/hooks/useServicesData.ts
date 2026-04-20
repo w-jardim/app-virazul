@@ -138,6 +138,17 @@ export function useTransitionService(id: number) {
   })
 }
 
+export function useTransitionAnyService() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: ServiceTransitionInput }) =>
+      servicesApi.transition(id, payload),
+    onSuccess: (data) => {
+      invalidateServices(queryClient, data.id)
+    }
+  })
+}
+
 export function useConfirmPaymentService() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -154,6 +165,16 @@ export function usePromoteReservationService() {
     mutationFn: (id: number) => servicesApi.promoteReservation(id),
     onSuccess: (data) => {
       invalidateServices(queryClient, data.id)
+    }
+  })
+}
+
+export function useConfirmPendingPaymentsService() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (filters?: { service_type_id?: number }) => servicesApi.confirmPendingPayments(filters || {}),
+    onSuccess: () => {
+      invalidateServices(queryClient)
     }
   })
 }
