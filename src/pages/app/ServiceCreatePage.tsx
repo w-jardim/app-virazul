@@ -93,7 +93,7 @@ const ServiceCreatePage: React.FC = () => {
         start_at: row.start_at,
         duration_hours: row._duration,
         operational_status: row.operational_status,
-        financial_status: 'PREVISTO',
+        financial_status: 'PENDENTE',
         notes: row.notes,
         force: true,
       }
