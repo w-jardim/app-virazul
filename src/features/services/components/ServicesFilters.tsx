@@ -26,7 +26,7 @@ const operationalStatuses = [
   'NAO_CONVERTIDO'
 ]
 
-const financialStatuses = ['PREVISTO', 'PAGO', 'PAGO_PARCIAL', 'NAO_PAGO']
+const financialStatuses = ['PENDENTE', 'RECEBIDO']
 const fieldClass = 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800'
 
 const ServicesFilters = ({ value, serviceTypes, onChange, onClear }: ServicesFiltersProps) => {

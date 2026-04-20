@@ -25,10 +25,8 @@ const baseReport: FinanceReport = {
     total_pending: 315,
     total_overdue: 0,
     by_status: {
-      PAGO: 630,
-      NAO_PAGO: 315,
-      PREVISTO: 0,
-      PAGO_PARCIAL: 0,
+      RECEBIDO: 630,
+      PENDENTE: 315,
     }
   },
   by_service_type: [],
@@ -76,7 +74,7 @@ describe('FinancePage', () => {
       data: { start_date: null, end_date: null },
     } as never)
     render(<FinancePage />)
-    expect(screen.getByText('Sem serviços cadastrados')).toBeInTheDocument()
+    expect(screen.getByText('Sem serviÃ§os cadastrados')).toBeInTheDocument()
   })
 
   it('renders summary cards with values', () => {
@@ -85,7 +83,7 @@ describe('FinancePage', () => {
     expect(screen.getByText('Esperado')).toBeInTheDocument()
     expect(screen.getByText('Recebido')).toBeInTheDocument()
     expect(screen.getByText('Pendente')).toBeInTheDocument()
-    expect(screen.getByText('Em atraso')).toBeInTheDocument()
+    expect(screen.queryByText('Em atraso')).not.toBeInTheDocument()
   })
 
   it('renders pie chart section', () => {

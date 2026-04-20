@@ -22,7 +22,7 @@ export const OPERATIONAL_STATUSES = [
   'NAO_CONVERTIDO'
 ] as const
 
-export const FINANCIAL_STATUSES = ['PREVISTO', 'PENDENTE', 'EM_ATRASO', 'PAGO', 'PAGO_PARCIAL', 'NAO_PAGO'] as const
+export const FINANCIAL_STATUSES = ['PENDENTE', 'RECEBIDO'] as const
 export const DURATION_OPTIONS = [6, 8, 12, 24] as const
 
 type ListQuery = {
@@ -110,6 +110,17 @@ export const servicesApi = {
 
   async confirmPayment(id: number): Promise<ServiceItem> {
     const response = await api.post<ApiEnvelope<ServiceItem>>(`/api/v1/services/${id}/confirm-payment`, {})
+    return response.data.data
+  },
+
+  async confirmPendingPayments(filters: ListQuery = {}): Promise<{ updated_count: number }> {
+    const response = await api.post<ApiEnvelope<{ updated_count: number }>>(
+      '/api/v1/services/confirm-payment-pending',
+      {},
+      {
+        params: filters
+      }
+    )
     return response.data.data
   },
 

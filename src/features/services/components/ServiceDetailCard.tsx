@@ -9,12 +9,8 @@ const OPERATIONAL_LABELS: Record<string, string> = {
 }
 
 const FINANCIAL_LABELS: Record<string, string> = {
-  PREVISTO: 'Previsto',
-  PAGO: 'Pago',
-  PARCIAL: 'Parcial pago',
   PENDENTE: 'Pendente',
-  CANCELADO: 'Cancelado',
-  ISENTO: 'Isento',
+  RECEBIDO: 'Recebido',
 }
 
 function label(map: Record<string, string>, value: string): string {

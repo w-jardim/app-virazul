@@ -10,17 +10,13 @@ import {
 } from 'recharts'
 
 const FINANCIAL_LABELS: Record<string, string> = {
-  PREVISTO: 'Previsto',
-  PAGO: 'Pago',
-  NAO_PAGO: 'Não pago',
-  PAGO_PARCIAL: 'Parcial pago',
+  RECEBIDO: 'Recebido',
+  PENDENTE: 'Pendente',
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PAGO: '#22c55e',
-  NAO_PAGO: '#f97316',
-  PAGO_PARCIAL: '#facc15',
-  PREVISTO: '#38bdf8',
+  RECEBIDO: '#22c55e',
+  PENDENTE: '#f97316',
 }
 
 function money(value: number) {
@@ -34,11 +30,10 @@ export function FinanceSummaryCards({ summary }: { summary: FinanceSummary }) {
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <h3 className="text-base font-semibold text-slate-900">Resumo financeiro</h3>
       <p className="mt-0.5 text-sm text-slate-500">Consolidado de serviços financeiramente relevantes no período.</p>
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <MetricCard label="Esperado" value={money(summary.total_expected)} />
         <MetricCard label="Recebido" value={money(summary.total_received)} tone="success" />
         <MetricCard label="Pendente" value={money(summary.total_pending)} tone="warning" />
-        <MetricCard label="Em atraso" value={money(summary.total_overdue)} tone="danger" />
       </div>
     </section>
   )

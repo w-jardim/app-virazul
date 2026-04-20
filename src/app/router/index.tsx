@@ -79,7 +79,6 @@ const Router: React.FC = () => (
           <Route path="/services/:id" element={<ServiceDetailPage />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/finance" element={<FinancePage />} />
-          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/billing" element={<BillingPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/reports" element={<ReportsPage />} />

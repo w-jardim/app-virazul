@@ -25,12 +25,8 @@ const OPERATIONAL_OPTIONS = [
 
 const FINANCIAL_OPTIONS = [
   { value: '', label: 'Manter situação atual' },
-  { value: 'PREVISTO', label: 'Previsto' },
-  { value: 'PAGO', label: 'Pago' },
-  { value: 'PARCIAL', label: 'Parcial pago' },
   { value: 'PENDENTE', label: 'Pendente' },
-  { value: 'CANCELADO', label: 'Cancelado' },
-  { value: 'ISENTO', label: 'Isento' },
+  { value: 'RECEBIDO', label: 'Recebido' },
 ]
 
 function getQuickTransitions(status: string): QuickTransition[] {
@@ -55,6 +51,11 @@ function getQuickTransitions(status: string): QuickTransition[] {
         label: 'Marcar realizado',
         transition_type: 'TITULAR_PARA_REALIZADO',
         target_operational_status: 'REALIZADO'
+      },
+      {
+        label: 'Marcar faltou',
+        transition_type: 'TITULAR_PARA_FALTOU',
+        target_operational_status: 'FALTOU'
       }
     ]
   }
@@ -65,6 +66,11 @@ function getQuickTransitions(status: string): QuickTransition[] {
         label: 'Marcar realizado',
         transition_type: 'CONVERTIDO_PARA_REALIZADO',
         target_operational_status: 'REALIZADO'
+      },
+      {
+        label: 'Marcar faltou',
+        transition_type: 'CONVERTIDO_PARA_FALTOU',
+        target_operational_status: 'FALTOU'
       }
     ]
   }
