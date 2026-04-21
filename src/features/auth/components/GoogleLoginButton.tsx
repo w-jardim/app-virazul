@@ -7,8 +7,6 @@ type GoogleLoginButtonProps = {
   onError: () => void
 }
 
-const SCRIPT_ID = 'google-identity-services-script'
-
 const GoogleLoginButton = ({ disabled = false, onCredential, onError }: GoogleLoginButtonProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const clientId = useMemo(() => import.meta.env.VITE_GOOGLE_CLIENT_ID || '', [])
@@ -48,15 +46,7 @@ const GoogleLoginButton = ({ disabled = false, onCredential, onError }: GoogleLo
   }, [clientId, onCredential, onError])
 
   if (!clientId) {
-    return (
-      <button
-        type="button"
-        onClick={onError}
-        className="w-full max-w-[320px] rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-      >
-        Entrar com Google
-      </button>
-    )
+    return null
   }
 
   return (
