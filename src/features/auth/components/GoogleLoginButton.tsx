@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { initializeGoogleIdentity, renderGoogleButton } from '../googleIdentity'
 
 type GoogleLoginButtonProps = {
   disabled?: boolean
@@ -19,64 +20,30 @@ const GoogleLoginButton = ({ disabled = false, onCredential, onError }: GoogleLo
 
     let cancelled = false
 
-    const renderButton = () => {
-      if (cancelled || !window.google?.accounts?.id || !containerRef.current) {
+    const handleCredentialResponse = (response: any) => {
+      if (!response || !response.credential) {
+        onError()
         return
       }
+      onCredential(response.credential)
+    }
 
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: (response) => {
-          if (!response.credential) {
-            onError()
-            return
-          }
-          onCredential(response.credential)
-        }
+    initializeGoogleIdentity(handleCredentialResponse)
+      .then(() => {
+        if (cancelled || !containerRef.current) return
+        containerRef.current.innerHTML = ''
+        renderGoogleButton(containerRef.current, {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large'
+        })
       })
-
-      containerRef.current.innerHTML = ''
-      window.google.accounts.id.renderButton(containerRef.current, {
-        type: 'standard',
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'rectangular',
-        width: 320
+      .catch(() => {
+        if (!cancelled) onError()
       })
-    }
-
-    const existingScript = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null
-    if (window.google?.accounts?.id) {
-      renderButton()
-      return () => {
-        cancelled = true
-      }
-    }
-
-    if (existingScript) {
-      existingScript.addEventListener('load', renderButton)
-      existingScript.addEventListener('error', onError)
-      return () => {
-        cancelled = true
-        existingScript.removeEventListener('load', renderButton)
-        existingScript.removeEventListener('error', onError)
-      }
-    }
-
-    const script = document.createElement('script')
-    script.id = SCRIPT_ID
-    script.src = 'https://accounts.google.com/gsi/client'
-    script.async = true
-    script.defer = true
-    script.addEventListener('load', renderButton)
-    script.addEventListener('error', onError)
-    document.head.appendChild(script)
 
     return () => {
       cancelled = true
-      script.removeEventListener('load', renderButton)
-      script.removeEventListener('error', onError)
     }
   }, [clientId, onCredential, onError])
 
