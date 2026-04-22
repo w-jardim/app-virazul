@@ -17,8 +17,8 @@ export function useSubscription(): SubscriptionStatus {
 
     const { subscription, payment_due_date, created_at } = user
 
-    if (subscription === 'free') {
-      return { canMutate: true, plan: 'free', reason: null, expiresAt: null }
+    if (subscription === 'free' || subscription === 'plan_free' || subscription === 'plan_partner') {
+      return { canMutate: true, plan: subscription, reason: null, expiresAt: null }
     }
 
     if (subscription === 'trial') {
@@ -33,9 +33,9 @@ export function useSubscription(): SubscriptionStatus {
       }
     }
 
-    if (subscription === 'premium') {
+    if (subscription === 'premium' || subscription === 'plan_starter' || subscription === 'plan_pro') {
       if (!payment_due_date) {
-        return { canMutate: true, plan: 'premium', reason: null, expiresAt: null }
+        return { canMutate: true, plan: subscription, reason: null, expiresAt: null }
       }
       const due = new Date(payment_due_date)
       const today = new Date()
@@ -43,8 +43,8 @@ export function useSubscription(): SubscriptionStatus {
       const isExpired = today > due
       return {
         canMutate: !isExpired,
-        plan: 'premium',
-        reason: isExpired ? 'Seu plano Premium venceu. Renove para continuar operando.' : null,
+        plan: subscription,
+        reason: isExpired ? 'Seu plano venceu. Renove para continuar operando.' : null,
         expiresAt: due,
       }
     }

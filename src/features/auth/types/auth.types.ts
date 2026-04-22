@@ -1,7 +1,14 @@
 import type { ScheduleTemplate } from '@/features/ordinary-schedule/types/schedule.types'
 
 export type UserRole = 'POLICE' | 'ADMIN_MASTER'
-export type SubscriptionPlan = 'free' | 'trial' | 'premium'
+export type SubscriptionPlan =
+  | 'plan_free'
+  | 'plan_starter'
+  | 'plan_pro'
+  | 'plan_partner'
+  | 'free'
+  | 'trial'
+  | 'premium'
 export type RankGroup =
   | 'OFICIAIS_SUPERIORES'
   | 'CAPITAO_TENENTE'

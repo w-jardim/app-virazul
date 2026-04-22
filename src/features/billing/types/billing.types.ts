@@ -1,4 +1,11 @@
-export type BillingPlan = 'free' | 'trial' | 'premium'
+export type BillingPlan =
+  | 'plan_free'
+  | 'plan_starter'
+  | 'plan_pro'
+  | 'plan_partner'
+  | 'free'
+  | 'trial'
+  | 'premium'
 export type BillingStatus = 'trialing' | 'active' | 'pending' | 'past_due' | 'expired' | 'canceled' | 'cancelled'
 
 export type BillingLatestPayment = {

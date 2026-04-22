@@ -2,15 +2,23 @@ import React, { useState } from 'react'
 import { useAdminUsers, useChangeSubscription } from '@/features/admin/hooks/useAdmin'
 import type { SubscriptionPlan, UserStatus } from '@/features/admin/types/admin.types'
 
-const userPlans: SubscriptionPlan[] = ['trial', 'premium', 'free']
+const userPlans: SubscriptionPlan[] = ['plan_free', 'plan_starter', 'plan_pro', 'plan_partner', 'trial', 'premium', 'free']
 
 const planLabel: Record<SubscriptionPlan, string> = {
+  plan_free: 'Free',
+  plan_starter: 'Starter',
+  plan_pro: 'Pro',
+  plan_partner: 'Partner',
   free: 'Free',
   trial: 'Periodo de Teste',
   premium: 'Premium'
 }
 
 const planColor: Record<SubscriptionPlan, string> = {
+  plan_free: 'bg-slate-100 text-slate-600',
+  plan_starter: 'bg-blue-100 text-blue-700',
+  plan_pro: 'bg-emerald-100 text-emerald-700',
+  plan_partner: 'bg-violet-100 text-violet-700',
   free: 'bg-slate-100 text-slate-600',
   trial: 'bg-amber-100 text-amber-700',
   premium: 'bg-emerald-100 text-emerald-700'
@@ -64,7 +72,7 @@ const AdminSubscriptionsPage: React.FC = () => {
 
   const counts = userPlans.reduce<Record<SubscriptionPlan, number>>(
     (acc, p) => ({ ...acc, [p]: regularUsers.filter((u) => u.subscription === p).length }),
-    { free: 0, trial: 0, premium: 0 }
+    { plan_free: 0, plan_starter: 0, plan_pro: 0, plan_partner: 0, free: 0, trial: 0, premium: 0 }
   )
 
   return (
