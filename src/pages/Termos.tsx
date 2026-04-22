@@ -44,7 +44,7 @@ const Termos: React.FC = () => (
 
       <Section title="4. Planos e pagamento">
         <p><strong>Plano Free:</strong> ao criar sua conta, voce inicia no plano Free com acesso essencial sem custo.</p>
-        <p><strong>Planos pagos:</strong> voce pode evoluir para Starter (R$ 0,99/mes) ou Pro (R$ 2,99/mes), com cobranca via PIX ou cartao de credito/debito.</p>
+        <p><strong>Planos pagos:</strong> voce pode evoluir para Inicial (R$ 0,99/mes) ou Pro (R$ 2,99/mes), com cobranca via PIX ou cartao de credito/debito.</p>
         <p><strong>Cancelamento:</strong> você pode cancelar sua assinatura a qualquer momento. O acesso permanece ativo até o fim do período já pago. Não realizamos reembolsos proporcionais de períodos não utilizados.</p>
       </Section>
 

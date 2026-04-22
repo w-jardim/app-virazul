@@ -251,7 +251,7 @@ const Home: React.FC = () => {
         <div className="mx-auto max-w-4xl px-5">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-slate-900">Planos simples e transparentes</h2>
-            <p className="mt-3 text-base text-slate-500">Escolha entre Free, Starter, Pro e Partner.</p>
+            <p className="mt-3 text-base text-slate-500">Escolha entre Free, Inicial, Pro e Parceiro.</p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 max-w-2xl mx-auto">
@@ -338,7 +338,7 @@ const Home: React.FC = () => {
             Comece a organizar sua carreira hoje
           </h2>
           <p className="mt-4 text-base text-blue-200/70">
-            Comece no Free e evolua para Starter ou Pro quando precisar.
+            Comece no Free e evolua para Inicial ou Pro quando precisar.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link to="/register" className="flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-400">

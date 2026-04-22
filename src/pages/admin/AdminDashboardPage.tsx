@@ -4,9 +4,9 @@ import type { AdminUser } from '@/features/admin/types/admin.types'
 
 const planLabel: Record<string, string> = {
   plan_free: 'Free',
-  plan_starter: 'Starter',
+  plan_starter: 'Inicial',
   plan_pro: 'Pro',
-  plan_partner: 'Partner'
+  plan_partner: 'Parceiro'
 }
 
 const planColor: Record<string, string> = {
@@ -97,9 +97,9 @@ const AdminDashboardPage: React.FC = () => {
         </h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard label="Free" value={stats.plan_free} color="text-slate-700" />
-          <StatCard label="Starter" value={stats.plan_starter} color="text-blue-600" />
+          <StatCard label="Inicial" value={stats.plan_starter} color="text-blue-600" />
           <StatCard label="Pro" value={stats.plan_pro} color="text-emerald-600" />
-          <StatCard label="Partner" value={stats.plan_partner} color="text-violet-600" />
+          <StatCard label="Parceiro" value={stats.plan_partner} color="text-violet-600" />
         </div>
       </section>
 

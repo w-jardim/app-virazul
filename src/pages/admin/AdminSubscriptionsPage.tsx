@@ -6,9 +6,9 @@ const userPlans: SubscriptionPlan[] = ['plan_free', 'plan_starter', 'plan_pro', 
 
 const planLabel: Record<SubscriptionPlan, string> = {
   plan_free: 'Free',
-  plan_starter: 'Starter',
+  plan_starter: 'Inicial',
   plan_pro: 'Pro',
-  plan_partner: 'Partner',
+  plan_partner: 'Parceiro',
 }
 
 const planColor: Record<SubscriptionPlan, string> = {
@@ -74,6 +74,16 @@ const AdminSubscriptionsPage: React.FC = () => {
       <div>
         <h1 className="text-xl font-bold text-slate-800">Assinaturas</h1>
         <p className="mt-1 text-sm text-slate-500">Gerencie e altere o plano de cada usuario</p>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Legenda dos planos</p>
+        <div className="mt-2 grid grid-cols-1 gap-2 text-xs text-slate-600 sm:grid-cols-2">
+          <p><span className="font-semibold text-slate-700">Free:</span> R$ 0, com anuncios, 1.000 chamadas/mês.</p>
+          <p><span className="font-semibold text-slate-700">Inicial:</span> R$ 0,99/mês, com anuncios, 50.000 chamadas/mês.</p>
+          <p><span className="font-semibold text-slate-700">Pro:</span> R$ 2,99/mês, sem anuncios, 999.999 chamadas/mês, trial de 7 dias.</p>
+          <p><span className="font-semibold text-slate-700">Parceiro:</span> cortesia sem cobranca automatica, sem anuncios, 999.999 chamadas/mês.</p>
+        </div>
       </div>
 
       {changeError ? (
