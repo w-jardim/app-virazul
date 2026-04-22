@@ -1,7 +1,7 @@
 ﻿import React from 'react'
 import { Link } from 'react-router-dom'
 
-// â”€â”€â”€ Icons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Icons ───────────────────────────────────────────────────────────────────
 
 const IconShield = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -55,29 +55,29 @@ const IconCard = () => (
   </svg>
 )
 
-// â”€â”€â”€ Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
 const audiences = [
-  { label: 'PolÃ­cia Militar',       abbr: 'PM' },
-  { label: 'PolÃ­cia Civil',         abbr: 'PC' },
+  { label: 'Polícia Militar',       abbr: 'PM' },
+  { label: 'Polícia Civil',         abbr: 'PC' },
   { label: 'Bombeiros Militar',     abbr: 'BM' },
   { label: 'Guarda Municipal',      abbr: 'GM' },
-  { label: 'Agente PenitenciÃ¡rio',  abbr: 'AP' },
+  { label: 'Agente Penitenciário',  abbr: 'AP' },
 ]
 
 const features = [
-  { icon: <IconClipboard />, title: 'GestÃ£o de OperaÃ§Ãµes',   desc: 'Registre e acompanhe cada serviÃ§o em tempo real. Controle entradas, saÃ­das e ocorrÃªncias com histÃ³rico completo e auditÃ¡vel.' },
-  { icon: <IconCalendar />,  title: 'Escala OrdinÃ¡ria',      desc: 'Monte e visualize a escala de serviÃ§o da equipe de forma simples. Reduza conflitos e garanta cobertura em todos os turnos.' },
-  { icon: <IconCurrency />,  title: 'Controle Financeiro',   desc: 'Acompanhe receitas de serviÃ§os extras, plantÃµes e bonificaÃ§Ãµes. Tenha visibilidade total dos seus ganhos em um Ãºnico lugar.' },
-  { icon: <IconChart />,     title: 'Planejamento e Metas',  desc: 'Projete metas de horas, serviÃ§os e receita. Planeje o mÃªs com antecedÃªncia e tome decisÃµes baseadas em dados.' },
-  { icon: <IconBell />,      title: 'Alertas Inteligentes',  desc: 'Receba notificaÃ§Ãµes sobre vencimentos, escalas prÃ³ximas e limites de jornada. Fique sempre um passo Ã  frente.' },
-  { icon: <IconChart />,     title: 'RelatÃ³rios Detalhados', desc: 'Exporte relatÃ³rios mensais de produtividade, financeiro e operaÃ§Ãµes. Dados estruturados para qualquer necessidade.' },
+  { icon: <IconClipboard />, title: 'Gestão de Operações',   desc: 'Registre e acompanhe cada serviço em tempo real. Controle entradas, saídas e ocorrências com histórico completo e auditável.' },
+  { icon: <IconCalendar />,  title: 'Escala Ordinária',      desc: 'Monte e visualize a escala de serviço da equipe de forma simples. Reduza conflitos e garanta cobertura em todos os turnos.' },
+  { icon: <IconCurrency />,  title: 'Controle Financeiro',   desc: 'Acompanhe receitas de serviços extras, plantões e bonificações. Tenha visibilidade total dos seus ganhos em um único lugar.' },
+  { icon: <IconChart />,     title: 'Planejamento e Metas',  desc: 'Projete metas de horas, serviços e receita. Planeje o mês com antecedência e tome decisões baseadas em dados.' },
+  { icon: <IconBell />,      title: 'Alertas Inteligentes',  desc: 'Receba notificações sobre vencimentos, escalas próximas e limites de jornada. Fique sempre um passo à frente.' },
+  { icon: <IconChart />,     title: 'Relatórios Detalhados', desc: 'Exporte relatórios mensais de produtividade, financeiro e operações. Dados estruturados para qualquer necessidade.' },
 ]
 
 const plans = [
   {
     name: 'Free',
-    price: 'GrÃ¡tis',
+    price: 'Grátis',
     period: '/sempre',
     badge: null,
     description: 'Plano de entrada sem custo para comecar.',
@@ -96,7 +96,7 @@ const plans = [
   {
     name: 'Pro',
     price: 'R$ 2,99',
-    period: '/mÃªs',
+    period: '/mês',
     badge: 'Mais popular',
     description: 'Para quem quer uso profissional sem anuncios.',
     features: [
@@ -106,19 +106,19 @@ const plans = [
       'PIX ou cartao',
       'Atualizacoes incluidas',
     ],
-    paymentMethods: ['PIX', 'CartÃ£o'],
+    paymentMethods: ['PIX', 'Cartão'],
     cta: 'Assinar agora',
     highlight: true,
     ctaLink: '/register',
   },
 ]
 
-// â”€â”€â”€ Home â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Home ─────────────────────────────────────────────────────────────────────
 
 const Home: React.FC = () => {
   return (
     <>
-      {/* â”€â”€ HERO â”€â”€ */}
+      {/* ── HERO ── */}
       <section className="relative overflow-hidden bg-blue-950 pt-28 pb-20 md:pt-36 md:pb-28">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-blue-700/20 blur-3xl" />
@@ -130,16 +130,16 @@ const Home: React.FC = () => {
         <div className="relative mx-auto max-w-4xl px-5 text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-700/50 bg-blue-900/60 px-4 py-1.5 text-xs font-medium text-blue-300">
             <IconShield />
-            Feito para profissionais de seguranÃ§a pÃºblica
+            Feito para profissionais de segurança pública
           </div>
 
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl">
-            Sua operaÃ§Ã£o,{' '}
+            Sua operação,{' '}
             <span className="text-blue-400">organizada</span>{' '}
             e no controle
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-blue-200/80">
-            O ViraAzul Ã© a plataforma de gestÃ£o operacional e financeira criada para PM, PC, BM, GM e Agentes PenitenciÃ¡rios que acumulam serviÃ§os extras.
+            O ViraAzul é a plataforma de gestão operacional e financeira criada para PM, PC, BM, GM e Agentes Penitenciários que acumulam serviços extras.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -148,17 +148,17 @@ const Home: React.FC = () => {
               <IconArrowRight />
             </Link>
             <Link to="/login" className="rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-              JÃ¡ tenho conta
+              Já tenho conta
             </Link>
           </div>
 
           <p className="mt-6 text-xs text-blue-400/60">
-            Sem cartÃ£o de crÃ©dito &nbsp;Â·&nbsp; ConfiguraÃ§Ã£o em minutos &nbsp;Â·&nbsp; Cancele quando quiser
+            Sem cartão de crédito &nbsp;·&nbsp; Configuração em minutos &nbsp;·&nbsp; Cancele quando quiser
           </p>
         </div>
       </section>
 
-      {/* â”€â”€ PARA QUEM Ã‰ â”€â”€ */}
+      {/* ── PARA QUEM É ── */}
       <section id="publico" className="border-b border-slate-100 bg-slate-50 py-14">
         <div className="mx-auto max-w-5xl px-5">
           <p className="mb-8 text-center text-sm font-semibold uppercase tracking-widest text-slate-400">
@@ -177,12 +177,12 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* â”€â”€ FUNCIONALIDADES â”€â”€ */}
+      {/* ── FUNCIONALIDADES ── */}
       <section id="funcionalidades" className="py-20">
         <div className="mx-auto max-w-5xl px-5">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900">Tudo que vocÃª precisa em um sÃ³ lugar</h2>
-            <p className="mt-3 text-base text-slate-500">Da escala ao financeiro, do plantÃ£o ao relatÃ³rio â€” controle completo da sua rotina operacional.</p>
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900">Tudo que você precisa em um só lugar</h2>
+            <p className="mt-3 text-base text-slate-500">Da escala ao financeiro, do plantão ao relatório — controle completo da sua rotina operacional.</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
@@ -198,7 +198,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* â”€â”€ DESTAQUE â”€â”€ */}
+      {/* ── DESTAQUE ── */}
       <section className="bg-blue-950 py-20">
         <div className="mx-auto max-w-5xl px-5">
           <div className="grid items-center gap-12 md:grid-cols-2">
@@ -207,14 +207,14 @@ const Home: React.FC = () => {
                 Chega de planilha.<br />Sua escala merece mais.
               </h2>
               <p className="mt-4 text-base leading-relaxed text-blue-200/70">
-                Policiais e agentes perdem horas toda semana tentando organizar serviÃ§os em planilhas e WhatsApp. O ViraAzul centraliza tudo e te dÃ¡ visÃ£o clara do que importa.
+                Policiais e agentes perdem horas toda semana tentando organizar serviços em planilhas e WhatsApp. O ViraAzul centraliza tudo e te dá visão clara do que importa.
               </p>
               <ul className="mt-6 space-y-3">
                 {[
-                  'Dashboard com resumo do dia e do mÃªs',
-                  'Controle de horas e jornada mÃ¡xima',
-                  'HistÃ³rico de todos os serviÃ§os registrados',
-                  'ProjeÃ§Ã£o financeira para o prÃ³ximo mÃªs',
+                  'Dashboard com resumo do dia e do mês',
+                  'Controle de horas e jornada máxima',
+                  'Histórico de todos os serviços registrados',
+                  'Projeção financeira para o próximo mês',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm text-blue-100">
                     <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 text-white">
@@ -225,16 +225,16 @@ const Home: React.FC = () => {
                 ))}
               </ul>
               <Link to="/register" className="mt-8 inline-flex items-center gap-2 rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-400">
-                Experimentar grÃ¡tis <IconArrowRight />
+                Experimentar grátis <IconArrowRight />
               </Link>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { value: '100%', label: 'Focado em seg. pÃºblica' },
+                { value: '100%', label: 'Focado em seg. pública' },
                 { value: '0 papel', label: 'Tudo digital e organizado' },
                 { value: '24/7', label: 'Acesso de qualquer dispositivo' },
-                { value: '< 5min', label: 'Para registrar um serviÃ§o' },
+                { value: '< 5min', label: 'Para registrar um serviço' },
               ].map((s) => (
                 <div key={s.label} className="rounded-xl border border-white/10 bg-white/5 p-5">
                   <p className="text-2xl font-bold text-blue-400">{s.value}</p>
@@ -246,7 +246,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* â”€â”€ PLANOS â”€â”€ */}
+      {/* ── PLANOS ── */}
       <section id="planos" className="bg-slate-50 py-20">
         <div className="mx-auto max-w-4xl px-5">
           <div className="mb-12 text-center">
@@ -288,14 +288,14 @@ const Home: React.FC = () => {
                   </p>
                 </div>
 
-                {/* MÃ©todos de pagamento */}
+                {/* Métodos de pagamento */}
                 {plan.paymentMethods && (
                   <div className="mt-4 flex items-center gap-2">
                     <div className="flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-blue-300">
                       <IconPix /> PIX
                     </div>
                     <div className="flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-blue-300">
-                      <IconCard /> CartÃ£o
+                      <IconCard /> Cartão
                     </div>
                   </div>
                 )}
@@ -328,7 +328,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* â”€â”€ CTA FINAL â”€â”€ */}
+      {/* ── CTA FINAL ── */}
       <section className="bg-blue-950 py-20">
         <div className="mx-auto max-w-2xl px-5 text-center">
           <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/20 text-blue-400">
@@ -345,7 +345,7 @@ const Home: React.FC = () => {
               Criar conta gratis <IconArrowRight />
             </Link>
             <Link to="/login" className="rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-              JÃ¡ tenho conta
+              Já tenho conta
             </Link>
           </div>
         </div>
@@ -355,4 +355,5 @@ const Home: React.FC = () => {
 }
 
 export default Home
+
 

@@ -2,9 +2,9 @@
 import { Link } from 'react-router-dom'
 import type { ReactNode } from 'react'
 
-// â”€â”€â”€ Loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Loading ──────────────────────────────────────────────────────────────────
 
-export const AuthLoading = ({ label = 'Carregando sessÃ£o...' }: { label?: string }) => (
+export const AuthLoading = ({ label = 'Carregando sessão...' }: { label?: string }) => (
   <div className="min-h-screen bg-blue-950 flex items-center justify-center px-4">
     <div className="flex flex-col items-center gap-3">
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-blue-400" />
@@ -13,7 +13,7 @@ export const AuthLoading = ({ label = 'Carregando sessÃ£o...' }: { label?: str
   </div>
 )
 
-// â”€â”€â”€ Branding panel (left side) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Branding panel (left side) ───────────────────────────────────────────────
 
 const BrandPanel: React.FC = () => (
   <div className="relative hidden overflow-hidden bg-blue-950 lg:flex lg:flex-col lg:justify-between lg:p-12 xl:p-16">
@@ -41,14 +41,14 @@ const BrandPanel: React.FC = () => (
         "Organize sua escala, controle seu financeiro e foque no que realmente importa."
       </blockquote>
       <p className="mt-4 text-base text-blue-300/70">
-        Plataforma de gestÃ£o operacional para PM, PC, BM, GM e Agentes PenitenciÃ¡rios.
+        Plataforma de gestão operacional para PM, PC, BM, GM e Agentes Penitenciários.
       </p>
 
       <ul className="mt-8 space-y-3">
         {[
           'Plano Free para comecar sem custo',
           'Plano Pro por apenas R$ 2,99/mes',
-          'PIX ou cartÃ£o â€” sem burocracia',
+          'PIX ou cartão — sem burocracia',
           'Cancele quando quiser',
         ].map((item) => (
           <li key={item} className="flex items-center gap-2.5 text-sm text-blue-200/80">
@@ -63,14 +63,14 @@ const BrandPanel: React.FC = () => (
       </ul>
     </div>
 
-    {/* RodapÃ© */}
+    {/* Rodapé */}
     <p className="relative text-xs text-blue-400/40">
-      Â© {new Date().getFullYear()} ViraAzul Â· Plagard Systems
+      © {new Date().getFullYear()} ViraAzul · Plagard Systems
     </p>
   </div>
 )
 
-// â”€â”€â”€ AuthCard (right panel wrapper) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── AuthCard (right panel wrapper) ──────────────────────────────────────────
 
 export const AuthCard = ({ children }: { children: ReactNode }) => (
   <div className="min-h-screen bg-white lg:grid lg:grid-cols-2">
@@ -89,5 +89,6 @@ export const AuthCard = ({ children }: { children: ReactNode }) => (
     </div>
   </div>
 )
+
 
 

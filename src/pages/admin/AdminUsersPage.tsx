@@ -186,10 +186,10 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
 
           <Field label="Grupo / Cargo">
             <select className={selectClass} value={form.rank_group} onChange={set('rank_group')}>
-              <option value="">Selecione a graduaÃ§Ã£o</option>
+              <option value="">Selecione a graduação</option>
               {RANK_GROUPS.map((rg) => (
                 <option key={rg} value={rg}>
-                  {rg === 'OFICIAIS_SUPERIORES' ? 'Oficiais Superiores' : rg === 'CAPITAO_TENENTE' ? 'CapitÃ£o e Tenente' : rg === 'SUBTENENTE_SARGENTO' ? 'Subtenente e Sargento' : rg === 'CABO_SOLDADO' ? 'Cabo e Soldado' : rg}
+                  {rg === 'OFICIAIS_SUPERIORES' ? 'Oficiais Superiores' : rg === 'CAPITAO_TENENTE' ? 'Capitão e Tenente' : rg === 'SUBTENENTE_SARGENTO' ? 'Subtenente e Sargento' : rg === 'CABO_SOLDADO' ? 'Cabo e Soldado' : rg}
                 </option>
               ))}
             </select>
@@ -376,7 +376,7 @@ const AdminUsersPage: React.FC = () => {
                     <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <p className="text-xs text-slate-500">Cargo</p>
-                        <p className="text-slate-700">{u.rank_group ?? 'â€”'}</p>
+                        <p className="text-slate-700">{u.rank_group ?? '—'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-slate-500">Plano</p>
@@ -395,9 +395,9 @@ const AdminUsersPage: React.FC = () => {
                     <div className="mt-4 flex flex-wrap gap-3">
                       {confirmDeleteId === u.id ? (
                         <>
-                          <span className="text-xs text-slate-500">Confirmar exclusÃ£o?</span>
+                          <span className="text-xs text-slate-500">Confirmar exclusão?</span>
                           <button type="button" onClick={() => handleDelete(u.id)} disabled={deleteUser.isPending} className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50">Sim</button>
-                          <button type="button" onClick={() => setConfirmDeleteId(null)} className="text-xs text-slate-500 hover:underline">NÃ£o</button>
+                          <button type="button" onClick={() => setConfirmDeleteId(null)} className="text-xs text-slate-500 hover:underline">Não</button>
                         </>
                       ) : (
                         <>
@@ -436,7 +436,7 @@ const AdminUsersPage: React.FC = () => {
                           <div className="text-xs text-slate-500 sm:hidden">{u.email}</div>
                         </td>
                         <td className="px-4 py-3 text-slate-500 hidden sm:table-cell">{u.email}</td>
-                        <td className="px-4 py-3 text-slate-500 hidden md:table-cell">{u.rank_group ?? <span className="text-slate-300">â€”</span>}</td>
+                        <td className="px-4 py-3 text-slate-500 hidden md:table-cell">{u.rank_group ?? <span className="text-slate-300">—</span>}</td>
                         <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[u.status]}`}>{statusLabel[u.status]}</span></td>
                         <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>{planLabel[u.subscription]}</span></td>
                         <td className="px-4 py-3">{paymentBadge(u)}</td>
@@ -471,4 +471,5 @@ const AdminUsersPage: React.FC = () => {
 }
 
 export default AdminUsersPage
+
 
