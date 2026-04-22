@@ -5,9 +5,6 @@ export type SubscriptionPlan =
   | 'plan_starter'
   | 'plan_pro'
   | 'plan_partner'
-  | 'free'
-  | 'trial'
-  | 'premium'
 
 export type PaymentStatus = 'paid' | 'pending' | 'overdue'
 
@@ -50,8 +47,5 @@ export type AdminStats = {
     plan_starter: number
     plan_pro: number
     plan_partner: number
-    free?: number
-    trial?: number
-    premium?: number
   }
 }

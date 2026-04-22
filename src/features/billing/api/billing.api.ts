@@ -12,9 +12,14 @@ export const billingApi = {
     return res.data.data
   },
 
-  async createCheckoutPremium(): Promise<CheckoutPremiumResponse> {
-    const res = await api.post('/api/v1/billing/checkout/premium', {})
+  async createCheckoutPro(): Promise<CheckoutPremiumResponse> {
+    const res = await api.post('/api/v1/billing/checkout/pro', {})
     return res.data.data
+  },
+
+  async createCheckoutPremium(): Promise<CheckoutPremiumResponse> {
+    // Compat legacy
+    return this.createCheckoutPro()
   },
 
   async createPixCharge(): Promise<PixChargeResponse> {

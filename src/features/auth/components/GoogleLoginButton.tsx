@@ -46,7 +46,12 @@ const GoogleLoginButton = ({ disabled = false, onCredential, onError }: GoogleLo
   }, [clientId, onCredential, onError])
 
   if (!clientId) {
-    return null
+    return (
+      <div className="w-full max-w-[320px] rounded-lg border border-rose-300 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700">
+        <div className="mb-2 font-semibold">Google Login não configurado</div>
+        <div>Variável VITE_GOOGLE_CLIENT_ID ausente. Defina-a em .env para habilitar o login com Google.</div>
+      </div>
+    )
   }
 
   return (

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import {
   useBilling,
-  useCheckoutPremium,
+  useCheckoutPro,
   usePixCharge,
   useCancelSubscription
 } from '@/features/billing/hooks/useBilling'
@@ -46,7 +46,7 @@ function statusLabel(status?: string | null) {
 
 const BillingPage: React.FC = () => {
   const { data, isLoading, isError, refetch } = useBilling()
-  const checkout = useCheckoutPremium()
+  const checkout = useCheckoutPro()
   const pix = usePixCharge()
   const cancel = useCancelSubscription()
 
@@ -183,7 +183,7 @@ const BillingPage: React.FC = () => {
           disabled={isBusy}
           className="rounded-xl bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {checkout.isPending ? 'Abrindo checkout...' : 'Assinar Premium'}
+          {checkout.isPending ? 'Abrindo checkout...' : 'Assinar Pro'}
         </button>
 
         <button

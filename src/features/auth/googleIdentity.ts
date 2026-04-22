@@ -30,7 +30,10 @@ export async function initializeGoogleIdentity(handleCredentialResponse: (res: a
   if (typeof window === 'undefined') return { initialized: false }
 
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
-  if (!clientId) throw new Error('VITE_GOOGLE_CLIENT_ID is not defined')
+  if (!clientId) {
+    console.error('VITE_GOOGLE_CLIENT_ID is not defined')
+    return { initialized: false }
+  }
 
   if ((window as any).google?.accounts?.id && alreadyInitialized) {
     return { initialized: true }

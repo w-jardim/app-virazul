@@ -15,25 +15,13 @@ export function useSubscription(): SubscriptionStatus {
   return useMemo(() => {
     if (!user) return { canMutate: false, plan: null, reason: null, expiresAt: null }
 
-    const { subscription, payment_due_date, created_at } = user
+    const { subscription, payment_due_date } = user
 
-    if (subscription === 'free' || subscription === 'plan_free' || subscription === 'plan_partner') {
+    if (subscription === 'plan_free' || subscription === 'plan_partner') {
       return { canMutate: true, plan: subscription, reason: null, expiresAt: null }
     }
 
-    if (subscription === 'trial') {
-      const created = new Date(created_at)
-      const expiry = new Date(created.getTime() + 30 * 24 * 60 * 60 * 1000)
-      const isExpired = new Date() > expiry
-      return {
-        canMutate: !isExpired,
-        plan: 'trial',
-        reason: isExpired ? 'Seu periodo de teste expirou. Entre em contato para ativar seu plano.' : null,
-        expiresAt: expiry,
-      }
-    }
-
-    if (subscription === 'premium' || subscription === 'plan_starter' || subscription === 'plan_pro') {
+    if (subscription === 'plan_starter' || subscription === 'plan_pro') {
       if (!payment_due_date) {
         return { canMutate: true, plan: subscription, reason: null, expiresAt: null }
       }
@@ -49,6 +37,6 @@ export function useSubscription(): SubscriptionStatus {
       }
     }
 
-    return { canMutate: true, plan: subscription, reason: null, expiresAt: null }
+    return { canMutate: false, plan: subscription, reason: 'Plano invalido ou nao suportado.', expiresAt: null }
   }, [user])
 }

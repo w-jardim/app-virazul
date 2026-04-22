@@ -6,9 +6,6 @@ export type SubscriptionPlan =
   | 'plan_starter'
   | 'plan_pro'
   | 'plan_partner'
-  | 'free'
-  | 'trial'
-  | 'premium'
 export type RankGroup =
   | 'OFICIAIS_SUPERIORES'
   | 'CAPITAO_TENENTE'
