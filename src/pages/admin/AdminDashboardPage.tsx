@@ -3,15 +3,17 @@ import { useAdminUsers } from '@/features/admin/hooks/useAdmin'
 import type { AdminUser } from '@/features/admin/types/admin.types'
 
 const planLabel: Record<string, string> = {
-  free: 'Free',
-  trial: 'Teste',
-  premium: 'Premium'
+  plan_free: 'Free',
+  plan_starter: 'Inicial',
+  plan_pro: 'Pro',
+  plan_partner: 'Parceiro'
 }
 
 const planColor: Record<string, string> = {
-  free: 'bg-slate-100 text-slate-600',
-  trial: 'bg-amber-100 text-amber-700',
-  premium: 'bg-emerald-100 text-emerald-700'
+  plan_free: 'bg-slate-100 text-slate-600',
+  plan_starter: 'bg-blue-100 text-blue-700',
+  plan_pro: 'bg-emerald-100 text-emerald-700',
+  plan_partner: 'bg-violet-100 text-violet-700'
 }
 
 const statusColor: Record<string, string> = {
@@ -38,9 +40,10 @@ const deriveStats = (users: AdminUser[]) => ({
   active: users.filter((u) => u.status === 'active').length,
   inactive: users.filter((u) => u.status === 'inactive').length,
   suspended: users.filter((u) => u.status === 'suspended').length,
-  free: users.filter((u) => u.subscription === 'free').length,
-  trial: users.filter((u) => u.subscription === 'trial').length,
-  premium: users.filter((u) => u.subscription === 'premium').length
+  plan_free: users.filter((u) => u.subscription === 'plan_free').length,
+  plan_starter: users.filter((u) => u.subscription === 'plan_starter').length,
+  plan_pro: users.filter((u) => u.subscription === 'plan_pro').length,
+  plan_partner: users.filter((u) => u.subscription === 'plan_partner').length
 })
 
 const AdminDashboardPage: React.FC = () => {
@@ -92,10 +95,11 @@ const AdminDashboardPage: React.FC = () => {
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
           Assinaturas
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <StatCard label="Free" value={stats.free} color="text-slate-700" />
-          <StatCard label="Periodo de Teste" value={stats.trial} color="text-amber-600" />
-          <StatCard label="Premium" value={stats.premium} color="text-emerald-600" />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <StatCard label="Free" value={stats.plan_free} color="text-slate-700" />
+          <StatCard label="Inicial" value={stats.plan_starter} color="text-blue-600" />
+          <StatCard label="Pro" value={stats.plan_pro} color="text-emerald-600" />
+          <StatCard label="Parceiro" value={stats.plan_partner} color="text-violet-600" />
         </div>
       </section>
 

@@ -15,27 +15,15 @@ export function useSubscription(): SubscriptionStatus {
   return useMemo(() => {
     if (!user) return { canMutate: false, plan: null, reason: null, expiresAt: null }
 
-    const { subscription, payment_due_date, created_at } = user
+    const { subscription, payment_due_date } = user
 
-    if (subscription === 'free') {
-      return { canMutate: true, plan: 'free', reason: null, expiresAt: null }
+    if (subscription === 'plan_free' || subscription === 'plan_partner') {
+      return { canMutate: true, plan: subscription, reason: null, expiresAt: null }
     }
 
-    if (subscription === 'trial') {
-      const created = new Date(created_at)
-      const expiry = new Date(created.getTime() + 30 * 24 * 60 * 60 * 1000)
-      const isExpired = new Date() > expiry
-      return {
-        canMutate: !isExpired,
-        plan: 'trial',
-        reason: isExpired ? 'Seu periodo de teste expirou. Entre em contato para ativar seu plano.' : null,
-        expiresAt: expiry,
-      }
-    }
-
-    if (subscription === 'premium') {
+    if (subscription === 'plan_starter' || subscription === 'plan_pro') {
       if (!payment_due_date) {
-        return { canMutate: true, plan: 'premium', reason: null, expiresAt: null }
+        return { canMutate: true, plan: subscription, reason: null, expiresAt: null }
       }
       const due = new Date(payment_due_date)
       const today = new Date()
@@ -43,12 +31,12 @@ export function useSubscription(): SubscriptionStatus {
       const isExpired = today > due
       return {
         canMutate: !isExpired,
-        plan: 'premium',
-        reason: isExpired ? 'Seu plano Premium venceu. Renove para continuar operando.' : null,
+        plan: subscription,
+        reason: isExpired ? 'Seu plano venceu. Renove para continuar operando.' : null,
         expiresAt: due,
       }
     }
 
-    return { canMutate: true, plan: subscription, reason: null, expiresAt: null }
+    return { canMutate: false, plan: subscription, reason: 'Plano invalido ou nao suportado.', expiresAt: null }
   }, [user])
 }

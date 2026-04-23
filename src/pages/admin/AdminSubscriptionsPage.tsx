@@ -2,18 +2,20 @@ import React, { useState } from 'react'
 import { useAdminUsers, useChangeSubscription } from '@/features/admin/hooks/useAdmin'
 import type { SubscriptionPlan, UserStatus } from '@/features/admin/types/admin.types'
 
-const userPlans: SubscriptionPlan[] = ['trial', 'premium', 'free']
+const userPlans: SubscriptionPlan[] = ['plan_free', 'plan_starter', 'plan_pro', 'plan_partner']
 
 const planLabel: Record<SubscriptionPlan, string> = {
-  free: 'Free',
-  trial: 'Periodo de Teste',
-  premium: 'Premium'
+  plan_free: 'Free',
+  plan_starter: 'Inicial',
+  plan_pro: 'Pro',
+  plan_partner: 'Parceiro',
 }
 
 const planColor: Record<SubscriptionPlan, string> = {
-  free: 'bg-slate-100 text-slate-600',
-  trial: 'bg-amber-100 text-amber-700',
-  premium: 'bg-emerald-100 text-emerald-700'
+  plan_free: 'bg-slate-100 text-slate-600',
+  plan_starter: 'bg-blue-100 text-blue-700',
+  plan_pro: 'bg-emerald-100 text-emerald-700',
+  plan_partner: 'bg-violet-100 text-violet-700',
 }
 
 const statusLabel: Record<UserStatus, string> = {
@@ -64,7 +66,7 @@ const AdminSubscriptionsPage: React.FC = () => {
 
   const counts = userPlans.reduce<Record<SubscriptionPlan, number>>(
     (acc, p) => ({ ...acc, [p]: regularUsers.filter((u) => u.subscription === p).length }),
-    { free: 0, trial: 0, premium: 0 }
+    { plan_free: 0, plan_starter: 0, plan_pro: 0, plan_partner: 0 }
   )
 
   return (
@@ -72,6 +74,16 @@ const AdminSubscriptionsPage: React.FC = () => {
       <div>
         <h1 className="text-xl font-bold text-slate-800">Assinaturas</h1>
         <p className="mt-1 text-sm text-slate-500">Gerencie e altere o plano de cada usuario</p>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Legenda dos planos</p>
+        <div className="mt-2 grid grid-cols-1 gap-2 text-xs text-slate-600 sm:grid-cols-2">
+          <p><span className="font-semibold text-slate-700">Free:</span> R$ 0, com anuncios, 1.000 chamadas/mês.</p>
+          <p><span className="font-semibold text-slate-700">Inicial:</span> R$ 0,99/mês, com anuncios, 50.000 chamadas/mês.</p>
+          <p><span className="font-semibold text-slate-700">Pro:</span> R$ 2,99/mês, sem anuncios, 999.999 chamadas/mês, trial de 7 dias.</p>
+          <p><span className="font-semibold text-slate-700">Parceiro:</span> cortesia sem cobranca automatica, sem anuncios, 999.999 chamadas/mês.</p>
+        </div>
       </div>
 
       {changeError ? (
