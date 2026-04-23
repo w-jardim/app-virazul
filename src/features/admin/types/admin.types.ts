@@ -1,6 +1,10 @@
 export type UserStatus = 'active' | 'inactive' | 'suspended'
 
-export type SubscriptionPlan = 'free' | 'trial' | 'premium'
+export type SubscriptionPlan =
+  | 'plan_free'
+  | 'plan_starter'
+  | 'plan_pro'
+  | 'plan_partner'
 
 export type PaymentStatus = 'paid' | 'pending' | 'overdue'
 
@@ -39,8 +43,9 @@ export type AdminStats = {
   inactive_users: number
   suspended_users: number
   by_subscription: {
-    free: number
-    trial: number
-    premium: number
+    plan_free: number
+    plan_starter: number
+    plan_pro: number
+    plan_partner: number
   }
 }
