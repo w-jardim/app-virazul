@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 import { Link } from 'react-router-dom'
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
@@ -76,35 +76,35 @@ const features = [
 
 const plans = [
   {
-    name: 'Trial',
+    name: 'Free',
     price: 'Grátis',
-    period: '30 dias',
+    period: '/sempre',
     badge: null,
-    description: 'Experimente sem compromisso. Acesso completo por 30 dias.',
+    description: 'Plano de entrada sem custo para comecar.',
     features: [
-      'Acesso a todas as funcionalidades',
-      'Dashboard operacional completo',
+      '1.000 chamadas de API por mes',
+      'Com anuncios',
+      'Dashboard operacional',
       'Escala e controle financeiro',
-      'Relatórios e alertas',
-      'Sem necessidade de cartão',
+      'Sem necessidade de cartao',
     ],
     paymentMethods: null,
-    cta: 'Começar trial grátis',
+    cta: 'Comecar gratis',
     highlight: false,
     ctaLink: '/register',
   },
   {
-    name: 'Premium',
-    price: 'R$ 9,90',
+    name: 'Pro',
+    price: 'R$ 2,99',
     period: '/mês',
     badge: 'Mais popular',
-    description: 'Acesso ilimitado para quem leva a gestão a sério.',
+    description: 'Para quem quer uso profissional sem anuncios.',
     features: [
-      'Tudo do Trial, sem limite de tempo',
-      'Serviços e operações ilimitados',
-      'Histórico completo e exportável',
-      'Suporte prioritário',
-      'Atualizações incluídas',
+      '999.999 chamadas de API por mes',
+      'Sem anuncios',
+      'Trial de 7 dias',
+      'PIX ou cartao',
+      'Atualizacoes incluidas',
     ],
     paymentMethods: ['PIX', 'Cartão'],
     cta: 'Assinar agora',
@@ -144,7 +144,7 @@ const Home: React.FC = () => {
 
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link to="/register" className="flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-400">
-              Começar trial grátis — 30 dias
+              Criar conta gratis
               <IconArrowRight />
             </Link>
             <Link to="/login" className="rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
@@ -251,7 +251,7 @@ const Home: React.FC = () => {
         <div className="mx-auto max-w-4xl px-5">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-slate-900">Planos simples e transparentes</h2>
-            <p className="mt-3 text-base text-slate-500">Comece grátis por 30 dias. Depois, apenas R$ 9,90/mês.</p>
+            <p className="mt-3 text-base text-slate-500">Escolha entre Free, Inicial, Pro e Parceiro.</p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 max-w-2xl mx-auto">
@@ -338,11 +338,11 @@ const Home: React.FC = () => {
             Comece a organizar sua carreira hoje
           </h2>
           <p className="mt-4 text-base text-blue-200/70">
-            30 dias de trial gratuito. Depois, R$ 9,90/mês com PIX ou cartão. Sem surpresas.
+            Comece no Free e evolua para Inicial ou Pro quando precisar.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link to="/register" className="flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-400">
-              Criar conta — 30 dias grátis <IconArrowRight />
+              Criar conta gratis <IconArrowRight />
             </Link>
             <Link to="/login" className="rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
               Já tenho conta
@@ -355,3 +355,5 @@ const Home: React.FC = () => {
 }
 
 export default Home
+
+

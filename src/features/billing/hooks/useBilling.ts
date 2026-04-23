@@ -12,6 +12,11 @@ export const useCheckoutPremium = () =>
     mutationFn: billingApi.createCheckoutPremium
   })
 
+export const useCheckoutPro = () =>
+  useMutation({
+    mutationFn: billingApi.createCheckoutPro
+  })
+
 export const usePixCharge = () =>
   useMutation({
     mutationFn: billingApi.createPixCharge
