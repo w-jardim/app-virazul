@@ -24,6 +24,8 @@ const inputClass = (hasError?: boolean) =>
       : 'border-slate-300 focus:border-blue-500 focus:ring-blue-100',
   ].join(' ')
 
+const hasGoogleAuth = !!import.meta.env.VITE_GOOGLE_CLIENT_ID
+
 const LoginForm = () => {
   const navigate = useNavigate()
   const setSession = useAuthStore((state) => state.setSession)
@@ -130,19 +132,23 @@ const LoginForm = () => {
           {isSubmitting ? 'Entrando...' : 'Entrar'}
         </button>
 
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-slate-200" />
-          <span className="text-xs text-slate-400">ou continue com</span>
-          <div className="h-px flex-1 bg-slate-200" />
-        </div>
+        {hasGoogleAuth && (
+          <>
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span className="text-xs text-slate-400">ou continue com</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
 
-        <div className="flex justify-center">
-          <GoogleLoginButton
-            disabled={isSubmitting}
-            onCredential={onGoogleCredential}
-            onError={() => setFormError('Falha ao iniciar o login Google. Verifique a configuração.')}
-          />
-        </div>
+            <div className="flex justify-center">
+              <GoogleLoginButton
+                disabled={isSubmitting}
+                onCredential={onGoogleCredential}
+                onError={() => setFormError('Falha ao iniciar o login Google. Verifique a configuração.')}
+              />
+            </div>
+          </>
+        )}
 
         <p className="text-center text-sm text-slate-500">
           Não tem conta?{' '}

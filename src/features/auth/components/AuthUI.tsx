@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 import { Link } from 'react-router-dom'
 import type { ReactNode } from 'react'
 
@@ -46,8 +46,8 @@ const BrandPanel: React.FC = () => (
 
       <ul className="mt-8 space-y-3">
         {[
-          'Trial gratuito de 30 dias',
-          'Premium por apenas R$ 9,90/mês',
+          'Plano Free para comecar sem custo',
+          'Plano Pro por apenas R$ 2,99/mes',
           'PIX ou cartão — sem burocracia',
           'Cancele quando quiser',
         ].map((item) => (
@@ -89,3 +89,6 @@ export const AuthCard = ({ children }: { children: ReactNode }) => (
     </div>
   </div>
 )
+
+
+

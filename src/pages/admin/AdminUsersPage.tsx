@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 import { RANK_GROUPS } from '@/features/pricing/types/pricing.types'
 import {
   useAdminUsers,
@@ -21,15 +21,17 @@ const statusColor: Record<UserStatus, string> = {
 }
 
 const planLabel: Record<SubscriptionPlan, string> = {
-  free: 'Free',
-  trial: 'Periodo de Teste',
-  premium: 'Premium'
+  plan_free: 'Free',
+  plan_starter: 'Inicial',
+  plan_pro: 'Pro',
+  plan_partner: 'Parceiro',
 }
 
 const planColor: Record<SubscriptionPlan, string> = {
-  free: 'bg-slate-100 text-slate-600',
-  trial: 'bg-amber-100 text-amber-700',
-  premium: 'bg-emerald-100 text-emerald-700'
+  plan_free: 'bg-slate-100 text-slate-600',
+  plan_starter: 'bg-blue-100 text-blue-700',
+  plan_pro: 'bg-emerald-100 text-emerald-700',
+  plan_partner: 'bg-violet-100 text-violet-700',
 }
 
 type FormState = {
@@ -50,7 +52,7 @@ const defaultForm: FormState = {
   password: '',
   rank_group: '',
   status: 'active',
-  subscription: 'trial',
+  subscription: 'plan_free',
   payment_status: 'pending',
   payment_due_date: '',
   role: 'POLICE'
@@ -96,7 +98,10 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
   const updateUser = useUpdateUser()
   const isPending = createUser.isPending || updateUser.isPending
 
-  const isFreeOrAdmin = form.subscription === 'free' || form.role === 'ADMIN_MASTER'
+  const isFreeOrAdmin =
+    form.subscription === 'plan_free' ||
+    form.subscription === 'plan_partner' ||
+    form.role === 'ADMIN_MASTER'
 
   const set = (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
@@ -191,10 +196,10 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
           </Field>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label="Perfil">
+            <Field label="Categoria (ADMIN_MASTER)">
               <select className={selectClass} value={form.role} onChange={set('role')}>
-                <option value="POLICE">Usuario</option>
-                <option value="ADMIN_MASTER">Admin</option>
+                <option value="POLICE">Usuario Comum</option>
+                <option value="ADMIN_MASTER">Administrador Master</option>
               </select>
             </Field>
             <Field label="Status">
@@ -206,9 +211,10 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
             </Field>
             <Field label="Plano">
               <select className={selectClass} value={form.subscription} onChange={set('subscription')} disabled={form.role === 'ADMIN_MASTER'}>
-                <option value="trial">Periodo de Teste</option>
-                <option value="premium">Premium</option>
-                <option value="free">Free (Cortesia)</option>
+                <option value="plan_free">Free</option>
+                <option value="plan_starter">Inicial</option>
+                <option value="plan_pro">Pro</option>
+                <option value="plan_partner">Parceiro (Cortesia)</option>
               </select>
             </Field>
           </div>
@@ -222,19 +228,15 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
                   <option value="overdue">Atrasado</option>
                 </select>
               </Field>
-              {form.subscription === 'trial' ? (
-                <div className="flex items-end pb-2 text-xs text-slate-500">Expira 30 dias apos criacao</div>
-              ) : (
-                <Field label="Vencimento">
-                  <input type="date" className={inputClass} value={form.payment_due_date} onChange={set('payment_due_date')} />
-                </Field>
-              )}
+              <Field label="Vencimento">
+                <input type="date" className={inputClass} value={form.payment_due_date} onChange={set('payment_due_date')} />
+              </Field>
             </div>
           )}
 
           {isFreeOrAdmin && (
             <p className="text-xs text-slate-400">
-              {form.role === 'ADMIN_MASTER' ? 'Administradores nao possuem cobranca.' : 'Plano Free e uma cortesia sem cobranca.'}
+              {form.role === 'ADMIN_MASTER' ? 'Categoria Administrador Master nao possui cobranca.' : 'Plano de cortesia sem cobranca.'}
             </p>
           )}
 
@@ -249,18 +251,15 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
 }
 
 function formatDueDate(u: AdminUser) {
-  if (u.subscription === 'free' || u.role === 'ADMIN_MASTER') return '—'
-  if (u.subscription === 'trial') {
-    return new Date(new Date(u.created_at).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')
-  }
-  if (u.subscription === 'premium' && u.payment_due_date) {
+  if (u.subscription === 'plan_free' || u.subscription === 'plan_partner' || u.role === 'ADMIN_MASTER') return '—'
+  if ((u.subscription === 'plan_starter' || u.subscription === 'plan_pro') && u.payment_due_date) {
     return new Date(u.payment_due_date).toLocaleDateString('pt-BR')
   }
   return '—'
 }
 
 function paymentBadge(u: AdminUser) {
-  if (u.subscription === 'free' || u.role === 'ADMIN_MASTER') {
+  if (u.subscription === 'plan_free' || u.subscription === 'plan_partner' || u.role === 'ADMIN_MASTER') {
     return <span className="text-slate-300">—</span>
   }
   return (
@@ -306,7 +305,7 @@ const AdminUsersPage: React.FC = () => {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Usuarios</h1>
-          <p className="mt-1 text-sm text-slate-500">Gerencie contas, status e perfis de acesso</p>
+          <p className="mt-1 text-sm text-slate-500">Gerencie contas, status e categorias de acesso (somente ADMIN_MASTER).</p>
         </div>
         <button type="button" onClick={openCreate} className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 self-start">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -314,6 +313,16 @@ const AdminUsersPage: React.FC = () => {
           </svg>
           Novo usuario
         </button>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Legenda dos planos</p>
+        <div className="mt-2 grid grid-cols-1 gap-2 text-xs text-slate-600 sm:grid-cols-2">
+          <p><span className="font-semibold text-slate-700">Free:</span> R$ 0, com anuncios, 1.000 chamadas/mês.</p>
+          <p><span className="font-semibold text-slate-700">Inicial:</span> R$ 0,99/mês, com anuncios, 50.000 chamadas/mês.</p>
+          <p><span className="font-semibold text-slate-700">Pro:</span> R$ 2,99/mês, sem anuncios, 999.999 chamadas/mês, trial de 7 dias.</p>
+          <p><span className="font-semibold text-slate-700">Parceiro:</span> cortesia sem cobranca automatica, sem anuncios, 999.999 chamadas/mês.</p>
+        </div>
       </div>
 
       <div className="relative max-w-xs">
@@ -472,3 +481,5 @@ const AdminUsersPage: React.FC = () => {
 }
 
 export default AdminUsersPage
+
+

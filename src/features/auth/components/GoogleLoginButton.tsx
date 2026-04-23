@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { initializeGoogleIdentity, renderGoogleButton } from '../googleIdentity'
 
 type GoogleLoginButtonProps = {
   disabled?: boolean
   onCredential: (idToken: string) => void
   onError: () => void
 }
-
-const SCRIPT_ID = 'google-identity-services-script'
 
 const GoogleLoginButton = ({ disabled = false, onCredential, onError }: GoogleLoginButtonProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -19,76 +18,43 @@ const GoogleLoginButton = ({ disabled = false, onCredential, onError }: GoogleLo
 
     let cancelled = false
 
-    const renderButton = () => {
-      if (cancelled || !window.google?.accounts?.id || !containerRef.current) {
+    const handleCredentialResponse = (response: any) => {
+      if (!response || !response.credential) {
+        onError()
         return
       }
+      onCredential(response.credential)
+    }
 
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: (response) => {
-          if (!response.credential) {
-            onError()
-            return
-          }
-          onCredential(response.credential)
-        }
+    initializeGoogleIdentity(handleCredentialResponse)
+      .then(() => {
+        if (cancelled || !containerRef.current) return
+        containerRef.current.innerHTML = ''
+        renderGoogleButton(containerRef.current, {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large'
+        })
       })
-
-      containerRef.current.innerHTML = ''
-      window.google.accounts.id.renderButton(containerRef.current, {
-        type: 'standard',
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'rectangular',
-        width: 320
+      .catch(() => {
+        if (!cancelled) onError()
       })
-    }
-
-    const existingScript = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null
-    if (window.google?.accounts?.id) {
-      renderButton()
-      return () => {
-        cancelled = true
-      }
-    }
-
-    if (existingScript) {
-      existingScript.addEventListener('load', renderButton)
-      existingScript.addEventListener('error', onError)
-      return () => {
-        cancelled = true
-        existingScript.removeEventListener('load', renderButton)
-        existingScript.removeEventListener('error', onError)
-      }
-    }
-
-    const script = document.createElement('script')
-    script.id = SCRIPT_ID
-    script.src = 'https://accounts.google.com/gsi/client'
-    script.async = true
-    script.defer = true
-    script.addEventListener('load', renderButton)
-    script.addEventListener('error', onError)
-    document.head.appendChild(script)
 
     return () => {
       cancelled = true
-      script.removeEventListener('load', renderButton)
-      script.removeEventListener('error', onError)
     }
   }, [clientId, onCredential, onError])
 
   if (!clientId) {
     return (
-      <button
-        type="button"
-        onClick={onError}
-        className="w-full max-w-[320px] rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+      <div
+        role="alert"
+        aria-live="polite"
+        className="w-full max-w-[320px] rounded-lg border border-rose-300 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700"
       >
-        Entrar com Google
-      </button>
+        <div className="mb-2 font-semibold">Google Login não configurado</div>
+        <div>Variável VITE_GOOGLE_CLIENT_ID ausente. Defina-a em .env para habilitar o login com Google.</div>
+      </div>
     )
   }
 
