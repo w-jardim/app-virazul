@@ -9,7 +9,14 @@ type GoogleLoginButtonProps = {
 
 const GoogleLoginButton = ({ disabled = false, onCredential, onError }: GoogleLoginButtonProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const onCredentialRef = useRef(onCredential)
+  const onErrorRef = useRef(onError)
   const clientId = useMemo(() => import.meta.env.VITE_GOOGLE_CLIENT_ID || '', [])
+
+  useEffect(() => {
+    onCredentialRef.current = onCredential
+    onErrorRef.current = onError
+  }, [onCredential, onError])
 
   useEffect(() => {
     if (!clientId || !containerRef.current) {
@@ -20,10 +27,10 @@ const GoogleLoginButton = ({ disabled = false, onCredential, onError }: GoogleLo
 
     const handleCredentialResponse = (response: any) => {
       if (!response || !response.credential) {
-        onError()
+        onErrorRef.current()
         return
       }
-      onCredential(response.credential)
+      onCredentialRef.current(response.credential)
     }
 
     initializeGoogleIdentity(handleCredentialResponse)
@@ -37,13 +44,13 @@ const GoogleLoginButton = ({ disabled = false, onCredential, onError }: GoogleLo
         })
       })
       .catch(() => {
-        if (!cancelled) onError()
+        if (!cancelled) onErrorRef.current()
       })
 
     return () => {
       cancelled = true
     }
-  }, [clientId, onCredential, onError])
+  }, [clientId])
 
   if (!clientId) {
     return (
