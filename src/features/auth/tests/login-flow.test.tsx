@@ -133,7 +133,7 @@ describe('Login flow with auth API', () => {
 
     expect(authApi.login).toHaveBeenCalled()
     expect(
-      await screen.findByText('Nao foi possivel autenticar. Verifique suas credenciais.')
+      await screen.findByText('E-mail ou senha incorretos. Verifique e tente novamente.')
     ).toBeInTheDocument()
     expect(useAuthStore.getState().token).toBeNull()
   })

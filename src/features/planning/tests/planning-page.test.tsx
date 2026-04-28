@@ -65,6 +65,10 @@ const operationalLoading = {
     avg_hours_per_month: 96,
     by_service_type: {},
   },
+  selectedDates: [] as string[],
+  setSelectedDates: vi.fn(),
+  selectedDateHours: {} as Record<string, number>,
+  setSelectedDateHours: vi.fn(),
   result: null,
   currentProgress: null,
   period: basePeriod,
@@ -81,6 +85,7 @@ const operationalLoading = {
 const operationalReady = {
   ...operationalLoading,
   isLoading: false,
+  selectedDates: ['2026-04-15'] as string[],
   availableTypes: [
     { id: 1, key: 'RAS_VOLUNTARIO', name: 'RAS Voluntário', category: 'RAS', allows_reservation: true, counts_in_financial: true },
     { id: 2, key: 'PROEIS', name: 'PROEIS', category: 'PROEIS', allows_reservation: false, counts_in_financial: true },
@@ -91,6 +96,10 @@ const operationalReady = {
     estimated_income: 3000,
     distribution_by_type: { RAS_VOLUNTARIO: 9, PROEIS: 6 },
     feasibility: 'HIGH' as const,
+    cap_exceeded: false,
+    cap_available_hours: 200,
+    effective_hours: 120,
+    strategy: [],
   },
   hasHistoryData: true,
 }
@@ -223,7 +232,7 @@ describe('PlanningPage', () => {
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText(/Configurar simula/i)).toBeInTheDocument()
+    expect(screen.getByText(/Durações preferidas/i)).toBeInTheDocument()
   })
 
   it('renders loading state in simulator tab', async () => {
@@ -255,46 +264,43 @@ describe('PlanningPage', () => {
     expect(screen.getByText(/pode estar incompleta/i)).toBeInTheDocument()
   })
 
-  it('renders mode selector buttons', async () => {
+  it('renders duration picker buttons', async () => {
     mockSummary.mockReturnValue(successState(baseSummary))
     mockSuggestions.mockReturnValue(successState(baseSuggestions) as any)
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText('Por horas')).toBeInTheDocument()
-    expect(screen.getByText('Por quantidade')).toBeInTheDocument()
+    expect(screen.getByText(/Durações preferidas/i)).toBeInTheDocument()
+    expect(screen.getByText('Todos')).toBeInTheDocument()
   })
 
-  it('renders service type picker', async () => {
+  it('renders plan configuration section', async () => {
     mockSummary.mockReturnValue(successState(baseSummary))
     mockSuggestions.mockReturnValue(successState(baseSuggestions) as any)
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText(/Tipos de servi/i)).toBeInTheDocument()
-    expect(screen.getAllByText('RAS Voluntário').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('PROEIS').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText('Mês planejado')).toBeInTheDocument()
+    expect(screen.getByText(/Durações preferidas/i)).toBeInTheDocument()
   })
 
-  it('renders simulation results with feasibility badge', async () => {
+  it('renders simulation result projection cards', async () => {
     mockSummary.mockReturnValue(successState(baseSummary))
     mockSuggestions.mockReturnValue(successState(baseSuggestions) as any)
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText(/Resultado da simula/i)).toBeInTheDocument()
-    expect(screen.getByText('Alta viabilidade')).toBeInTheDocument()
+    expect(screen.getByText(/Projeção do plano/i)).toBeInTheDocument()
+    expect(screen.getByText('Receita estimada')).toBeInTheDocument()
   })
 
-  it('renders distribution by type', async () => {
+  it('renders historical data section in simulator tab', async () => {
     mockSummary.mockReturnValue(successState(baseSummary))
     mockSuggestions.mockReturnValue(successState(baseSuggestions) as any)
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByRole('heading', { name: /Distribui/i })).toBeInTheDocument()
-    expect(screen.getByText((content) => content.includes('9') && content.includes('servi'))).toBeInTheDocument()
-    expect(screen.getByText((content) => content.includes('6') && content.includes('servi'))).toBeInTheDocument()
+    expect(screen.getByText(/histórico recente/i)).toBeInTheDocument()
   })
 
   it('renders historical summary section', async () => {
@@ -303,7 +309,7 @@ describe('PlanningPage', () => {
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText(/Base hist/i)).toBeInTheDocument()
+    expect(screen.getByText(/Seu histórico recente/i)).toBeInTheDocument()
   })
 
   it('renders estimated income in simulation results', async () => {
@@ -312,16 +318,17 @@ describe('PlanningPage', () => {
     mockOperational.mockReturnValue(operationalReady as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
+    expect(screen.getByText(/Projeção do plano/i)).toBeInTheDocument()
     expect(screen.getByText('Receita estimada')).toBeInTheDocument()
   })
 
-  it('renders neutral input hint when simulation input is insufficient', async () => {
+  it('does not render projection cards when no dates are selected', async () => {
     mockSummary.mockReturnValue(successState(baseSummary))
     mockSuggestions.mockReturnValue(successState(baseSuggestions) as any)
-    mockOperational.mockReturnValue(operationalInsufficientInput as any)
+    mockOperational.mockReturnValue({ ...operationalReady, selectedDates: [] as string[] } as any)
     const { user } = renderPage()
     await user.click(screen.getByText('Simulador operacional'))
-    expect(screen.getByText(/Selecione pelo menos um tipo de serviço/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Projeção do plano/i)).not.toBeInTheDocument()
   })
 
   it('does not render NaN when simulation result has invalid numeric fields', async () => {
@@ -329,12 +336,17 @@ describe('PlanningPage', () => {
     mockSuggestions.mockReturnValue(successState(baseSuggestions) as any)
     mockOperational.mockReturnValue({
       ...operationalReady,
+      selectedDates: ['2026-04-15'] as string[],
       result: {
         required_services: Number.NaN,
         estimated_hours: Number.NaN,
         estimated_income: Number.NaN,
         distribution_by_type: { RAS_VOLUNTARIO: Number.NaN, PROEIS: 2 },
         feasibility: 'MEDIUM',
+        cap_exceeded: false,
+        cap_available_hours: 200,
+        effective_hours: Number.NaN,
+        strategy: [],
       },
     } as any)
 

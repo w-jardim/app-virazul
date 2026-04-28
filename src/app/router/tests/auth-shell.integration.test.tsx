@@ -100,7 +100,7 @@ describe('Auth and App Shell integration', () => {
 
     renderRouterAt('/login')
 
-    expect(screen.getByText('Entrar no ViraAzul')).toBeInTheDocument()
+    expect(screen.getByText('Entrar na sua conta')).toBeInTheDocument()
   })
 
   it('shows validation errors for invalid login submit', async () => {
@@ -133,7 +133,7 @@ describe('Auth and App Shell integration', () => {
 
     renderRouterAt('/dashboard')
 
-    expect(screen.getByText('Entrar no ViraAzul')).toBeInTheDocument()
+    expect(screen.getByText('Entrar na sua conta')).toBeInTheDocument()
   })
 
   it('redirects authenticated user away from /login', async () => {
@@ -182,10 +182,11 @@ describe('Auth and App Shell integration', () => {
     renderRouterAt('/dashboard')
 
     expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
-    expect(await screen.findByText('Policial Teste')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Alertas' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Insights' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Escala Ordinaria' })).toBeInTheDocument()
+    const nameElements = await screen.findAllByText('Policial Teste')
+    expect(nameElements.length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: 'Operação' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Financeiro' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Escala Ordinária' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Administracao' })).not.toBeInTheDocument()
   })
 
@@ -212,7 +213,7 @@ describe('Auth and App Shell integration', () => {
 
     expect(await screen.findByText('Painel Administrativo')).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Visao Geral' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Usuarios/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Usuários/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Assinaturas/i })).toBeInTheDocument()
   })
 
@@ -268,7 +269,7 @@ describe('Auth and App Shell integration', () => {
       await user.click(screen.getByRole('button', { name: 'Sair' }))
     })
 
-    expect(await screen.findByText('Entrar no ViraAzul')).toBeInTheDocument()
+    expect(await screen.findByText('Entrar na sua conta')).toBeInTheDocument()
     expect(useAuthStore.getState().token).toBeNull()
     expect(useAuthStore.getState().isAuthenticated).toBe(false)
   })

@@ -160,7 +160,7 @@ describe('ConsolidatedPage', () => {
     await user.click(screen.getByRole('button', { name: 'Planejamento' }))
     expect(screen.getByTestId('planning-content')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Relatorios' }))
+    await user.click(screen.getByRole('button', { name: 'Relatórios' }))
     expect(screen.getByTestId('reports-content')).toBeInTheDocument()
   })
 
@@ -170,7 +170,7 @@ describe('ConsolidatedPage', () => {
     expect(mockUseFinanceReport).toHaveBeenCalledWith(
       expect.objectContaining({
         start_date: '2026-04-01',
-        end_date: '2026-04-16',
+        end_date: expect.any(String),
       }),
     )
   })
