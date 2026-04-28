@@ -6,6 +6,14 @@ import AgendaPage from '@/pages/app/AgendaPage'
 
 let dayError = false
 
+vi.mock('@/features/ordinary-schedule/hooks/useScheduleData', () => ({
+  useScheduleCalendar: vi.fn(() => ({
+    isLoading: false,
+    isError: false,
+    data: null
+  }))
+}))
+
 vi.mock('@/features/agenda/hooks/useAgendaData', () => ({
   getDateKey: () => '2026-04-11',
   getMonthKey: () => '2026-04',

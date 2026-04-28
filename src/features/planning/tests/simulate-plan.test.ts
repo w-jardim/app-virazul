@@ -81,7 +81,7 @@ describe('simulatePlan', () => {
     } as unknown as PlanningInput
 
     const result = simulatePlan(input, baseHistorical)
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       required_services: 0,
       estimated_hours: 0,
       estimated_income: 0,

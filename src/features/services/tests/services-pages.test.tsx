@@ -99,6 +99,8 @@ const createMutateAsync = vi.fn()
 const updateMutateAsync = vi.fn()
 const deleteMutateAsync = vi.fn()
 const confirmPaymentMutateAsync = vi.fn()
+const confirmPendingPaymentsMutateAsync = vi.fn()
+const transitionMutateAsync = vi.fn()
 const promoteReservationMutateAsync = vi.fn()
 
 vi.mock('@/features/services/hooks/useServicesData', () => ({
@@ -137,6 +139,14 @@ vi.mock('@/features/services/hooks/useServicesData', () => ({
   usePromoteReservationService: () => ({
     isPending: false,
     mutateAsync: promoteReservationMutateAsync
+  }),
+  useConfirmPendingPaymentsService: () => ({
+    isPending: false,
+    mutateAsync: confirmPendingPaymentsMutateAsync
+  }),
+  useTransitionAnyService: () => ({
+    isPending: false,
+    mutateAsync: transitionMutateAsync
   }),
   useDeleteService: () => ({
     isPending: false,
@@ -181,6 +191,8 @@ describe('Services pages', () => {
     updateMutateAsync.mockReset()
     deleteMutateAsync.mockReset()
     confirmPaymentMutateAsync.mockReset()
+    confirmPendingPaymentsMutateAsync.mockReset()
+    transitionMutateAsync.mockReset()
     promoteReservationMutateAsync.mockReset()
   })
 
@@ -200,7 +212,7 @@ describe('Services pages', () => {
     const user = userEvent.setup()
     renderInRouter(<ServicesPage />, '/services')
 
-    await user.click(screen.getAllByRole('button', { name: 'Pago' })[0])
+    await user.click(screen.getAllByRole('button', { name: 'Marcar recebido' })[0])
     expect(confirmPaymentMutateAsync).toHaveBeenCalledWith(1)
   })
 
@@ -209,7 +221,7 @@ describe('Services pages', () => {
     const user = userEvent.setup()
     renderInRouter(<ServicesPage />, '/services')
 
-    await user.click(screen.getByRole('button', { name: 'Virou titular' }))
+    await user.click(screen.getAllByRole('button', { name: 'Virou titular' })[0])
     expect(promoteReservationMutateAsync).toHaveBeenCalledWith(2)
   })
 

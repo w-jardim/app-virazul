@@ -70,91 +70,77 @@ describe('ReportsPage', () => {
     mockOperational.mockReturnValue(loadingOp)
     mockFinancial.mockReturnValue(loadingFin)
     render(<ReportsPage />)
-    expect(screen.getByText('Relat\u00f3rios')).toBeInTheDocument()
+    expect(screen.getByText('Relatórios')).toBeInTheDocument()
   })
 
-  it('renders date and extra filter inputs', () => {
+  it('renders base filters', () => {
     mockOperational.mockReturnValue(loadingOp)
     mockFinancial.mockReturnValue(loadingFin)
     render(<ReportsPage />)
     const dateInputs = document.querySelectorAll('input[type="date"]')
     expect(dateInputs.length).toBe(2)
-    expect(screen.getByText('Tipo de servi\u00e7o')).toBeInTheDocument()
-    expect(screen.getByText('Situa\u00e7\u00e3o operacional')).toBeInTheDocument()
-    expect(screen.getByText('Situa\u00e7\u00e3o financeira')).toBeInTheDocument()
+    expect(screen.getByText('Tipo de serviço')).toBeInTheDocument()
   })
 
-  it('renders loading skeletons for both sections', () => {
+  it('renders loading skeletons while any query is loading', () => {
     mockOperational.mockReturnValue(loadingOp)
-    mockFinancial.mockReturnValue(loadingFin)
+    mockFinancial.mockReturnValue(successFin(baseFinancial))
     render(<ReportsPage />)
     const skeletons = document.querySelectorAll('.animate-pulse')
     expect(skeletons.length).toBeGreaterThan(0)
   })
 
-  it('renders operational error message', () => {
+  it('renders generic error when operational report fails', () => {
     mockOperational.mockReturnValue(errorOp)
-    mockFinancial.mockReturnValue(loadingFin)
+    mockFinancial.mockReturnValue(successFin(baseFinancial))
     render(<ReportsPage />)
-    expect(screen.getByText(/Falha ao carregar relat\u00f3rio operacional/i)).toBeInTheDocument()
+    expect(screen.getByText('Falha ao carregar relatórios')).toBeInTheDocument()
   })
 
-  it('renders financial error message', () => {
+  it('renders generic error when financial report fails', () => {
     mockOperational.mockReturnValue(successOp(baseOperational))
     mockFinancial.mockReturnValue(errorFin)
     render(<ReportsPage />)
-    expect(screen.getByText(/Falha ao carregar relat\u00f3rio financeiro/i)).toBeInTheDocument()
+    expect(screen.getByText('Falha ao carregar relatórios')).toBeInTheDocument()
   })
 
-  it('renders operational summary from nested shape', () => {
+  it('renders summary cards and charts when both reports load', () => {
     mockOperational.mockReturnValue(successOp(baseOperational))
-    mockFinancial.mockReturnValue(loadingFin)
+    mockFinancial.mockReturnValue(successFin(baseFinancial))
     render(<ReportsPage />)
-    expect(screen.getByText('Total de servi\u00e7os')).toBeInTheDocument()
+    expect(screen.getByText('Serviços')).toBeInTheDocument()
     expect(screen.getByText('Horas confirmadas')).toBeInTheDocument()
+    expect(screen.getByText('Serviços por situação')).toBeInTheDocument()
+    expect(screen.getByText('Situação financeira')).toBeInTheDocument()
   })
 
   it('renders reservation metrics block', () => {
     mockOperational.mockReturnValue(successOp(baseOperational))
-    mockFinancial.mockReturnValue(loadingFin)
-    render(<ReportsPage />)
-    expect(screen.getByText('M\u00e9tricas de reserva')).toBeInTheDocument()
-  })
-
-  it('renders financial summary from nested shape', () => {
-    mockOperational.mockReturnValue(loadingOp)
     mockFinancial.mockReturnValue(successFin(baseFinancial))
     render(<ReportsPage />)
-    expect(screen.getByText('Total esperado')).toBeInTheDocument()
-    expect(screen.getByText('Total recebido')).toBeInTheDocument()
+    expect(screen.getByText('Reservas')).toBeInTheDocument()
+    expect(screen.getByText('Taxa de conversão')).toBeInTheDocument()
   })
 
-  it('renders received percentage', () => {
-    mockOperational.mockReturnValue(loadingOp)
-    mockFinancial.mockReturnValue(successFin(baseFinancial))
-    render(<ReportsPage />)
-    expect(screen.getByText(/% recebido/i)).toBeInTheDocument()
-  })
-
-  it('renders empty operational chart gracefully', () => {
+  it('renders empty operational chart state gracefully', () => {
     const emptyOp: OperationalReport = {
       ...baseOperational,
       by_operational_status: {}
     }
     mockOperational.mockReturnValue(successOp(emptyOp))
-    mockFinancial.mockReturnValue(loadingFin)
+    mockFinancial.mockReturnValue(successFin(baseFinancial))
     render(<ReportsPage />)
-    expect(screen.getByText(/Nenhum servi\u00e7o com situa\u00e7\u00e3o operacional/i)).toBeInTheDocument()
+    expect(screen.getByText('Nenhum serviço registrado no período.')).toBeInTheDocument()
   })
 
-  it('renders empty financial by_service_type gracefully', () => {
+  it('does not render service type breakdown when empty', () => {
     const emptyFin: FinancialReport = {
       ...baseFinancial,
       by_service_type: {}
     }
-    mockOperational.mockReturnValue(loadingOp)
+    mockOperational.mockReturnValue(successOp(baseOperational))
     mockFinancial.mockReturnValue(successFin(emptyFin))
     render(<ReportsPage />)
-    expect(screen.getByText(/Nenhum valor registrado por tipo de servi\u00e7o/i)).toBeInTheDocument()
+    expect(screen.queryByText('Receita por tipo de serviço')).not.toBeInTheDocument()
   })
 })

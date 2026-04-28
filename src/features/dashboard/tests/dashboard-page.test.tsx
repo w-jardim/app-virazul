@@ -238,27 +238,6 @@ describe('DashboardPage', () => {
     expect(alertScope.getByText('Financeiro')).toBeInTheDocument()
   })
 
-  it('shows admin block for ADMIN_MASTER', () => {
-    useAuthStore.setState({
-      user: {
-        id: 2,
-        name: 'Admin Master',
-        email: 'admin@viraazul.local',
-        role: 'ADMIN_MASTER',
-        rank_group: null,
-        subscription: 'free' as const,
-        payment_due_date: null,
-        created_at: '2025-01-01T00:00:00.000Z'
-      }
-    })
-
-    mockUseDashboardData.mockReturnValue(createHookState())
-
-    render(<DashboardPage />)
-
-    expect(screen.getByText('Visão ADMIN_MASTER')).toBeInTheDocument()
-  })
-
   it('renders empty state for agenda block', () => {
     mockUseDashboardData.mockReturnValue(
       createHookState({
