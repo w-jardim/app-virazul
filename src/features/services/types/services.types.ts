@@ -64,6 +64,15 @@ export type ServiceItem = {
   deleted_at?: string | null
 }
 
+export type ServiceCreatePreview = {
+  preview: true
+  persisted: false
+  plan: string
+  message: string
+}
+
+export type ServiceCreateResult = ServiceItem | ServiceCreatePreview
+
 export type ServiceListFilters = {
   serviceTypeId?: number
   periodStart?: string

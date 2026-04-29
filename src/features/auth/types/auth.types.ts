@@ -21,6 +21,7 @@ export type AuthUser = {
   subscription: SubscriptionPlan
   payment_due_date: string | null
   created_at: string
+  session_expires_at?: string | null
   monthly_hour_goal?: number | null
   planning_preferences?: Record<string, unknown> | null
   schedule_template?: ScheduleTemplate | null

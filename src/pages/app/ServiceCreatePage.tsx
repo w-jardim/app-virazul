@@ -4,7 +4,7 @@ import ServiceForm from '@/features/services/components/ServiceForm'
 import ServiceState from '@/features/services/components/ServiceStates'
 import { useCreateService, useServiceTypes } from '@/features/services/hooks/useServicesData'
 import { getApiErrorMessage } from '@/features/services/hooks/useServicesData'
-import { servicesApi, DURATION_OPTIONS } from '@/features/services/api/services.api'
+import { servicesApi, DURATION_OPTIONS, isServiceCreatePreview } from '@/features/services/api/services.api'
 import { parseRasText, resolveServiceTypeId } from '@/features/services/utils/ras-parser'
 import type { ParsedRasEntry } from '@/features/services/utils/ras-parser'
 import type { CreateServiceInput } from '@/features/services/types/services.types'
@@ -27,6 +27,7 @@ const ServiceCreatePage: React.FC = () => {
   const serviceTypesQuery = useServiceTypes()
   const createMutation = useCreateService()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [infoMessage, setInfoMessage] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('manual')
 
   // ── import state ──
@@ -46,8 +47,13 @@ const ServiceCreatePage: React.FC = () => {
 
   const handleSubmit = async (payload: CreateServiceInput) => {
     setErrorMessage(null)
+    setInfoMessage(null)
     try {
       const created = await createMutation.mutateAsync(payload)
+      if (isServiceCreatePreview(created)) {
+        setInfoMessage(created.message)
+        return
+      }
       navigate(`/services/${created.id}`)
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error))
@@ -80,6 +86,7 @@ const ServiceCreatePage: React.FC = () => {
   const handleImport = async () => {
     setImporting(true)
     setImportError(null)
+    setInfoMessage(null)
     const toImport = rows.map((r, i) => ({ row: r, idx: i })).filter(({ row }) => row._selected && !row._saved)
 
     for (const { row, idx } of toImport) {
@@ -99,7 +106,12 @@ const ServiceCreatePage: React.FC = () => {
       }
       setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, _saving: true, _error: null } : r)))
       try {
-        await servicesApi.create(payload)
+        const created = await servicesApi.create(payload)
+        if (isServiceCreatePreview(created)) {
+          setInfoMessage(created.message)
+          setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, _saving: false, _saved: false, _error: created.message } : r)))
+          continue
+        }
         setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, _saving: false, _saved: true, _error: null } : r)))
       } catch (err) {
         setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, _saving: false, _error: getApiErrorMessage(err) } : r)))
@@ -135,6 +147,10 @@ const ServiceCreatePage: React.FC = () => {
         <>
           {errorMessage ? (
             <ServiceState tone="error" title="Não foi possível criar o serviço" description={errorMessage} />
+          ) : null}
+
+          {infoMessage ? (
+            <ServiceState title="Serviço gerado em modo demonstração" description={infoMessage} />
           ) : null}
 
           {serviceTypesQuery.isLoading ? (

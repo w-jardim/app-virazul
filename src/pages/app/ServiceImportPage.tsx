@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { servicesApi, DURATION_OPTIONS, getApiErrorMessage } from '@/features/services/api/services.api'
+import { servicesApi, DURATION_OPTIONS, getApiErrorMessage, isServiceCreatePreview } from '@/features/services/api/services.api'
 import { parseRasText, resolveServiceTypeId } from '@/features/services/utils/ras-parser'
 import type { ParsedRasEntry } from '@/features/services/utils/ras-parser'
 import type { CreateServiceInput } from '@/features/services/types/services.types'
@@ -106,7 +106,16 @@ const ServiceImportPage: React.FC = () => {
       setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, _saving: true, _error: null } : r)))
 
       try {
-        await servicesApi.create(payload)
+        const created = await servicesApi.create(payload)
+        if (isServiceCreatePreview(created)) {
+          setRows((prev) =>
+            prev.map((r, i) =>
+              i === idx ? { ...r, _saving: false, _saved: false, _error: created.message } : r
+            )
+          )
+          errors++
+          continue
+        }
         setRows((prev) =>
           prev.map((r, i) => (i === idx ? { ...r, _saving: false, _saved: true, _error: null } : r))
         )

@@ -3,6 +3,7 @@ import api from '@/lib/api/axios'
 import type {
   ApiEnvelope,
   CreateServiceInput,
+  ServiceCreateResult,
   ServiceDateRange,
   ServiceItem,
   ServiceTransitionInput,
@@ -65,6 +66,12 @@ export function getApiErrorMessage(error: unknown): string {
   return 'Não foi possível concluir a operação.'
 }
 
+export function isServiceCreatePreview(
+  result: ServiceCreateResult
+): result is Extract<ServiceCreateResult, { preview: true }> {
+  return 'preview' in result && result.preview === true
+}
+
 export const servicesApi = {
   async list(filters: ListQuery = {}): Promise<ServiceItem[]> {
     const response = await api.get<ApiEnvelope<ServiceItem[]>>('/api/v1/services', {
@@ -83,8 +90,8 @@ export const servicesApi = {
     return response.data.data
   },
 
-  async create(payload: CreateServiceInput): Promise<ServiceItem> {
-    const response = await api.post<ApiEnvelope<ServiceItem>>(
+  async create(payload: CreateServiceInput): Promise<ServiceCreateResult> {
+    const response = await api.post<ApiEnvelope<ServiceCreateResult>>(
       '/api/v1/services',
       normalizeServicePayload(payload)
     )
