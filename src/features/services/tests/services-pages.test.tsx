@@ -462,6 +462,31 @@ describe('Services pages', () => {
     )
   })
 
+  it('n\u00e3o navega para detalhe quando backend retorna preview sem persist\u00eancia', async () => {
+    createMutateAsync.mockResolvedValue({
+      preview: true,
+      persisted: false,
+      plan: 'plan_free',
+      message: 'Modo demonstracao. Dados nao sao salvos.'
+    })
+    const user = userEvent.setup()
+    renderInRouter(
+      <Routes>
+        <Route path="/services/new" element={<ServiceCreatePage />} />
+        <Route path="/services/:id" element={<div>Detalhe aberto</div>} />
+      </Routes>,
+      '/services/new'
+    )
+
+    await user.selectOptions(screen.getByTestId('select-service-type'), '2')
+    await user.selectOptions(screen.getByTestId('select-rank-group'), 'CABO_SOLDADO')
+    await user.type(screen.getByLabelText('Data/hora'), '2026-04-15T09:00')
+    await user.click(screen.getByRole('button', { name: 'Criar servi\u00e7o' }))
+
+    expect(screen.getByText('Servi\u00e7o gerado em modo demonstra\u00e7\u00e3o')).toBeInTheDocument()
+    expect(screen.queryByText('Detalhe aberto')).not.toBeInTheDocument()
+  })
+
   /* ───────── Detalhe ───────── */
 
   it('renderiza detalhe sem painel de transições', async () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import SubscriptionBanner from '@/features/auth/components/SubscriptionBanner'
@@ -154,6 +154,22 @@ const AppShell: React.FC = () => {
   const clearSession = useAuthStore((state) => state.clearSession)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
+  const [showFreemiumModal, setShowFreemiumModal] = useState(false)
+
+  const freemiumWarningKey = useMemo(() => {
+    if (!user || user.subscription !== 'plan_free') return null
+    return `viraazul_freemium_warning:${user.id}:${user.session_expires_at || 'active'}`
+  }, [user])
+
+  useEffect(() => {
+    if (!freemiumWarningKey) {
+      setShowFreemiumModal(false)
+      return
+    }
+
+    const dismissed = sessionStorage.getItem(freemiumWarningKey)
+    setShowFreemiumModal(dismissed !== 'dismissed')
+  }, [freemiumWarningKey])
 
   const onLogout = () => {
     clearSession()
@@ -162,6 +178,12 @@ const AppShell: React.FC = () => {
   }
 
   const closeMobile = () => setMobileMenuOpen(false)
+  const closeFreemiumModal = () => {
+    if (freemiumWarningKey) {
+      sessionStorage.setItem(freemiumWarningKey, 'dismissed')
+    }
+    setShowFreemiumModal(false)
+  }
 
   const initials = user?.name
     ? user.name
@@ -172,8 +194,63 @@ const AppShell: React.FC = () => {
         .toUpperCase()
     : '?'
 
+  const freemiumExpiresLabel = user?.session_expires_at
+    ? new Date(user.session_expires_at).toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : null
+
+  const freemiumModal = showFreemiumModal ? (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-3xl border border-amber-200 bg-white p-6 shadow-2xl">
+        <div className="mb-4 flex items-start gap-3">
+          <div className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.72-1.36 3.485 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.492-1.646-1.743-2.98l5.58-9.92ZM11 13a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-1-7a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0V7a1 1 0 0 1 1-1Z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">Plano Free com persistência temporária</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Os dados criados no modo freemium ficam salvos apenas durante a sua sessão atual.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
+          <p>
+            Ao sair da conta, encerrar a sessão ou iniciar uma nova sessão, esses registros temporários podem ser removidos automaticamente.
+          </p>
+          {freemiumExpiresLabel ? (
+            <p>
+              Sessão atual válida até <strong>{freemiumExpiresLabel}</strong>.
+            </p>
+          ) : null}
+          <p>
+            Para manter seus dados de forma permanente, faça upgrade para um plano pago.
+          </p>
+        </div>
+
+        <div className="mt-5 flex justify-end">
+          <button
+            type="button"
+            onClick={closeFreemiumModal}
+            className="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
+          >
+            Entendi
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
+      {freemiumModal}
 
       {/* ── Mobile overlay ── */}
       {mobileMenuOpen && (
