@@ -89,6 +89,7 @@ const renderRouterAt = (path: string) => {
 describe('Auth and App Shell integration', () => {
   beforeEach(() => {
     resetAuthStore()
+    sessionStorage.clear()
   })
 
   it('renders login page', () => {
@@ -146,7 +147,7 @@ describe('Auth and App Shell integration', () => {
           email: 'policial.teste@viraazul.local',
           role: 'POLICE',
           rank_group: 'CABO_SOLDADO',
-          subscription: 'free' as const,
+          subscription: 'plan_free' as const,
           payment_due_date: null,
           created_at: '2025-01-01T00:00:00.000Z'
         },
@@ -170,7 +171,7 @@ describe('Auth and App Shell integration', () => {
           email: 'policial.teste@viraazul.local',
           role: 'POLICE',
           rank_group: 'CABO_SOLDADO',
-          subscription: 'free' as const,
+          subscription: 'plan_free' as const,
           payment_due_date: null,
           created_at: '2025-01-01T00:00:00.000Z'
         },
@@ -190,6 +191,111 @@ describe('Auth and App Shell integration', () => {
     expect(screen.queryByRole('link', { name: 'Administracao' })).not.toBeInTheDocument()
   })
 
+  it('shows freemium modal when entitlements indicate temporary persistence', async () => {
+    act(() => {
+      useAuthStore.setState({
+        token: 'token-1',
+        user: {
+          id: 1,
+          name: 'Policial Teste',
+          email: 'policial.teste@viraazul.local',
+          role: 'POLICE',
+          rank_group: 'CABO_SOLDADO',
+          subscription: 'plan_starter' as const,
+          payment_due_date: '2026-12-31T00:00:00.000Z',
+          payment_state: 'payment_ok',
+          entitlements: {
+            canView: true,
+            canCreate: true,
+            canEdit: true,
+            canDelete: true,
+            canPersistData: true,
+            isFullAccess: false,
+            hasLimitedTools: true,
+            hasAds: true,
+            paymentRequired: true,
+            isBillingBlocked: false,
+            isPreviewMode: false,
+            requiresUpgradeCta: true,
+            isTemporaryPersistence: true
+          },
+          created_at: '2025-01-01T00:00:00.000Z'
+        },
+        isAuthenticated: true,
+        isBootstrapping: false
+      })
+    })
+
+    renderRouterAt('/dashboard')
+
+    expect(await screen.findByText('Plano Free com persistência temporária')).toBeInTheDocument()
+  })
+
+  it('keeps freemium modal fallback for plan_free without entitlements', async () => {
+    act(() => {
+      useAuthStore.setState({
+        token: 'token-1',
+        user: {
+          id: 1,
+          name: 'Policial Teste',
+          email: 'policial.teste@viraazul.local',
+          role: 'POLICE',
+          rank_group: 'CABO_SOLDADO',
+          subscription: 'plan_free' as const,
+          payment_due_date: null,
+          created_at: '2025-01-01T00:00:00.000Z'
+        },
+        isAuthenticated: true,
+        isBootstrapping: false
+      })
+    })
+
+    renderRouterAt('/dashboard')
+
+    expect(await screen.findByText('Plano Free com persistência temporária')).toBeInTheDocument()
+  })
+
+  it('does not show freemium modal when entitlements disable temporary persistence', async () => {
+    act(() => {
+      useAuthStore.setState({
+        token: 'token-1',
+        user: {
+          id: 1,
+          name: 'Policial Teste',
+          email: 'policial.teste@viraazul.local',
+          role: 'POLICE',
+          rank_group: 'CABO_SOLDADO',
+          subscription: 'plan_pro' as const,
+          payment_due_date: '2026-12-31T00:00:00.000Z',
+          payment_state: 'payment_ok',
+          entitlements: {
+            canView: true,
+            canCreate: true,
+            canEdit: true,
+            canDelete: true,
+            canPersistData: true,
+            isFullAccess: true,
+            hasLimitedTools: false,
+            hasAds: false,
+            paymentRequired: true,
+            isBillingBlocked: false,
+            isPreviewMode: false,
+            requiresUpgradeCta: false,
+            isTemporaryPersistence: false
+          },
+          created_at: '2025-01-01T00:00:00.000Z'
+        },
+        isAuthenticated: true,
+        isBootstrapping: false
+      })
+    })
+
+    renderRouterAt('/dashboard')
+
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+    expect(screen.queryByText('Plano Free com persistência temporária')).not.toBeInTheDocument()
+  })
+
   it('redirects ADMIN_MASTER to /admin with admin shell', async () => {
     act(() => {
       useAuthStore.setState({
@@ -200,7 +306,7 @@ describe('Auth and App Shell integration', () => {
           email: 'admin.master@viraazul.local',
           role: 'ADMIN_MASTER',
           rank_group: null,
-          subscription: 'free' as const,
+          subscription: 'plan_free' as const,
           payment_due_date: null,
           created_at: '2025-01-01T00:00:00.000Z'
         },
@@ -227,7 +333,7 @@ describe('Auth and App Shell integration', () => {
           email: 'admin.master@viraazul.local',
           role: 'ADMIN_MASTER',
           rank_group: null,
-          subscription: 'free' as const,
+          subscription: 'plan_free' as const,
           payment_due_date: null,
           created_at: '2025-01-01T00:00:00.000Z'
         },
@@ -254,7 +360,7 @@ describe('Auth and App Shell integration', () => {
           email: 'policial.teste@viraazul.local',
           role: 'POLICE',
           rank_group: 'CABO_SOLDADO',
-          subscription: 'free' as const,
+          subscription: 'plan_free' as const,
           payment_due_date: null,
           created_at: '2025-01-01T00:00:00.000Z'
         },

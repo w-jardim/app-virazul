@@ -46,6 +46,8 @@ type FormState = {
   role: 'POLICE' | 'ADMIN_MASTER'
 }
 
+type BillingAdminTarget = Pick<FormState, 'subscription' | 'role'>
+
 const defaultForm: FormState = {
   name: '',
   email: '',
@@ -56,6 +58,18 @@ const defaultForm: FormState = {
   payment_status: 'pending',
   payment_due_date: '',
   role: 'POLICE'
+}
+
+export function isBillingExemptAdminUser(target: BillingAdminTarget) {
+  return (
+    target.subscription === 'plan_free' ||
+    target.subscription === 'plan_partner' ||
+    target.role === 'ADMIN_MASTER'
+  )
+}
+
+export function shouldSendPaymentFields(target: BillingAdminTarget) {
+  return !isBillingExemptAdminUser(target)
 }
 
 const Field: React.FC<{ label: string; children: React.ReactNode; required?: boolean }> = ({ label, children, required }) => (
@@ -98,10 +112,8 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
   const updateUser = useUpdateUser()
   const isPending = createUser.isPending || updateUser.isPending
 
-  const isFreeOrAdmin =
-    form.subscription === 'plan_free' ||
-    form.subscription === 'plan_partner' ||
-    form.role === 'ADMIN_MASTER'
+  const isFreeOrAdmin = isBillingExemptAdminUser(form)
+  const includePaymentFields = shouldSendPaymentFields(form)
 
   const set = (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
@@ -130,7 +142,7 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
           rank_group: form.rank_group || undefined
         }
         if (form.password.trim()) payload.password = form.password
-        if (!isFreeOrAdmin) {
+        if (includePaymentFields) {
           payload.payment_status = form.payment_status
           payload.payment_due_date = form.payment_due_date || undefined
         }
@@ -143,8 +155,8 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
           role: form.role,
           status: form.status,
           subscription: form.subscription,
-          payment_status: isFreeOrAdmin ? undefined : form.payment_status,
-          payment_due_date: isFreeOrAdmin ? undefined : (form.payment_due_date || undefined),
+          payment_status: includePaymentFields ? form.payment_status : undefined,
+          payment_due_date: includePaymentFields ? (form.payment_due_date || undefined) : undefined,
           rank_group: form.rank_group || undefined
         }
         await createUser.mutateAsync(payload)
@@ -250,21 +262,46 @@ const UserModal: React.FC<UserModalProps> = ({ editing, onClose }) => {
   )
 }
 
-function formatDueDate(u: AdminUser) {
-  if (u.subscription === 'plan_free' || u.subscription === 'plan_partner' || u.role === 'ADMIN_MASTER') return '—'
+export function formatAdminDueDate(u: AdminUser) {
+  if (u.partner_active === true || u.payment_state === 'payment_exempt') return '—'
+  if (u.payment_state && u.payment_due_date) {
+    return new Date(u.payment_due_date).toLocaleDateString('pt-BR')
+  }
+  if (isBillingExemptAdminUser(u)) return '—'
   if ((u.subscription === 'plan_starter' || u.subscription === 'plan_pro') && u.payment_due_date) {
     return new Date(u.payment_due_date).toLocaleDateString('pt-BR')
   }
   return '—'
 }
 
+export function getAdminPaymentBadgeLabel(u: AdminUser) {
+  if (u.partner_active === true || u.payment_state === 'payment_exempt') return '—'
+  if (u.payment_state === 'payment_ok') return 'Pago'
+  if (u.payment_state === 'payment_pending') return 'Pendente'
+  if (u.payment_state === 'payment_overdue' || u.payment_state === 'payment_blocked') return 'Atrasado'
+  if (isBillingExemptAdminUser(u)) return '—'
+  if (u.payment_status === 'paid') return 'Pago'
+  if (u.payment_status === 'pending') return 'Pendente'
+  return 'Atrasado'
+}
+
 function paymentBadge(u: AdminUser) {
-  if (u.subscription === 'plan_free' || u.subscription === 'plan_partner' || u.role === 'ADMIN_MASTER') {
+  const label = getAdminPaymentBadgeLabel(u)
+
+  if (label === '—') {
     return <span className="text-slate-300">—</span>
   }
+
+  const toneClass =
+    label === 'Pago'
+      ? 'bg-emerald-100 text-emerald-700'
+      : label === 'Pendente'
+        ? 'bg-amber-100 text-amber-700'
+        : 'bg-red-100 text-red-600'
+
   return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${u.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : u.payment_status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-600'}`}>
-      {u.payment_status === 'paid' ? 'Pago' : u.payment_status === 'pending' ? 'Pendente' : 'Atrasado'}
+    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${toneClass}`}>
+      {label}
     </span>
   )
 }
@@ -398,7 +435,7 @@ const AdminUsersPage: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-xs text-slate-500">Vencimento</p>
-                        <p className="text-slate-700">{formatDueDate(u)}</p>
+                        <p className="text-slate-700">{formatAdminDueDate(u)}</p>
                       </div>
                     </div>
 
@@ -450,7 +487,7 @@ const AdminUsersPage: React.FC = () => {
                         <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[u.status]}`}>{statusLabel[u.status]}</span></td>
                         <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>{planLabel[u.subscription]}</span></td>
                         <td className="px-4 py-3">{paymentBadge(u)}</td>
-                        <td className="px-4 py-3 text-slate-500">{formatDueDate(u)}</td>
+                        <td className="px-4 py-3 text-slate-500">{formatAdminDueDate(u)}</td>
                         <td className="px-4 py-3 text-right">
                           {confirmDeleteId === u.id ? (
                             <span className="inline-flex items-center gap-2">
@@ -481,5 +518,3 @@ const AdminUsersPage: React.FC = () => {
 }
 
 export default AdminUsersPage
-
-

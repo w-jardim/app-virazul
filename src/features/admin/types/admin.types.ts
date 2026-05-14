@@ -1,3 +1,5 @@
+import type { PaymentState, PlanEntitlements } from '@/features/auth/types/auth.types'
+
 export type UserStatus = 'active' | 'inactive' | 'suspended'
 
 export type SubscriptionPlan =
@@ -17,6 +19,9 @@ export type AdminUser = {
   subscription: SubscriptionPlan
   payment_status: PaymentStatus
   payment_due_date: string | null
+  payment_state?: PaymentState | null
+  partner_active?: boolean
+  entitlements?: PlanEntitlements | null
   rank_group: string | null
   created_at: string
 }

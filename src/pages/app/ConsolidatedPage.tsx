@@ -107,8 +107,8 @@ function ConsolidatedFinancePanel({
 
 const ConsolidatedPage: React.FC = () => {
   const [tab, setTab] = useState<ConsolidatedTab>('finance')
-  const [startDate, setStartDate] = useState(startOfMonthLocal)
-  const [endDate, setEndDate] = useState(todayLocal)
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [serviceType, setServiceType] = useState('')
   const [exporting, setExporting] = useState(false)
   const [filterError, setFilterError] = useState<string | null>(null)
@@ -122,7 +122,7 @@ const ConsolidatedPage: React.FC = () => {
     [endDate, serviceType, startDate],
   )
 
-  const month = useMemo(() => (startDate || startOfMonthLocal).slice(0, 7), [startDate])
+  const month = useMemo(() => (startDate || startOfMonthLocal()).slice(0, 7), [startDate])
 
   const serviceDateRangeQuery = useServiceDateRange()
   const serviceTypesQuery = useServiceTypes()
@@ -141,12 +141,15 @@ const ConsolidatedPage: React.FC = () => {
 
   
   useEffect(() => {
-    if (!serviceDateRangeQuery.data?.start_date || !serviceDateRangeQuery.data?.end_date) {
+    const start = serviceDateRangeQuery.data?.start_date || startOfMonthLocal()
+    const end = serviceDateRangeQuery.data?.end_date || todayLocal()
+
+    if (!start || !end) {
       return
     }
 
-    setStartDate((current) => current || serviceDateRangeQuery.data.start_date || '')
-    setEndDate((current) => current || serviceDateRangeQuery.data.end_date || '')
+    setStartDate((current) => current || start)
+    setEndDate((current) => current || end)
   }, [serviceDateRangeQuery.data?.end_date, serviceDateRangeQuery.data?.start_date])
   const serviceTypeLabel = serviceTypesQuery.data?.find((s) => s.key === serviceType)?.name || 'Todos'
   const useMonthlyFinanceSummary = !serviceType && startDate.slice(0, 7) === endDate.slice(0, 7)
@@ -394,5 +397,3 @@ const ConsolidatedPage: React.FC = () => {
 }
 
 export default ConsolidatedPage
-
-

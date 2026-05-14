@@ -15,7 +15,30 @@ export function useSubscription(): SubscriptionStatus {
   return useMemo(() => {
     if (!user) return { canMutate: false, plan: null, reason: null, expiresAt: null }
 
-    const { subscription, payment_due_date } = user
+    const { subscription, payment_due_date, payment_state, entitlements } = user
+
+    const expiresAt = payment_due_date ? new Date(payment_due_date) : null
+
+    if (entitlements) {
+      const canMutate =
+        Boolean(entitlements.canCreate) &&
+        Boolean(entitlements.canEdit) &&
+        !Boolean(entitlements.isBillingBlocked)
+
+      let reason: string | null = null
+
+      if (!canMutate) {
+        reason =
+          entitlements.isBillingBlocked ||
+          payment_state === 'payment_blocked' ||
+          payment_state === 'payment_overdue' ||
+          payment_state === 'payment_pending'
+            ? 'Seu plano precisa de regularizacao para continuar operando.'
+            : 'Seu plano atual nao permite esta operacao.'
+      }
+
+      return { canMutate, plan: subscription, reason, expiresAt }
+    }
 
     if (subscription === 'plan_free' || subscription === 'plan_partner') {
       return { canMutate: true, plan: subscription, reason: null, expiresAt: null }

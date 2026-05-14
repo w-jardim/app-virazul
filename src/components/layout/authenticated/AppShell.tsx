@@ -156,10 +156,14 @@ const AppShell: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false)
   const [showFreemiumModal, setShowFreemiumModal] = useState(false)
 
+  const shouldShowTemporaryPersistenceWarning =
+    Boolean(user?.entitlements?.isTemporaryPersistence) ||
+    (!user?.entitlements && user?.subscription === 'plan_free')
+
   const freemiumWarningKey = useMemo(() => {
-    if (!user || user.subscription !== 'plan_free') return null
+    if (!user || !shouldShowTemporaryPersistenceWarning) return null
     return `viraazul_freemium_warning:${user.id}:${user.session_expires_at || 'active'}`
-  }, [user])
+  }, [shouldShowTemporaryPersistenceWarning, user])
 
   useEffect(() => {
     if (!freemiumWarningKey) {

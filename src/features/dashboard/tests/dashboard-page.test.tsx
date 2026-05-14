@@ -156,7 +156,7 @@ describe('DashboardPage', () => {
         email: 'policial@viraazul.local',
         role: 'POLICE',
         rank_group: 'CABO_SOLDADO',
-        subscription: 'free' as const,
+        subscription: 'plan_free' as const,
         payment_due_date: null,
         created_at: '2025-01-01T00:00:00.000Z'
       },

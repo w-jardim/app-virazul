@@ -14,6 +14,44 @@ const paymentColors: Record<PaymentStatus, string> = {
   overdue: 'bg-red-100 text-red-600'
 }
 
+export function formatAdminPaymentDueDate(user: AdminUser) {
+  if (user.partner_active === true || user.payment_state === 'payment_exempt') {
+    return '—'
+  }
+
+  if (user.payment_due_date) {
+    return new Date(user.payment_due_date).toLocaleDateString('pt-BR')
+  }
+
+  return '—'
+}
+
+export function getAdminPaymentLabel(user: AdminUser) {
+  if (user.partner_active === true || user.payment_state === 'payment_exempt') {
+    return '—'
+  }
+
+  if (user.payment_state === 'payment_ok') return 'Pago'
+  if (user.payment_state === 'payment_pending') return 'Pendente'
+  if (user.payment_state === 'payment_overdue' || user.payment_state === 'payment_blocked') return 'Atrasado'
+
+  if (user.payment_status === 'paid') return 'Pago'
+  if (user.payment_status === 'pending') return 'Pendente'
+  if (user.payment_status === 'overdue') return 'Atrasado'
+
+  return '—'
+}
+
+export function getAdminPaymentColor(user: AdminUser) {
+  const label = getAdminPaymentLabel(user)
+
+  if (label === 'Pago') return paymentColors.paid
+  if (label === 'Pendente') return paymentColors.pending
+  if (label === 'Atrasado') return paymentColors.overdue
+
+  return 'text-slate-300'
+}
+
 const PaymentStatusButton: React.FC<{
   status: PaymentStatus
   current: PaymentStatus
@@ -102,8 +140,8 @@ const AdminPaymentsPage: React.FC = () => {
                       <p className="font-medium text-slate-800 break-words">{user.name}</p>
                       <p className="text-sm text-slate-500 break-all">{user.email}</p>
                     </div>
-                    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${paymentColors[user.payment_status]}`}>
-                      {paymentLabels[user.payment_status]}
+                    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${getAdminPaymentColor(user)}`}>
+                      {getAdminPaymentLabel(user)}
                     </span>
                   </div>
 
@@ -117,7 +155,7 @@ const AdminPaymentsPage: React.FC = () => {
                     <div>
                       <p className="text-xs text-slate-500">Vencimento</p>
                       <p className="text-slate-700">
-                        {user.payment_due_date ? new Date(user.payment_due_date).toLocaleDateString('pt-BR') : '—'}
+                        {formatAdminPaymentDueDate(user)}
                       </p>
                     </div>
                   </div>
@@ -167,11 +205,11 @@ const AdminPaymentsPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-slate-600">
-                        {user.payment_due_date ? new Date(user.payment_due_date).toLocaleDateString('pt-BR') : '—'}
+                        {formatAdminPaymentDueDate(user)}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${paymentColors[user.payment_status]}`}>
-                          {paymentLabels[user.payment_status]}
+                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${getAdminPaymentColor(user)}`}>
+                          {getAdminPaymentLabel(user)}
                         </span>
                       </td>
                       <td className="px-4 py-3">

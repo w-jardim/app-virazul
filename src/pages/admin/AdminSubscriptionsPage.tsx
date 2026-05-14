@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAdminUsers, useChangeSubscription } from '@/features/admin/hooks/useAdmin'
-import type { SubscriptionPlan, UserStatus } from '@/features/admin/types/admin.types'
+import type { SubscriptionPlan, UserStatus, AdminUser } from '@/features/admin/types/admin.types'
 
 const userPlans: SubscriptionPlan[] = ['plan_free', 'plan_starter', 'plan_pro', 'plan_partner']
 
@@ -37,6 +37,25 @@ const planButtonClass = (current: SubscriptionPlan, target: SubscriptionPlan) =>
       ? 'bg-blue-700 border-blue-700 text-white cursor-default'
       : 'border-slate-300 text-slate-600 hover:bg-slate-50 hover:border-slate-400'
   ].join(' ')
+
+function getAdminBillingStateLabel(user: AdminUser) {
+  if (user.partner_active === true) return 'Parceiro ativo'
+
+  switch (user.payment_state) {
+    case 'payment_exempt':
+      return 'Isento'
+    case 'payment_ok':
+      return 'Pagamento ok'
+    case 'payment_pending':
+      return 'Pagamento pendente'
+    case 'payment_overdue':
+      return 'Pagamento atrasado'
+    case 'payment_blocked':
+      return 'Pagamento bloqueado'
+    default:
+      return null
+  }
+}
 
 const AdminSubscriptionsPage: React.FC = () => {
   const { data: users = [], isLoading, isError } = useAdminUsers()
@@ -163,6 +182,9 @@ const AdminSubscriptionsPage: React.FC = () => {
 
                     <div className="mt-3 flex items-center gap-2">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>{planLabel[u.subscription]}</span>
+                      {getAdminBillingStateLabel(u) ? (
+                        <span className="ml-2 text-xs text-slate-500">{getAdminBillingStateLabel(u)}</span>
+                      ) : null}
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-1.5">
@@ -207,7 +229,12 @@ const AdminSubscriptionsPage: React.FC = () => {
                           <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[u.status]}`}>{statusLabel[u.status]}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>{planLabel[u.subscription]}</span>
+                          <div className="flex items-center gap-3">
+                            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${planColor[u.subscription]}`}>{planLabel[u.subscription]}</span>
+                            {getAdminBillingStateLabel(u) ? (
+                              <span className="text-xs text-slate-500">{getAdminBillingStateLabel(u)}</span>
+                            ) : null}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1.5">

@@ -6,11 +6,33 @@ export type SubscriptionPlan =
   | 'plan_starter'
   | 'plan_pro'
   | 'plan_partner'
+export type PaymentState =
+  | 'payment_ok'
+  | 'payment_pending'
+  | 'payment_overdue'
+  | 'payment_blocked'
+  | 'payment_exempt'
 export type RankGroup =
   | 'OFICIAIS_SUPERIORES'
   | 'CAPITAO_TENENTE'
   | 'SUBTENENTE_SARGENTO'
   | 'CABO_SOLDADO'
+
+export type PlanEntitlements = {
+  canView: boolean
+  canCreate: boolean
+  canEdit: boolean
+  canDelete: boolean
+  canPersistData: boolean
+  isFullAccess: boolean
+  hasLimitedTools: boolean
+  hasAds: boolean
+  paymentRequired: boolean
+  isBillingBlocked: boolean
+  isPreviewMode: boolean
+  requiresUpgradeCta: boolean
+  isTemporaryPersistence: boolean
+}
 
 export type AuthUser = {
   id: number
@@ -22,6 +44,9 @@ export type AuthUser = {
   payment_due_date: string | null
   created_at: string
   session_expires_at?: string | null
+  payment_state?: PaymentState | null
+  partner_active?: boolean
+  entitlements?: PlanEntitlements | null
   monthly_hour_goal?: number | null
   planning_preferences?: Record<string, unknown> | null
   schedule_template?: ScheduleTemplate | null
